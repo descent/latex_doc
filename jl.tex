@@ -1,0 +1,83 @@
+% test for cwtex font is ok.
+
+\documentclass[12pt]{article}
+\usepackage{CJK}
+\usepackage{comment}
+\usepackage{html}
+
+\begin{document}
+\begin{CJK}{UTF8}{cwmu}
+\renewcommand{\contentsname}{目錄}
+\renewcommand{\tablename}{表}
+\renewcommand{\figurename}{圖}
+\renewcommand{\listtablename}{表格目錄}
+\renewcommand{\listfigurename}{圖目錄}
+
+\tableofcontents
+\newpage
+
+
+\section{五十音}
+
+\begin{table}[htdp]
+%begin{latexonly}
+\caption{平假名}
+%end{latexonly}
+\begin{center}
+\begin{tabular}{cccccccccc}
+\hline
+あ& か & さ & た & な & は & ま & や & ら & わ\\
+a & ka & sa & ta & na & ha & ma& ya & ra & wa\\
+\hline
+い & き & し & ち & に & ひ & み & & り& \\
+i & ki & shi & chi & ni & hi & mi & & ri& \\
+\hline
+う & く  & す & つ & ぬ & ふ & む & ゆ & る & ん\\	
+ u & ku &  su &  tsu &  nu &  fu &  mu &  yu &  ru & n\\	
+\hline
+え & け & せ & て & ね & へ & め & & る & \\	
+ r & ke &  se &  te &  ne &  he &  me & &  ru & \\	
+\hline
+お & こ  & そ & と & の & ほ & も & よ & ろ & を\\	
+ o &  ko &  so &  to &  no &  ho &  mo &  yo &  ro & o\\	
+
+\hline
+\end{tabular}
+\end{center}
+\label{j_2}
+\end{table}%
+
+
+\begin{table}[htdp]
+%begin{latexonly}
+\caption{片假名}
+%end{latexonly}
+\begin{center}
+\begin{tabular}{cccccccccc}
+\hline
+ア& カ & サ & タ & ナ & ハ & マ & ヤ & ラ & ワ\\
+a & ka & sa & ta & na & ha & ma& ya & ra & wa\\
+\hline
+イ& キ & シ & チ & ニ & ヒ & ミ &  & リ & \\
+i & ki & shi & chi & ni & hi & mi & & ri& \\
+\hline
+ウ& ク & ス & ス & ヌ & フ & ム & ユ & ル & ン\\
+ u & ku &  su &  tsu &  nu &  fu &  mu &  yu &  ru & n\\	
+\hline
+エ& ケ & セ & テ & ネ & ヘ & メ & & レ & \\
+ r & ke &  se &  te &  ne &  he &  me & &  ru & \\	
+\hline
+オ& コ & ソ & ト & ノ & ホ & モ & ヨ & ロ & ヲ\\
+ o &  ko &  so &  to &  no &  ho &  mo &  yo &  ro & o\\	
+
+\hline
+\end{tabular}
+\end{center}
+\label{j_1}
+\end{table}
+
+\section{動詞變化}
+
+\end{CJK}
+
+\end{document}
