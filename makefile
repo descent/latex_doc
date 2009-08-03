@@ -1,8 +1,13 @@
 MID_FILES=autobuild.ps autobuild.ctx.dvi autobuild.ctx.tex
-TMP_FILES=autobuild.ctx.toc autobuild.ctx.aux autobuild.ctx.xlg autobuild.ctx.log cinput.bak autobuild.ctx.out cinput.tex descent.aux descent.tex
+TMP_FILES=autobuild.ctx.toc autobuild.ctx.aux autobuild.ctx.xlg autobuild.ctx.log cinput.bak autobuild.ctx.out cinput.tex descent.aux *.toc *.aux *.log *.pdf *.out *.ps *.dvi
 
-autobuild.ps:autobuild.ctx.dvi
+pdf:autobuild.ps
+	ps2pdf $<
+
+autobuild.ps:autobuild.dvi
 	dvips -o $@ $<
+autobuild.dvi:autobuild.tex
+	latex $< && latex $<
 
 autobuild.ctx.dvi:autobuild.ctx.tex
 	latex $< ; latex $<
@@ -11,8 +16,6 @@ autobuild.ctx.tex:autobuild.ctx descent.ctx
 html:autobuild.ctx
 	latex2html -show_section_numbers -split 0 autobuild.ctx
 
-pdf:autobuild.ps
-	ps2pdf $<
 
 clean:
 	rm $(MID_FILES) $(TMP_FILES) -rf autobuild
