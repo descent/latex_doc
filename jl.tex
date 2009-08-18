@@ -1,12 +1,16 @@
 % test for cwtex font is ok.
 
 \documentclass[12pt]{article}
-\usepackage{CJK}
+%\usepackage{CJK}
+\usepackage{CJKutf8}
 \usepackage{comment}
-\usepackage{html}
+\usepackage{ucs}
+\usepackage[utf8]{inputenc}
+
+%\usepackage{html}
 
 \begin{document}
-\begin{CJK}{UTF8}{cwmu}
+\begin{CJK}{UTF8}{cwku}
 \renewcommand{\contentsname}{目錄}
 \renewcommand{\tablename}{表}
 \renewcommand{\figurename}{圖}
@@ -23,7 +27,6 @@
 %begin{latexonly}
 \caption{平假名}
 %end{latexonly}
-\begin{center}
 \begin{tabular}{cccccccccc}
 \hline
 あ& か & さ & た & な & は & ま & や & ら & わ\\
@@ -43,16 +46,13 @@ i & ki & shi & chi & ni & hi & mi & & ri& \\
 
 \hline
 \end{tabular}
-\end{center}
-\label{j_2}
-\end{table}%
+\end{table}
 
 
 \begin{table}[htdp]
 %begin{latexonly}
 \caption{片假名}
 %end{latexonly}
-\begin{center}
 \begin{tabular}{cccccccccc}
 \hline
 ア& カ & サ & タ & ナ & ハ & マ & ヤ & ラ & ワ\\
@@ -72,12 +72,20 @@ i & ki & shi & chi & ni & hi & mi & & ri& \\
 
 \hline
 \end{tabular}
-\end{center}
-\label{j_1}
 \end{table}
 
 \section{動詞變化}
 
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+来 & 来 & 来る & 来る & 来れ& 来い \\
+\end{tabular}
+\end{table}
+
+\begin{comment}
+\end{comment}
 \end{CJK}
 
 \end{document}
