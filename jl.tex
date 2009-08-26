@@ -6,11 +6,28 @@
 \usepackage{comment}
 \usepackage{ucs}
 \usepackage[utf8]{inputenc}
+\usepackage{hyperref} % 最好保證 hyperref 是最後載入的 macro
+\hypersetup{%
+%  dvipdfmx,% 设定要使用的 driver 为 dvipdfmx
+  dvips,% 设定要使用的 driver 为 dvipdfmx
+  unicode={true},% 使用 unicode 来编码 PDF 字符串
+  pdfstartview={FitH},% 文档初始视图为匹配宽度
+  bookmarksnumbered={true},% 书签附上章节编号
+  bookmarksopen={true},% 展开书签
+  pdfborder={0 0 0},% 链接无框
+  pdftitle={日文學習心得},
+  pdfauthor={descent},
+  pdfsubject={日文學習},
+  pdfkeywords={日文},
+  pdfcreator={ps2pdf},
+  pdfproducer={PDF 制作程序},% 这个好像没起作用？
+}
 
 %\usepackage{html}
 
 \begin{document}
-\begin{CJK}{UTF8}{cwku}
+%\begin{CJK}{UTF8}{cwku}
+\begin{CJK}{UTF8}{nsung}
 \renewcommand{\contentsname}{目錄}
 \renewcommand{\tablename}{表}
 \renewcommand{\figurename}{圖}
@@ -76,10 +93,30 @@ i & ki & shi & chi & ni & hi & mi & & ri& \\
 
 \section{動詞變化}
 
+\subsection{五段動詞語尾變化}
 \begin{table}[htdp]
 \begin{tabular}{cccccc}
 第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
 \hline
+ア/オ 段音 & イ 段音 & ウ 段音 & ウ 段音  & エ 段音 & エ 段音  \\
+\end{tabular}
+\end{table}
+
+\subsection{上一段動詞語尾變化}
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+イ 段音 & イ 段音 & イ 段音 + る &  イ 段音 + る &  イ 段音 + れ &  段音 + ろ/よ \\
+\end{tabular}
+\end{table}
+
+\subsection{か行變格動詞語尾變化}
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+こ & き & くる & くる & くれ& こい \\
 来 & 来 & 来る & 来る & 来れ& 来い \\
 \end{tabular}
 \end{table}
