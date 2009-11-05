@@ -518,8 +518,13 @@ mkfs.jffs2 -r ipaq-3870 -e 0x40000 -o ipaq-3870.jffs2
 會有問題, 但是若重新開機, wince 資料會消失不見, 包括新裝的軟體。
 導致 dual boot 意義不大, 這是 boot loader 的以知 bug。
 原因是 wince 有使用 dram 來存某些資料。
-若是開到 linux (cf 背夾) 在重新開到 WINCE,
+若是開到 linux (cf 背夾) 再重新開到 WINCE,
 藍芽的使用會有問題。
+
+一個 root file system。
+\begin{verbatim}
+http://intimate.handhelds.org/.attic/intimate20010622.tgz 
+\end{verbatim}
 
 
 \begin{figure}[htbp]
