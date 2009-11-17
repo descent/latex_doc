@@ -521,6 +521,48 @@ mkfs.jffs2 -r ipaq-3870 -e 0x40000 -o ipaq-3870.jffs2
 若是開到 linux (cf 背夾) 再重新開到 WINCE,
 藍芽的使用會有問題。
 
+\begin{verbatim}
+http://intimate.handhelds.org/install/
+\end{verbatim}
+download boot zimage, initrd and params.
+請記得要插電, 沒差電源, 不知道為什麼有以下的怪訊息。
+
+
+\begin{verbatim}
+vfat mount: reading bpb_info                                                    
+ Reading params from file: /boot/params                                         
+vfat_find_file_entry: fname='boot/params'                                       
+                    dirname='boot'                                              
+                   basename='PARAMS'                                            
+vfat_find_dir_entry: fname='boot'                                               
+                   dirname=''                                                   
+                  basename='boot'                                               
+  searching root_dir_entries                                                    
+Invalid long filename entry: filename too long                                  
+ Reading kernel from file: boot/zImage                                          
+vfat_find_file_entry: fname='boot/zImage'                                       
+                    dirname='boot'                                              
+                   basename='ZIMAGE'                                            
+vfat_find_dir_entry: fname='boot'                                               
+                   dirname=''                                                   
+                  basename='boot'                                               
+  searching root_dir_entries                                                    
+Invalid long filename entry: filename too long                                  
+read zimage failed rc=FFFFFFFE                                                  
+boot> boot vfat     
+\end{verbatim}
+
+\begin{verbatim}
+/dev/discs/disc0/part2
+\end{verbatim}
+
+第2個 partion 需使用 reiserfs
+
+mkfs.reiserfs
+
+mount /dev/discs/disc0/part2 /mnt
+/usr/sbin/chroot /mnt/d
+
 一個 root file system。
 \begin{verbatim}
 http://intimate.handhelds.org/.attic/intimate20010622.tgz 
@@ -567,6 +609,24 @@ cvs checkout -r $TAG linux/kernel
 下載指定的 branch 版本。
 
 README.HANDHELDS 必讀, 以獲得如何 comcpile kernel 的方法。
+
+
+\begin{verbatim}
+
+http://ftp.gwdg.de/pub/linux/handhelds/misc/linux/kernel/v2.4/
+
+bash$ wget http://www.us.kernel.org/pub/linux/kernel/v2.4/linux-2.4.9.tar.gz
+bash$ wget ftp://ftp.arm.linux.org.uk/pub/armlinux/kernel/v2.4/patch-2.4.19-rmk4.tar.gz
+bash$ wget ftp://ftp.arm.linux.org.uk/pub/armlinux/people/nico/diff-2.4.19-rmk4-pxa2.tar.gz
+bash$ wget ftp://ftp.handhelds.org/pub/linux/kernel/patch-2.4.19-rmk4-pxa2-hh10.gz
+bash$ tar -zxvf linux-2.4.19.tar.gz
+bash$ mv linux linux-2.4.19-rmk4-pxa2-hh10
+bash$ cd linux-2.4.19-rmk4-pxa2-hh10
+bash$ zcat ../patch-2.4.19-rmk4.gz | patch -p1
+bash$ zcat ../diff-2.4.19-rmk4-pxa2.gz | patch -p1
+bash$ zcat ../patch-2.4.19-rmk4-pxa2-hh10.gz | patch -p1
+\end{verbatim}
+
 
 \subsection{ipaq bootloader 的參數檔}
 params 紀錄著 ipaq bootloader 的參數,
