@@ -1,0 +1,110 @@
+% 標題頁
+\begin{titlepage}
+\fontsize{30}{30pt plus.5pt minux.4pt}\selectfont
+\noindent
+Document Title:\\[6pt]
+使用 freetype library 處理字型
+
+\fontsize{14}{20pt plus.5pt minux.4pt}\selectfont
+\par\vfill\noindent
+\begin{tabular}{ll}
+DOCUMENT ID (文件代號) : & RD-MISC-0002-V1 \\
+SECURITY MARKINGS (機密等級) : & Medium \\
+APPROVAL DATE (核准日期) : & 2002/12/09 \\
+STATUS (狀態) : & \underline{V}Active : \hrulefill Obsolete\\
+AUTHOD (作者) : & 宋仕仁 \\
+FILENAME (檔案名稱) : & RD-MISC-00002-V1 \\
+NUMBER OF PAGES (頁數) : & 18 \\
+\end{tabular}
+
+\newpage
+
+%\chapter*{SRS:Version Change Record Table \\
+%(版本變更紀錄表)}
+\thispagestyle{empty}
+\noindent
+SRS:Version Change Record Table (版本變更紀錄表)
+
+\begin{table}[hbtp]
+\begin{tabular}{|p{1.5cm}|p{1.5cm}|p{2cm}|c|c|c|c|}
+\hline
+Version Num & Change Num & Date Resolved & Reported By & Assigned & Section & Description \\
+版本編號 & 變更編號 & 完成日期 & 提議人 & 變更人 & 章節 & 變更簡述 \\
+\hline
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+\hline
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+\hline
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+\hline
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+ &  &  &  &  &  &  \\
+\hline
+\end{tabular}
+\end{table}
+
+\newpage
+\thispagestyle{empty}
+\noindent
+使用 freetype library 處理字型 \\
+(使用 freetype library 處理字型: 審查與確認紀錄表)
+\begin{table}[htbp]
+\begin{tabular}{|p{1.5cm}|p{1.5cm}|p{1.8cm}|p{1.5cm}|p{1.5cm}|p{1cm}|c|p{1.5cm}|}
+\hline
+Date Review & Version Num. & Change Num. & Reported By & Assigned & Section & Description & Number Sign\\
+審查日期 & 版本編號 & 變更編號 & 提議人 & 變更人 & 章節 & 變更簡述 & 確認簽署\\
+\hline
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+\hline
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+\hline
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+\hline
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+ & &  &  &  &  &  &  \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
+\end{titlepage}
