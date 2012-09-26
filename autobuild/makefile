@@ -13,8 +13,8 @@ autobuild.ctx.dvi:autobuild.ctx.tex
 	latex $< ; latex $<
 autobuild.ctx.tex:autobuild.ctx descent.ctx
 	cwtex $<
-html:autobuild.ctx
-	latex2html -show_section_numbers -split 0 autobuild.ctx
+html:autobuild.tex
+	latex2html -show_section_numbers -split 0 $<
 
 
 clean:
