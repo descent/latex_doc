@@ -1,0 +1,17 @@
+% 標題頁
+\begin{titlepage}
+\fontsize{30}{30pt plus.5pt minux.4pt}\selectfont
+\noindent
+IPAQ 3870 使用 linux 心得
+
+\fontsize{14}{20pt plus.5pt minux.4pt}\selectfont
+\par\vfill\noindent
+
+
+文件版本：$Rev: 323 $\\
+$Author: descent $
+
+\today
+
+
+\end{titlepage}
