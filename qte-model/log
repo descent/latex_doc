@@ -1,0 +1,178 @@
+latex qte-model.ctx.tex ; latex qte-model.ctx.tex
+This is TeX, Version 3.14159 (Web2C 7.3.1)
+(qte-model.ctx.tex
+LaTeX2e <2000/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, i
+talian, nohyphenation, loaded.
+(cinput.tex) (/usr/share/texmf/tex/latex/base/book.cls
+Document Class: book 2000/05/19 v1.4b Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/bk12.clo))
+(/usr/share/texmf/tex/latex/tools/longtable.sty)
+(/usr/share/texmf/tex/latex/graphics/graphicx.sty
+(/usr/share/texmf/tex/latex/graphics/keyval.sty)
+(/usr/share/texmf/tex/latex/graphics/graphics.sty
+(/usr/share/texmf/tex/latex/fontinst/inputs/tex/trig.sty)
+(/usr/share/texmf/tex/latex/config/graphics.cfg)
+(/usr/share/texmf/tex/latex/graphics/dvips.def)))
+(/usr/share/texmf/tex/latex/listings/listings.sty
+(/usr/share/texmf/tex/latex/listings/lstpatch.sty)
+(/usr/share/texmf/tex/latex/listings/lstmisc.sty)
+(/usr/share/texmf/tex/latex/listings/listings.cfg))
+(/usr/share/texmf/tex/latex/graphics/color.sty
+(/usr/share/texmf/tex/latex/config/color.cfg)
+(/usr/share/texmf/tex/latex/graphics/dvipsnam.def)) (qte-model.ctx.aux
+(qte-key-handler.aux)) (/usr/share/texmf/tex/latex/cwfont/OT1cwM6.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM4.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM0.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM9.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM1.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM2.fd)
+Overfull \hbox (37.02608pt too wide) in paragraph at lines 19--19
+[]\OT1/cmr/bx/n/14.4 QWSWindow* QWSServer::newWindow(int id, QWSClient*
+
+Overfull \hbox (4.84637pt too wide) in paragraph at lines 20--22
+\OT1/cmr/m/n/12 in $QT-DIR/s-r-c/k-er-nel-win-dowsys-tem[]qws.cpp), \OT1/cwM1/m
+/n/12 } ^^] \OT1/cwM2/m/n/12 ^^M ^^f8 \OT1/cwM0/m/n/12 _ \OT1/cwM1/m/n/12 h ^^e
+d \OT1/cmr/m/n/12 QWSWin-dow\OT1/cwM0/m/n/12 ^^A 
+[1] [2]
+Chapter 1.
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM3.fd)
+Overfull \hbox (47.53598pt too wide) in paragraph at lines 29--33
+\OT1/cmr/m/n/12 QApplication::exec() \OT1/cwM1/m/n/12 } \OT1/cwM3/m/n/12 ^^e3 ^
+^ca \OT1/cmr/m/n/12 QAp-pli-ca-tion::eventLoop(), \OT1/cwM2/m/n/12 7 \OT1/cmr/m
+/n/12 QAp-pli-ca-tion::eventLoop()
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM8.fd)
+Overfull \hbox (38.73274pt too wide) in paragraph at lines 48--54
+[]\OT1/cmr/m/n/12 QEventLoop::exec() \OT1/cwM1/m/n/12 } \OT1/cwM3/m/n/12 ^^e3 ^
+^ca \OT1/cmr/m/n/12 QEvent-Loop::enterLoop()\OT1/cwM0/m/n/12 ^^A \OT1/cmr/m/n/1
+2 QEvent-Loop::enterLoop()
+
+Overfull \hbox (14.4086pt too wide) in paragraph at lines 48--54
+\OT1/cwM1/m/n/12 ^^? \OT1/cwM0/m/n/12 s _ \OT1/cwM1/m/n/12 ^^aa \OT1/cwM2/m/n/1
+2 ^^9c ^^bd b \OT1/cwM1/m/n/12 ^^ed \OT1/cmr/m/n/12 func-tion call: QEvent-Loop
+::processEvents(ProcessEventsFlags
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM7.fd)
+Overfull \hbox (5.63431pt too wide) in paragraph at lines 60--63
+\OT1/cwM2/m/n/12 ^^a5 \OT1/cwM8/m/n/12 ^^b3 \OT1/cwM3/m/n/12 ^^e3 ^^ca \OT1/cwM
+1/m/n/12 ^^ed u \OT1/cmr/m/n/12 vir-tual bool pro-ces-sEv-ents( Pro-ces-sEv-ent
+s-Flags flags ) (in qevent-
+[3] (qte-key-handler.tex
+
+LaTeX Font Warning: Font shape `OT1/CWM1/M/sl' undefined
+(Font)              using `OT1/cmr/m/n' instead on input line 1.
+
+
+LaTeX Font Warning: Font shape `OT1/CWM2/M/sl' undefined
+(Font)              using `OT1/cmr/m/n' instead on input line 1.
+
+[4]
+Chapter 2.
+
+Underfull \hbox (badness 3375) in paragraph at lines 12--13
+[]|\OT1/cwM2/m/n/12 ^^c7 \OT1/cwM3/m/n/12 ^^f3 \OT1/cmr/m/n/12 tty \OT1/cwM2/m/
+n/12 _ 0 \OT1/cwM6/m/n/12 f \OT1/cwM1/m/n/12 ^^90\OT1/cmr/m/n/12 , \OT1/cwM0/m/
+n/12 ^^f8 \OT1/cwM8/m/n/12 ^^e8 \OT1/cwM0/m/n/12 ^^a6 \OT1/cmr/m/n/12 tty \OT1/
+cwM1/m/n/12 ^^ed \OT1/cwM3/m/n/12 M \OT1/cwM0/m/n/12 > \OT1/cwM2/m/n/12 #
+
+Overfull \hbox (3.88582pt too wide) in alignment at lines 5--13
+ [] [] 
+) [5] (qte-model.ctx.aux (qte-key-handler.aux))
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information)
+Output written on qte-model.ctx.dvi (5 pages, 5256 bytes).
+Transcript written on qte-model.ctx.log.
+This is TeX, Version 3.14159 (Web2C 7.3.1)
+(qte-model.ctx.tex
+LaTeX2e <2000/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, i
+talian, nohyphenation, loaded.
+(cinput.tex) (/usr/share/texmf/tex/latex/base/book.cls
+Document Class: book 2000/05/19 v1.4b Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/bk12.clo))
+(/usr/share/texmf/tex/latex/tools/longtable.sty)
+(/usr/share/texmf/tex/latex/graphics/graphicx.sty
+(/usr/share/texmf/tex/latex/graphics/keyval.sty)
+(/usr/share/texmf/tex/latex/graphics/graphics.sty
+(/usr/share/texmf/tex/latex/fontinst/inputs/tex/trig.sty)
+(/usr/share/texmf/tex/latex/config/graphics.cfg)
+(/usr/share/texmf/tex/latex/graphics/dvips.def)))
+(/usr/share/texmf/tex/latex/listings/listings.sty
+(/usr/share/texmf/tex/latex/listings/lstpatch.sty)
+(/usr/share/texmf/tex/latex/listings/lstmisc.sty)
+(/usr/share/texmf/tex/latex/listings/listings.cfg))
+(/usr/share/texmf/tex/latex/graphics/color.sty
+(/usr/share/texmf/tex/latex/config/color.cfg)
+(/usr/share/texmf/tex/latex/graphics/dvipsnam.def)) (qte-model.ctx.aux
+(qte-key-handler.aux)) (/usr/share/texmf/tex/latex/cwfont/OT1cwM6.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM4.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM0.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM9.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM1.fd)
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM2.fd)
+Overfull \hbox (37.02608pt too wide) in paragraph at lines 19--19
+[]\OT1/cmr/bx/n/14.4 QWSWindow* QWSServer::newWindow(int id, QWSClient*
+
+Overfull \hbox (4.84637pt too wide) in paragraph at lines 20--22
+\OT1/cmr/m/n/12 in $QT-DIR/s-r-c/k-er-nel-win-dowsys-tem[]qws.cpp), \OT1/cwM1/m
+/n/12 } ^^] \OT1/cwM2/m/n/12 ^^M ^^f8 \OT1/cwM0/m/n/12 _ \OT1/cwM1/m/n/12 h ^^e
+d \OT1/cmr/m/n/12 QWSWin-dow\OT1/cwM0/m/n/12 ^^A 
+[1] [2]
+Chapter 1.
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM3.fd)
+Overfull \hbox (47.53598pt too wide) in paragraph at lines 29--33
+\OT1/cmr/m/n/12 QApplication::exec() \OT1/cwM1/m/n/12 } \OT1/cwM3/m/n/12 ^^e3 ^
+^ca \OT1/cmr/m/n/12 QAp-pli-ca-tion::eventLoop(), \OT1/cwM2/m/n/12 7 \OT1/cmr/m
+/n/12 QAp-pli-ca-tion::eventLoop()
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM8.fd)
+Overfull \hbox (38.73274pt too wide) in paragraph at lines 48--54
+[]\OT1/cmr/m/n/12 QEventLoop::exec() \OT1/cwM1/m/n/12 } \OT1/cwM3/m/n/12 ^^e3 ^
+^ca \OT1/cmr/m/n/12 QEvent-Loop::enterLoop()\OT1/cwM0/m/n/12 ^^A \OT1/cmr/m/n/1
+2 QEvent-Loop::enterLoop()
+
+Overfull \hbox (14.4086pt too wide) in paragraph at lines 48--54
+\OT1/cwM1/m/n/12 ^^? \OT1/cwM0/m/n/12 s _ \OT1/cwM1/m/n/12 ^^aa \OT1/cwM2/m/n/1
+2 ^^9c ^^bd b \OT1/cwM1/m/n/12 ^^ed \OT1/cmr/m/n/12 func-tion call: QEvent-Loop
+::processEvents(ProcessEventsFlags
+(/usr/share/texmf/tex/latex/cwfont/OT1cwM7.fd)
+Overfull \hbox (5.63431pt too wide) in paragraph at lines 60--63
+\OT1/cwM2/m/n/12 ^^a5 \OT1/cwM8/m/n/12 ^^b3 \OT1/cwM3/m/n/12 ^^e3 ^^ca \OT1/cwM
+1/m/n/12 ^^ed u \OT1/cmr/m/n/12 vir-tual bool pro-ces-sEv-ents( Pro-ces-sEv-ent
+s-Flags flags ) (in qevent-
+[3] (qte-key-handler.tex
+
+LaTeX Font Warning: Font shape `OT1/CWM1/M/sl' undefined
+(Font)              using `OT1/cmr/m/n' instead on input line 1.
+
+
+LaTeX Font Warning: Font shape `OT1/CWM2/M/sl' undefined
+(Font)              using `OT1/cmr/m/n' instead on input line 1.
+
+[4]
+Chapter 2.
+
+Underfull \hbox (badness 3375) in paragraph at lines 12--13
+[]|\OT1/cwM2/m/n/12 ^^c7 \OT1/cwM3/m/n/12 ^^f3 \OT1/cmr/m/n/12 tty \OT1/cwM2/m/
+n/12 _ 0 \OT1/cwM6/m/n/12 f \OT1/cwM1/m/n/12 ^^90\OT1/cmr/m/n/12 , \OT1/cwM0/m/
+n/12 ^^f8 \OT1/cwM8/m/n/12 ^^e8 \OT1/cwM0/m/n/12 ^^a6 \OT1/cmr/m/n/12 tty \OT1/
+cwM1/m/n/12 ^^ed \OT1/cwM3/m/n/12 M \OT1/cwM0/m/n/12 > \OT1/cwM2/m/n/12 #
+
+Overfull \hbox (3.88582pt too wide) in alignment at lines 5--13
+ [] [] 
+) [5] (qte-model.ctx.aux (qte-key-handler.aux))
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information)
+Output written on qte-model.ctx.dvi (5 pages, 5256 bytes).
+Transcript written on qte-model.ctx.log.
+dvips -o qte-model.ps qte-model.ctx.dvi
+This is dvips(k) 5.86 Copyright 1999 Radical Eye Software (www.radicaleye.com)
+' TeX output 2003.08.06:1555' -> qte-model.ps
+<texc.pro><cwtex.enc><texps.pro><special.pro><color.pro>. <m6.pfb>
+<cmsl12.pfb><m9.pfb><m8.pfb><cmr10.pfb><m2.pfb><m1.pfb><m3.pfb><m0.pfb>
+<cmr7.pfb><m7.pfb><cmr8.pfb><cmbx12.pfb><cmtt12.pfb><m4.pfb><cmr17.pfb>
+<cmr12.pfb>[1] [2] [3] [4] [5] 

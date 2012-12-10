@@ -1,0 +1,949 @@
+\chapter{QT/E 3.1.2 keyboard handler class}
+
+\section{keyboard handler class {\McQ\cH21}\z{\MdQ\cH28}}
+{\MaQ\cH202} \verb+$QTDIR/src/embedded+ {\MbQ\cH241}\z{\MjQ\cH147}\z{\MaQ\cH45}\z{\MbQ\cH127}\z{\MaQ\cH60}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MbQ\cH117}\z{\MbQ\cH127}\z{\McQ\cH201} keybaord handler class {\MbQ\cH237}{\MaQ\cH1}\zZ
+{\MaQ\cH74} pc 101 key {\MjQ\cH156}\z{\MhQ\cH98}\z{\MaQ\cH86}\z{\McQ\cH122}\z{\MbQ\cH112}{\MaQ\cH1}\zZ
+
+\begin{longtable}{p{4.5cm}p{8.5cm}}
+\toprule
+\verb+qkbd_qws.h+,\par
+\verb+qkbd_qws.cpp+ & {\MbQ\cH84}\z{\MaQ\cH88} QWSKeyboardHandler class, {\MbQ\cH117}\z{\MbQ\cH70}\z{\MbQ\cH127}\z{\MbQ\cH237} keyboard handler {\MbQ\cH237} base class\\
+\midrule
+\verb+qkbdpc101_qws.h+,\par
+\verb+qkbdpc101_qws.cpp+ & QWSPC101KeyboardHandler, {\McQ\cH165}\z{\MbQ\cH117}\z{\MbQ\cH224}\z{\MaQ\cH86}\z{\McQ\cH84}\z{\MbQ\cH220} pc 101 key {\MjQ\cH156}\z{\MhQ\cH98} {\MbQ\cH237} class,
+{\MaQ\cH74} scancode (not keycode) {\MbQ\cH237}\z{\MbQ\cH106}\z{\MbQ\cH31}\z{\MaQ\cH86}\z{\MiQ\cH232}\z{\MaQ\cH166}\z{\MjQ\cH156}\z{\MhQ\cH98}{\MaQ\cH1}\\
+\midrule
+\verb+qkbdtty_qws.h+,\par
+\verb+qkbdtty_qws.cpp+ & QWSTtyKeyboardHandler {\McQ\cH199}\z{\MdQ\cH243} tty {\McQ\cH95}\z{\McQ\cH48}\z{\MgQ\cH102}\z{\MbQ\cH144}, {\MaQ\cH248}\z{\MiQ\cH232}\z{\MaQ\cH166} tty {\MbQ\cH237}\z{\MdQ\cH77}\z{\MaQ\cH62}\z{\McQ\cH35} QWSPC101KeyboardHandler {\MaQ\cH86}\z{\McQ\cH84}\z{\MbQ\cH220}{\MaQ\cH1}\\
+\bottomrule
+\end{longtable}
+
+{\MaQ\cH199} \ref{tty_keyboard_h} (page \pageref{tty_keyboard_h}) {\MbQ\cH209} tty keyboard
+{\MbQ\cH237}\z{\McQ\cH46}\z{\MfQ\cH119}\z{\MjQ\cH188}\z{\MeQ\cH181}{\MaQ\cH1}\zZ
+
+\begin{figure}[htbp]
+\center
+\includegraphics[scale=0.25]{eps/tty_keyboard.eps}
+\caption{tty keyboard class diagram}\label{tty_keyboard_h}
+\end{figure}
+
+{\MaQ\cH74}\z{\MaQ\cH45}\z{\MbQ\cH209} qkbd\_{}qws.h, qkbd\_{}qws.cpp {\MbQ\cH237}\z{\MaQ\cH159}\z{\MaQ\cH225}\z{\MhQ\cH123}:
+\lstset{moredelim=[is][\color{blue}]{/|}{|/}}
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,caption=\$QTDIR/src/embedded/qkbd\_{}qws.h,escapeinside={/*@}{@*/},label=qkbd_qws.h]
+#ifndef QKBD_QWS_H
+#define QKBD_QWS_H
+
+#include "qapplication.h"
+
+#ifndef QT_NO_QWS_KEYBOARD
+
+class QWSKbPrivate;
+
+class QWSKeyboardHandler
+{
+ public:
+  QWSKeyboardHandler();
+  virtual ~QWSKeyboardHandler();
+/*@\label{processKeyEvent}@*/  virtual void processKeyEvent(int unicode, int keycode, int modifiers,bool isPress, bool autoRepeat);
+
+ protected:
+  int transformDirKey( int key );
+  void beginAutoRepeat( int uni, int code, int mod );
+  void endAutoRepeat();
+
+ private:
+  /|QWSKbPrivate *d;|/
+};
+
+#endif // QT_NO_QWS_KEYBOARD
+
+#endif // QKBD_QWS_H
+\end{lstlisting}
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qkbd\_{}qws.cpp]
+#include "qkbd_qws.h"
+
+#ifndef QT_NO_QWS_KEYBOARD
+
+#include "qwindowsystem_qws.h"
+#include "qgfx_qws.h"
+#include "qtimer.h"
+#include <stdlib.h>
+
+
+class QWSKbPrivate : public QObject
+{
+ Q_OBJECT
+ public:
+  QWSKbPrivate( QWSKeyboardHandler *h ) 
+  {
+   handler = h;
+   arTimer = new QTimer( this );
+   connect( arTimer, SIGNAL(timeout()), SLOT(autoRepeat()) );
+   repeatdelay = 400;
+   repeatperiod = 80;
+  }
+
+  void beginAutoRepeat( int uni, int code, int mod ) 
+  {
+   unicode = uni;
+   keycode = code;
+   modifier = mod;
+   arTimer->start( repeatdelay, TRUE );
+  }
+  void endAutoRepeat() 
+  {
+   arTimer->stop();
+  }
+
+ private slots:
+  void autoRepeat() 
+  {
+   handler->processKeyEvent( unicode, keycode, modifier, FALSE, TRUE );
+   handler->processKeyEvent( unicode, keycode, modifier, TRUE, TRUE );
+   arTimer->start( repeatperiod, TRUE );
+  }
+
+ private:
+  /|QWSKeyboardHandler *handler;|/
+  int unicode;
+  int keycode;
+  int modifier;
+  int repeatdelay;
+  int repeatperiod;
+  QTimer *arTimer;
+};
+
+
+QWSKeyboardHandler::QWSKeyboardHandler()
+{
+    d = new QWSKbPrivate( this );
+}
+
+QWSKeyboardHandler::~QWSKeyboardHandler()
+{
+    delete d;
+}
+
+
+void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, int modifiers,
+			bool isPress, bool autoRepeat)
+{
+    qwsServer->processKeyEvent( unicode, keycode, modifiers, isPress, autoRepeat );
+}
+
+int QWSKeyboardHandler::transformDirKey(int key)
+{
+    static int dir_keyrot = -1;
+    if (dir_keyrot < 0) {
+	// get the rotation
+	char *kerot = getenv("QWS_CURSOR_ROTATION");
+	if (kerot) {
+	    if (strcmp(kerot, "90") == 0)
+		dir_keyrot = 1;
+	    else if (strcmp(kerot, "180") == 0)
+		dir_keyrot = 2;
+	    else if (strcmp(kerot, "270") == 0)
+		dir_keyrot = 3;
+	    else
+		dir_keyrot = 0;
+	} else {
+	    dir_keyrot = 0;
+	}
+    }
+    int xf = qt_screen->transformOrientation() + dir_keyrot;
+    return (key-Qt::Key_Left+xf)%4+Qt::Key_Left;
+}
+
+void QWSKeyboardHandler::beginAutoRepeat( int uni, int code, int mod )
+{
+    d->beginAutoRepeat( uni, code, mod );
+}
+
+void QWSKeyboardHandler::endAutoRepeat()
+{
+    d->endAutoRepeat();
+}
+
+#include "qkbd_qws.moc"
+
+#endif // QT_NO_QWS_KEYBOARD
+\end{lstlisting}
+
+\section{{\MbQ\cH223}\z{\MbQ\cH222} keyboard handler class }
+
+{\MbQ\cH127}\z{\MaQ\cH55} keyboard handler {\MaQ\cH53}\z{\MbQ\cH40}, {\MaQ\cH224}\z{\MaQ\cH83}\z{\MiQ\cH233} QT/E {\MbQ\cH223}\z{\MbQ\cH222}\z{\McQ\cH165}\z{\MaQ\cH95} keyboard handler {\MdQ\cH225}?
+QKbdDriverFactory class {\MaQ\cH90}\z{\MbQ\cH117}\z{\MbQ\cH224}\z{\MaQ\cH86}\z{\MaQ\cH100}\z{\McQ\cH165}\z{\MaQ\cH75}\z{\MaQ\cH57}, {\MaQ\cH119}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MaQ\cH202}
+\$QTDIR/src/embedded/qkbddriverfactory\_{}qws.h,
+\$QTDIR/src/embedded/qkbddriverfactory\_{}qws.cpp{\MaQ\cH1}\zZ
+{\MaQ\cH119}\z{\MaQ\cH50}\z{\MbQ\cH127}\z{\McQ\cH248}\z{\MaQ\cH95} create {\MbQ\cH237} member function, {\MaQ\cH90}\z{\MbQ\cH117}\z{\MbQ\cH224}\z{\MaQ\cH86}\z{\MbQ\cH223}\z{\MbQ\cH222}\z{\McQ\cH248}\z{\MaQ\cH95} keyboard handler class,
+{\MaQ\cH119}\z{\MaQ\cH159}\z{\MaQ\cH225}\z{\MhQ\cH123}\z{\MaQ\cH224}\z{\MaQ\cH45}{\MaQ\cH1}\zZ
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qkbddriverfactory\_{}qws.cpp]
+QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key, const QString& device )
+{
+    QString driver = key.lower();
+#ifdef Q_OS_QNX6
+    if ( driver == "qnx" || driver.isEmpty() )
+	return new QWSQnxKeyboardHandler( device );
+#endif
+#ifdef QT_QWS_SHARP
+    if ( driver == "sl5000" || driver.isEmpty() )
+	return new QWSSL5000KeyboardHandler( device );
+#endif
+#ifdef QT_QWS_YOPY
+    if ( driver == "yopy" || driver.isEmpty() )
+	return new QWSYopyKeyboardHandler( device );
+#endif
+#ifdef QT_QWS_CASSIOPEIA
+    if ( driver == "vr41xx" || driver.isEmpty() )
+	return new QWSVr41xxKeyboardHandler( device );
+#endif
+#ifndef QT_NO_QWS_KEYBOARD
+# ifndef QT_NO_QWS_KBDTTY
+    if ( driver =="tty" || driver.isEmpty() )
+	return new QWSTtyKeyboardHandler( device );
+# endif
+# ifndef QT_NO_QWS_KBDUSB
+    if ( driver == "usb" )
+	return new QWSUsbKeyboardHandler( device );
+# endif
+#endif
+
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
+#ifndef QT_NO_COMPONENT
+    if ( !instance )
+	instance = new QKbdDriverFactoryPrivate;
+
+    QInterfacePtr<QKbdDriverInterface> iface;
+    QKbdDriverFactoryPrivate::manager->queryInterface( driver, &iface );
+
+    if ( iface )
+	return iface->create( driver, driver );
+#endif
+#endif
+    return 0;
+}
+\end{lstlisting}
+
+{\McQ\cH55}\z{\MiQ\cH213}\z{\MaQ\cH86}\z{\MdQ\cH227}\z{\MdQ\cH202} QKbdDriverFactory::create() {\MdQ\cH225}?
+{\McQ\cH17}\z{\MbQ\cH144}\z{\MaQ\cH202} \$QTDIR/src/src/kernel/qwindowsystem\_{}qws.cpp{\MaQ\cH1}\zZ
+{\MaQ\cH74}\z{\MaQ\cH45}\z{\MbQ\cH209} \$QTDIR/src/src/kernel/qwindowsystem\_{}qws.cpp {\MbQ\cH210}\z{\MbQ\cH168}\z{\MaQ\cH159}\z{\MaQ\cH225}\z{\MhQ\cH123}{\MaQ\cH1}\zZ
+
+void QWSServer::openKeyboard() {\MbQ\cH125}\z{\MdQ\cH227}\z{\MdQ\cH202}  QKbdDriverFactory::create(){\MaQ\cH1}\zZ
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/src/kernel/qwindowsystem\_{}qws.cpp,escapeinside={/*@}{@*/}]
+
+/*@\label{defaultKeyboard}@*/static const char *defaultKeyboard = "TTY";
+
+/*!
+    Opens the keyboard device(s).
+*/
+void QWSServer::openKeyboard()
+{
+ /*@\label{getenv_QWS_KEYBOARD}@*/QString keyboards = getenv("QWS_KEYBOARD");
+ if ( keyboards.isEmpty() ) 
+ {
+  #if defined( QT_QWS_CASSIOPEIA )
+   keyboards = "Buttons";
+  #endif
+  if ( keyboards.isEmpty() ) 
+  {
+   keyboards = defaultKeyboard;	// last resort
+  }
+ }
+ closeKeyboard();
+ if ( keyboards == "None" )
+  return;
+ QString device;
+ QString type;
+ #ifndef QT_NO_STRINGLIST
+  QStringList keyboard = QStringList::split(" ",keyboards);
+  for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) 
+  {
+   QString spec = *k;
+   int colon=spec.find(':');
+   if ( colon>=0 ) 
+   {
+    type = spec.left(colon-1);
+    device = spec.mid(colon);
+   }
+   else 
+   {
+    type = spec;
+   }
+/|/*@\label{code:create1} @*/ QWSKeyboardHandler* kh = QKbdDriverFactory::create(type, device); |/
+   keyboardhandlers.append(kh);
+  }
+ #else
+  int colon=keyboards.find(':');
+  if ( colon>=0 ) 
+  {
+   type = keyboards.left(colon-1);
+   device = keyboards.mid(colon);
+  } 
+  else 
+  {
+   type = keyboards;
+  }
+/|/*@\label{code:create2} @*/ QWSKeyboardHandler* kh = QKbdDriverFactory::create(type, device); //assume only one|/
+    keyboardhandlers.append(kh);
+#endif
+}
+\end{lstlisting}
+
+\ref{code:create1}, \ref{code:create2} {\McQ\cH87}\z{\MaQ\cH90}\z{\MbQ\cH117}\z{\MdQ\cH227}\z{\MdQ\cH202}\z{\MaQ\cH55} QKbdDriverFactory::create()
+{\MaQ\cH86}\z{\MbQ\cH223}\z{\MbQ\cH222} keyboard handler class{\MaQ\cH1}\zZ
+{\McQ\cH15} \ref{getenv_QWS_KEYBOARD} {\McQ\cH87}\z{\MbQ\cH125}\z{\MaQ\cH108}\z{\MfQ\cH124}\z{\MaQ\cH166}\z{\MhQ\cH61}\z{\MeQ\cH49}\z{\McQ\cH137}\z{\MbQ\cH98} \verb+QWS_KEYBOARD+,
+{\McQ\cH74} \verb+QWS_KEYBOARD+ {\MbQ\cH117}\z{\McQ\cH11}\z{\MbQ\cH237}, {\MaQ\cH90}\z{\MbQ\cH125}\z{\MaQ\cH85}\z{\MbQ\cH224}\z{\McQ\cH227}\z{\McQ\cH113}\z{\MbQ\cH237} keyboard name, {\McQ\cH15}
+\ref{defaultKeyboard} {\McQ\cH87}\z{\MaQ\cH236}\z{\McQ\cH50}\z{\MbQ\cH237} TTY{\MaQ\cH1}\zZ
+
+\section{{\MaQ\cH224}\z{\MaQ\cH83}\z{\MlQ\cH170}\z{\MeQ\cH159}\z{\McQ\cH248}\z{\MaQ\cH95} keyboard handler class}
+{\MaQ\cH202} \$QTDIR/src/embedded/ {\MbQ\cH127}\z{\McQ\cH114}\z{\MaQ\cH214}\z{\MbQ\cH237} keyboard handler class,
+{\MaQ\cH161}\z{\MjQ\cH169}\z{\McQ\cH91} \ref{khc}, page \pageref{khc}, {\McQ\cH165}\z{\MaQ\cH60}\z{\MbQ\cH117} QT/E 3.1.2 {\MiQ\cH179}\z{\MbQ\cH11}\z{\McQ\cH37}\z{\MdQ\cH168}\z{\MdQ\cH214}\z{\MbQ\cH237}{\MaQ\cH1}\zZ
+
+\begin{table}[htbp]
+\center
+\begin{tabular}{ll}
+\toprule
+\verb+qkbdvr41xx_qws.h+ &
+\verb+qkbdvr41xx_qws.cpp+\\
+\midrule
+\verb+qkbdsl5000_qws.h+ &
+\verb+qkbdsl5000_qws.cpp+\\
+\midrule
+\verb+qkbdyopy_qws.h+ &
+\verb+qkbdyopy_qws.cpp+\\
+\midrule
+\verb+qkbdtty_qws.cpp+ & 
+\verb+qkbdtty_qws.h+\\
+\bottomrule
+\end{tabular}
+\caption{\$QTDIR/src/embedded/ {\MbQ\cH241}\z{\MjQ\cH147}\z{\MaQ\cH45}\z{\MbQ\cH237} keyboard handler class}\label{khc}
+\end{table}
+
+
+{\MbQ\cH42}\z{\MaQ\cH119}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MaQ\cH177}\z{\McQ\cH8}\z{\MaQ\cH170}\z{\MaQ\cH74}\z{\MbQ\cH39}\z{\MaQ\cH241}\z{\MbQ\cH113}\z{\MbQ\cH237}\z{\MbQ\cH248}\z{\McQ\cH173}\z{\McQ\cH165}\z{\MbQ\cH117}\z{\MkQ\cH168}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\MbQ\cH19}\z{\MaQ\cH171}\z{\MbQ\cH237} keyboard handler class{\MaQ\cH1}\zZ
+{\MbQ\cH66}\z{\MaQ\cH98}\z{\MaQ\cH170}\z{\MaQ\cH74}\z{\MbQ\cH42}\z{\McQ\cH165}\z{\MaQ\cH60}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MaQ\cH50}\z{\MbQ\cH237}\z{\MaQ\cH119}\z{\MaQ\cH50}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\MaQ\cH86}\z{\MaQ\cH161}\z{\McQ\cH53}\z{\MeQ\cH133}\z{\MaQ\cH98}\z{\MbQ\cH237}\z{\MeQ\cH159}\z{\MbQ\cH182}, {\MaQ\cH74}\z{\MaQ\cH90}\z{\MaQ\cH234}\z{\MbQ\cH65}\z{\McQ\cH65}\z{\MeQ\cH208}\z{\MbQ\cH237}
+keyboard handler class{\MaQ\cH1}\zZ
+
+{\MaQ\cH74}\z{\MaQ\cH45}\z{\MaQ\cH74} \verb+qkbdvr41xx_qws.h+, \verb+qkbdvr41xx_qws.cpp+ {\MaQ\cH86}\z{\McQ\cH122}\z{\MbQ\cH112}{\MaQ\cH1}\zZ
+{\MaQ\cH108}\z{\MbQ\cH245}\z{\MbQ\cH245}  \verb+qkbdvr41xx_qws.h+ {\MbQ\cH237}\z{\MaQ\cH159}\z{\MaQ\cH225}\z{\MhQ\cH123}:
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qkbdvr41xx\_{}qws.h,escapeinside={/*@}{@*/}]
+/|/*@\label{classname}@*/class QWSVr41xxKeyboardHandler : public QWSKeyboardHandler|/
+{
+ public:
+  QWSVr41xxKeyboardHandler(const QString&);
+  virtual ~QWSVr41xxKeyboardHandler();
+ private:
+/| /*@\label{classprivate}@*/ QWSVr41xxKbPrivate *d;|/
+};
+\end{lstlisting}
+
+{\McQ\cH189}\z{\McQ\cH245}\z{\MaQ\cH202} \ref{classname}, \ref{classprivate} {\McQ\cH87}, QWSVr41xxKeyboardHandler
+{\MbQ\cH46}\z{\McQ\cH226}\z{\McQ\cH46}\z{\MfQ\cH119} QWSKeyboardHandler {\McQ\cH165}\z{\MaQ\cH95} base class, {\MaQ\cH74}\z{\MaQ\cH163}\z{\McQ\cH15} \ref{classprivate} 
+{\McQ\cH87}\z{\MbQ\cH237} QWSVr41xxKbPrivate{\MaQ\cH1}\zZ{\MaQ\cH199} \ref{F_QWSVr41xxKeyboardHandler},
+page \pageref{F_QWSVr41xxKeyboardHandler} {\MbQ\cH209}\z{\MaQ\cH119}\z{\McQ\cH46}\z{\MfQ\cH119}\z{\McQ\cH233}\z{\MaQ\cH129}\z{\MaQ\cH199}{\MaQ\cH1}\zZ
+
+
+\begin{figure}[htbp]
+\center
+\includegraphics[scale=0.25]{eps/QWSVr41xxKeyboardHandler.eps}
+\caption{QWSVr41xxKeyboardHandler hierarchy}\label{F_QWSVr41xxKeyboardHandler}
+\end{figure}
+
+\noindent
+QWSVr41xxKbPrivate {\MaQ\cH236}\z{\McQ\cH50}\z{\MaQ\cH202} \verb+qkbdvr41xx_qws.cpp+, {\MiQ\cH233}\z{\MbQ\cH66}\z{\MaQ\cH98}\z{\MbQ\cH245}\z{\MbQ\cH245}  \verb+qkbdvr41xx_qws.cpp+:
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qkbdvr41xx\_{}qws.cpp,escapeinside={/*@}{@*/}]
+#include "qkbdvr41xx_qws.h"
+
+#ifdef QT_QWS_CASSIOPEIA
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
+#include <errno.h>
+
+#include <qsocketnotifier.h>
+
+class QWSVr41xxKbPrivate : public QObject
+{
+    Q_OBJECT
+public:
+    QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QString& );
+    virtual ~QWSVr41xxKbPrivate();
+
+    bool isOpen() { return buttonFD > 0; }
+
+private slots:
+    void readKeyboardData();
+
+private:
+    QString terminalName;
+    int buttonFD;
+    int kbdIdx;
+    int kbdBufferLen;
+    unsigned char *kbdBuffer;
+    QSocketNotifier *notifier;
+    QWSVr41xxKeyboardHandler *handler;
+};
+
+QWSVr41xxKeyboardHandler::QWSVr41xxKeyboardHandler(const QString &device)
+{
+    d = new QWSVr41xxKbPrivate( this, device );
+}
+
+QWSVr41xxKeyboardHandler::~QWSVr41xxKeyboardHandler()
+{
+    delete d;
+}
+
+QWSVr41xxKbPrivate::QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QString &device ) : handler(h)
+{
+    terminalName = device.isEmpty()?"/dev/buttons":device.latin1();
+    buttonFD = -1;
+    notifier = 0;
+
+    if ((buttonFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
+    {
+	qWarning("Cannot open %s\n", terminalName.latin1());
+    }
+
+    if ( buttonFD >= 0 ) {
+	notifier = new QSocketNotifier( buttonFD, QSocketNotifier::Read, this );
+	connect( notifier, SIGNAL(activated(int)),this,
+		SLOT(readKeyboardData()) );
+    }
+
+    kbdBufferLen = 80;
+    kbdBuffer = new unsigned char [kbdBufferLen];
+    kbdIdx = 0;
+}
+
+QWSVr41xxKbPrivate::~QWSVr41xxKbPrivate()
+{
+    if ( buttonFD > 0 ) {
+	::close( buttonFD );
+	buttonFD = -1;
+    }
+    delete notifier;
+    notifier = 0;
+    delete [] kbdBuffer;
+}
+
+void QWSVr41xxKbPrivate::readKeyboardData()
+{
+    int n = 0;
+    do {
+	n  = read(buttonFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx );
+	if ( n > 0 )
+	    kbdIdx += n;
+    } while ( n > 0 );
+
+    int idx = 0;
+    while ( kbdIdx - idx >= 2 ) {
+	unsigned char *next = kbdBuffer + idx;
+	unsigned short *code = (unsigned short *)next;
+	int keycode = Qt::Key_unknown;
+	switch ( (*code) & 0x0fff ) {
+	    case 0x7:
+		keycode = Qt::Key_Up;
+		break;
+	    case 0x9:
+		keycode = Qt::Key_Right;
+		break;
+	    case 0x8:
+		keycode = Qt::Key_Down;
+		break;
+	    case 0xa:
+		keycode = Qt::Key_Left;
+		break;
+	    case 0x3:
+		keycode = Qt::Key_Up;
+		break;
+	    case 0x4:
+		keycode = Qt::Key_Down;
+		break;
+	    case 0x1:
+		keycode = Qt::Key_Return;
+		break;
+	    case 0x2:
+		keycode = Qt::Key_F4;
+		break;
+	    default:
+		qDebug("Unrecognised key sequence %d", (int)code );
+	}
+	if ( (*code) & 0x8000 )
+	    handler->processKeyEvent( 0, keycode, 0, FALSE, FALSE );
+	else
+	    handler->processKeyEvent( 0, keycode, 0, TRUE, FALSE );
+	idx += 2;
+    }
+
+    int surplus = kbdIdx - idx;
+    for ( int i = 0; i < surplus; i++ )
+	kbdBuffer[i] = kbdBuffer[idx+i];
+    kbdIdx = surplus;
+}
+
+#include "qkbdvr41xx_qws.moc"
+
+#endif // QT_QWS_CASSIOPEIA
+\end{lstlisting}
+
+{\MbQ\cH124}\z{\MaQ\cH51}\z{\McQ\cH98}\z{\MbQ\cH237}\z{\MiQ\cH232}\z{\MaQ\cH166}\z{\MjQ\cH156}\z{\MhQ\cH98}\z{\McQ\cH95}\z{\McQ\cH48}\z{\MbQ\cH237}\z{\MbQ\cH9}\z{\MaQ\cH84}\z{\MbQ\cH117}\z{\MbQ\cH226} QWSVr41xxKbPrivate class {\MaQ\cH100}\z{\MbQ\cH237},
+Vr41xxKeyboardHandler class {\MdQ\cH201}\z{\MbQ\cH117}\z{\MbQ\cH224}\z{\MaQ\cH86}\z{\MbQ\cH223}\z{\MbQ\cH222} QWSVr41xxKbPrivate class {\MbQ\cH237}\z{\MaQ\cH245}\z{\McQ\cH241}{\MaQ\cH1}\zZ
+
+\subsection*{QWSVr41xxKbPrivate::QWSVr41xxKbPrivate()}
+{\McQ\cH165}\z{\MaQ\cH95} constructor {\MbQ\cH117}\z{\MbQ\cH224}\z{\MaQ\cH86} open {\McQ\cH95}\z{\McQ\cH48}\z{\MgQ\cH102}\z{\MbQ\cH144}, {\MaQ\cH74}\z{\MaQ\cH163}\z{\McQ\cH169}\z{\McQ\cH33} signal, slot{\MaQ\cH1} 
+{\MaQ\cH85}\z{\MbQ\cH41}\z{\MbQ\cH127}\z{\MbQ\cH79}\z{\MjQ\cH156}\z{\McQ\cH92}\z{\MbQ\cH79}\z{\MaQ\cH45}\z{\MbQ\cH118}\z{\MaQ\cH160}\z{\MaQ\cH207}\z{\McQ\cH87}
+void QWSVr41xxKbPrivate::readKeyboardData()
+\subsection*{QWSVr41xxKbPrivate::~QWSVr41xxKbPrivate()}
+ {\McQ\cH165}\z{\MaQ\cH95} destructor {\MbQ\cH117}\z{\MbQ\cH224}\z{\MaQ\cH86} close {\McQ\cH95}\z{\McQ\cH48}\z{\MgQ\cH102}{\MaQ\cH1}\zZ
+\subsection*{void QWSVr41xxKbPrivate::readKeyboardData()}
+ {\MbQ\cH164} member function {\MaQ\cH90}\z{\MbQ\cH117}\z{\MbQ\cH224}\z{\MaQ\cH86}\z{\MiQ\cH232}\z{\MaQ\cH166}\z{\McQ\cH95}\z{\McQ\cH48}\z{\MgQ\cH102}{\MaQ\cH1}\zZ
+
+\bigskip
+{\MaQ\cH202} void QWSVr41xxKbPrivate::readKeyboardData() {\McQ\cH98}\z{\MdQ\cH135}\z{\MbQ\cH105}\z{\MbQ\cH70}\z{\MiQ\cH232}\z{\MaQ\cH131}\z{\MbQ\cH237}\z{\MbQ\cH79}\z{\MjQ\cH156}\z{\MdQ\cH77}\z{\MaQ\cH74}\z{\MaQ\cH163}\z{\MaQ\cH119}\z{\MbQ\cH213}\z{\MfQ\cH71},
+{\MbQ\cH117} release {\McQ\cH180}\z{\MbQ\cH117} press, {\MaQ\cH121}\z{\MaQ\cH86}\z{\MaQ\cH90}\z{\MbQ\cH117}\z{\MbQ\cH78}\z{\MaQ\cH236}\z{\McQ\cH248}\z{\MaQ\cH95} QT {\MaQ\cH57}\z{\MaQ\cH108}\z{\MaQ\cH236}\z{\McQ\cH50}\z{\MaQ\cH223}\z{\MbQ\cH237}\z{\MbQ\cH79}\z{\MjQ\cH156}\z{\MdQ\cH77},
+{\MaQ\cH161}\z{\MjQ\cH169} \$QTDIR/src/kernel/qnamespace.h{\MaQ\cH1} {\MiQ\cH179}\z{\McQ\cH229}\z{\MaQ\cH236}\z{\McQ\cH50}\z{\MaQ\cH55}\z{\MaQ\cH223}\z{\MbQ\cH22}\z{\MaQ\cH95}\z{\MbQ\cH79}\z{\MjQ\cH156}\z{\MdQ\cH77},
+{\McQ\cH178}\z{\MfQ\cH207}\z{\MbQ\cH70}\z{\McQ\cH98}\z{\MbQ\cH237}\z{\MdQ\cH185}\z{\MaQ\cH170}{\MaQ\cH1} {\MaQ\cH121}\z{\MaQ\cH86}\z{\MaQ\cH90}\z{\MbQ\cH117}\z{\McQ\cH98}\z{\MdQ\cH227}\z{\MdQ\cH202} QWSKeyboardHandler::processKeyEvent(), {\MaQ\cH161}\z{\MjQ\cH169}
+Listing \ref{qkbd_qws.h}, page \pageref{qkbd_qws.h}{\MaQ\cH1}\zZ
+
+\subsection{{\McQ\cH199}\z{\MaQ\cH225}\z{\MlQ\cH170}\z{\MeQ\cH159}\z{\McQ\cH65}\z{\MeQ\cH208}\z{\MbQ\cH237} keyboard handler class}
+{\McQ\cH237}\z{\MaQ\cH108}\z{\MiQ\cH181}\z{\McQ\cH96}\z{\McQ\cH248}\z{\MaQ\cH77}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MhQ\cH123}:
+
+\begin{verbatim}
+cp qkbdvr41xx_qws.h qkbdcnct_qws.h
+cp qkbdvr41xx_qws.cpp qkbdcnct_qws.cpp
+\end{verbatim}
+
+{\MaQ\cH121}\z{\MaQ\cH94}\z{\MbQ\cH90} \verb+qkbdcnct_qws.h+, \verb+qkbdcnct_qws.cpp+ {\MbQ\cH65}\z{\McQ\cH65}\z{\MeQ\cH208}\z{\MbQ\cH237} keyboard handler
+class{\MaQ\cH1}\zZ
+
+
+% 這裡用 lstinputlisting 直接接檔案內容引入
+\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qkbdcnct\_{}qws.h]{qkbdcnct_qws.h}
+
+\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qkbdcnct\_{}qws.cpp]{qkbdcnct_qws.cpp}
+
+% 這裡用 lstinputlisting 直接接檔案內容引入, 到這裡結束
+
+{\MaQ\cH199} \ref{QWSCnctKeyboardHandler}, page \pageref{QWSCnctKeyboardHandler}
+{\MbQ\cH209}\z{\MaQ\cH119}\z{\McQ\cH46}\z{\MfQ\cH119}\z{\McQ\cH233}\z{\MaQ\cH129}\z{\MaQ\cH199}{\MaQ\cH1}\zZ
+
+\begin{figure}[htbp]
+\center
+\includegraphics[scale=0.25]{eps/QWSCnctKeyboardHandler.eps}
+\caption{QWSCnctKeyboardHandler}\label{QWSCnctKeyboardHandler}
+\end{figure}
+
+{\MbQ\cH124}\z{\MaQ\cH51}\z{\McQ\cH98}\z{\MbQ\cH117}\z{\MaQ\cH202} void QWSCnctKbPrivate::readKeyboardData() member function
+{\MaQ\cH50}\z{\MaQ\cH248}\z{\MiQ\cH232}\z{\MaQ\cH131}\z{\MbQ\cH237}\z{\MdQ\cH77}\z{\McQ\cH158}\z{\MbQ\cH65} QT/E {\MaQ\cH170}\z{\MaQ\cH74}\z{\McQ\cH119}\z{\MbQ\cH41}\z{\MbQ\cH237}\z{\MbQ\cH106}\z{\MbQ\cH31}{\MaQ\cH1}\zZ
+
+{\MaQ\cH121}\z{\MaQ\cH86}\z{\MaQ\cH90}\z{\MbQ\cH117}\z{\MaQ\cH94}\z{\MbQ\cH90} \$QTDIR/src/embedded/qkbddriverfactory\_{}qws.cpp {\MaQ\cH50}\z{\MbQ\cH237}
+QWSKeyboardHandler *QKbdDriverFactory::create( const QString\& key, const QString\& device ), {\MiQ\cH233}\z{\MbQ\cH164} member function {\MaQ\cH170}\z{\MaQ\cH74}\z{\MbQ\cH223}\z{\MbQ\cH222}\z{\MbQ\cH66}\z{\MaQ\cH98}\z{\MdQ\cH143}\z{\MaQ\cH234}\z{\MbQ\cH65}\z{\MbQ\cH237} keyboard handler class{\MaQ\cH1}\zZ
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,caption={\MaQ\cH94}\z{\MbQ\cH90}\z{\McQ\cH172}\z{\MbQ\cH237}\$QTDIR/src/embedded/qkbddriverfactory\_{}qws.cpp,label=qkbddriverfactory_qws.cpp,escapeinside={/*@}{@*/}]
+QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key, const QString& device )
+{
+    QString driver = key.lower();
+
+/|/*@\label{QT_QWS_CNCT}@*/#ifdef QT_QWS_CNCT|/
+/|/*@\label{if}@*/    if ( driver == "cnct" || driver.isEmpty() )|/
+/|/*@\label{lp}@*/    {|/
+/|/*@\label{qdebug}@*/     qDebug("new QWSCnctKeyboardHandler( device )");|/
+/|/*@\label{return}@*/     return new QWSCnctKeyboardHandler( device );|/
+/|/*@\label{rp}@*/    }|/
+/|/*@\label{END_QT_QWS_CNCT}@*/#endif|/
+
+#ifdef Q_OS_QNX6
+    if ( driver == "qnx" || driver.isEmpty() )
+	return new QWSQnxKeyboardHandler( device );
+#endif
+#ifdef QT_QWS_SHARP
+    if ( driver == "sl5000" || driver.isEmpty() )
+	return new QWSSL5000KeyboardHandler( device );
+#endif
+#ifdef QT_QWS_YOPY
+    if ( driver == "yopy" || driver.isEmpty() )
+	return new QWSYopyKeyboardHandler( device );
+#endif
+#ifdef QT_QWS_CASSIOPEIA
+    if ( driver == "vr41xx" || driver.isEmpty() )
+	return new QWSVr41xxKeyboardHandler( device );
+#endif
+#ifndef QT_NO_QWS_KEYBOARD
+# ifndef QT_NO_QWS_KBDTTY
+    if ( driver =="tty" || driver.isEmpty() )
+	return new QWSTtyKeyboardHandler( device );
+# endif
+# ifndef QT_NO_QWS_KBDUSB
+    if ( driver == "usb" )
+	return new QWSUsbKeyboardHandler( device );
+# endif
+#endif
+
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
+#ifndef QT_NO_COMPONENT
+    if ( !instance )
+	instance = new QKbdDriverFactoryPrivate;
+
+    QInterfacePtr<QKbdDriverInterface> iface;
+    QKbdDriverFactoryPrivate::manager->queryInterface( driver, &iface );
+
+    if ( iface )
+	return iface->create( driver, driver );
+#endif
+#endif
+    return 0;
+}
+\end{lstlisting}
+
+\ref{QT_QWS_CNCT},
+\ref{if},
+\ref{lp},
+\ref{qdebug},
+\ref{return},
+\ref{rp},
+\ref{END_QT_QWS_CNCT},
+{\McQ\cH165}\z{\MbQ\cH22}\z{\McQ\cH87}\z{\MaQ\cH90}\z{\MbQ\cH117}\z{\MbQ\cH104}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\MbQ\cH237}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MhQ\cH123}, {\MaQ\cH74}\z{\MaQ\cH90}\z{\MaQ\cH248}  QWSCnctKeyboardHandler class {\MbQ\cH223}\z{\MbQ\cH222}\z{\MaQ\cH86}{\MaQ\cH1}\zZ
+
+{\MbQ\cH81}\z{\McQ\cH79}\z{\McQ\cH98}\z{\MaQ\cH94}\z{\MbQ\cH90}\z{\MbQ\cH237}\z{\MbQ\cH117}\$QTDIR/src/src/kernel/qwindowsystem\_{}qws.cpp:
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title={\MaQ\cH94}\z{\MbQ\cH90}\z{\MbQ\cH40}\z{\MbQ\cH237} \$QTDIR/src/src/kernel/qwindowsystem\_{}qws.cpp,escapeinside={/*@}{@*/}]
+
+static const char *defaultKeyboard = "TTY";
+
+/*!
+    Opens the keyboard device(s).
+*/
+void QWSServer::openKeyboard()
+{
+ QString keyboards = getenv("QWS_KEYBOARD");
+ if ( keyboards.isEmpty() ) 
+ {
+  #if defined( QT_QWS_CASSIOPEIA )
+    keyboards = "Buttons";
+  #endif
+  /|#if defined( QT_QWS_CNCT )|/
+/*@\label{cnct}@*/   /|keyboards = "cnct";|/
+  /|#endif|/
+  if ( keyboards.isEmpty() ) 
+  {
+   keyboards = defaultKeyboard;	// last resort
+  }
+ }
+ closeKeyboard();
+ if ( keyboards == "None" )
+  return;
+ QString device;
+ QString type;
+ #ifndef QT_NO_STRINGLIST
+  QStringList keyboard = QStringList::split(" ",keyboards);
+  for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) 
+  {
+   QString spec = *k;
+   int colon=spec.find(':');
+   if ( colon>=0 ) 
+   {
+    type = spec.left(colon-1);
+    device = spec.mid(colon);
+   }
+   else 
+   {
+    type = spec;
+   }
+   QWSKeyboardHandler* kh = QKbdDriverFactory::create(type, device);
+   keyboardhandlers.append(kh);
+  }
+ #else
+  int colon=keyboards.find(':');
+  if ( colon>=0 ) 
+  {
+   type = keyboards.left(colon-1);
+   device = keyboards.mid(colon);
+  } 
+  else 
+  {
+   type = keyboards;
+  }
+  QWSKeyboardHandler* kh = QKbdDriverFactory::create(type, device); //assume only one
+    keyboardhandlers.append(kh);
+#endif
+}
+\end{lstlisting}
+
+{\McQ\cH15} \ref{cnct} {\McQ\cH87}\z{\MbQ\cH237} \verb+keyboards = "Buttons";+ {\McQ\cH98}\z{\MaQ\cH184} Listing \ref{qkbddriverfactory_qws.cpp} (page \pageref{qkbddriverfactory_qws.cpp}) {\McQ\cH15} \ref{if} {\McQ\cH87}\z{\MbQ\cH237} 
+\verb+driver == "cnct"+ {\McQ\cH248}\z{\MbQ\cH154}{\MaQ\cH1}\zZ
+{\McQ\cH165}\z{\MaQ\cH95}\z{\McQ\cH137}\z{\MbQ\cH98}\z{\MdQ\cH77}\z{\MbQ\cH125}\z{\MaQ\cH102}\z{\McQ\cH35} QKbdDriverFactory::create() {\MbQ\cH237}\z{\McQ\cH15}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\MaQ\cH161}\z{\MbQ\cH98},
+{\McQ\cH55}\z{\MaQ\cH202} QKbdDriverFactory::create() {\MiQ\cH179}\z{\MbQ\cH125}\z{\MaQ\cH85}\z{\MbQ\cH224}\z{\McQ\cH165}\z{\MaQ\cH95}\z{\McQ\cH137}\z{\MbQ\cH98}\z{\MdQ\cH77}\z{\MaQ\cH86}\z{\MbQ\cH178}\z{\MaQ\cH236}\z{\McQ\cH98}\z{\MbQ\cH223}\z{\MbQ\cH222}\z{\McQ\cH181}\z{\McQ\cH248}\z{\McQ\cH7}
+keyboard handler class{\MaQ\cH1} {\McQ\cH186}\z{\MaQ\cH175}  Listing \ref{qkbddriverfactory_qws.cpp} (page \pageref{qkbddriverfactory_qws.cpp})
+\ref{QT_QWS_CNCT},
+\ref{if},
+\ref{lp},
+\ref{qdebug},
+\ref{return},
+\ref{rp},
+\ref{END_QT_QWS_CNCT}, {\McQ\cH165}\z{\MbQ\cH22}\z{\McQ\cH87}\z{\MbQ\cH245}\z{\MaQ\cH255}\z{\MbQ\cH192}\z{\MgQ\cH85}\z{\MaQ\cH55}{\MaQ\cH1}\zZ
+{\MbQ\cH42}\z{\McQ\cH165}\z{\MbQ\cH22}\z{\McQ\cH87}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MhQ\cH123}\z{\MaQ\cH86}\z{\MbQ\cH245}, {\MaQ\cH102}\z{\McQ\cH11}\z{\MaQ\cH229}\z{\MdQ\cH7}\z{\MaQ\cH54}\z{\MaQ\cH170}\z{\MaQ\cH74}, {\McQ\cH165}\z{\MjQ\cH105}\z{\MbQ\cH66}\z{\MbQ\cH117}\z{\MaQ\cH102} ``cnct'' {\McQ\cH35}  QKbdDriverFactory::create() {\MbQ\cH237}\z{\McQ\cH15}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\MaQ\cH161}\z{\MbQ\cH98}{\MaQ\cH1}\zZ
+
+{\MaQ\cH131}\z{\MaQ\cH55}\z{\McQ\cH165}\z{\MiQ\cH179}\z{\MaQ\cH90}\z{\MaQ\cH234}\z{\MbQ\cH65}\z{\MaQ\cH55}\z{\MbQ\cH70}\z{\MbQ\cH127}\z{\MbQ\cH237}\z{\MbQ\cH9}\z{\MaQ\cH84}, QWSCnctKeyboardHandler class {\MaQ\cH90}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\MaQ\cH55}{\MaQ\cH1}\zZ
+
+\subsection{{\MaQ\cH94}\z{\MbQ\cH90} makefile}
+{\MbQ\cH104}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\MbQ\cH237}\z{\MeQ\cH206}\z{\McQ\cH213}, {\McQ\cH6}\z{\MbQ\cH31}\z{\MgQ\cH102}\z{\MbQ\cH144}, {\McQ\cH98} compile {\MaQ\cH131} QT/E library {\MaQ\cH50}, {\McQ\cH219}\z{\McQ\cH98}\z{\MaQ\cH94}\z{\MbQ\cH90} Makefile
+{\MiQ\cH233} compiler {\MaQ\cH248}\z{\MbQ\cH104}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\MbQ\cH237}\z{\McQ\cH182}\z{\MaQ\cH77} compile {\MaQ\cH131} QT/E library{\MaQ\cH1}\zZ
+
+{\MaQ\cH159}\z{\MaQ\cH108}\z{\MbQ\cH237} Makefile {\MbQ\cH117}\z{\MaQ\cH74} \verb+./configure -embedded arm+ {\MbQ\cH223}\z{\MbQ\cH222}\z{\MbQ\cH237},
+{\MdQ\cH201}\z{\McQ\cH98}\z{\MaQ\cH94}\z{\MbQ\cH90} \$QTDIR/src/Makefile {\MbQ\cH237}\z{\McQ\cH182}\z{\MaQ\cH77}\z{\MaQ\cH113}\z{\MaQ\cH241}\z{\MdQ\cH185}\z{\MaQ\cH170}{\MaQ\cH1}\zZ
+
+%\lstset{morecomment=[l][\color{red}]{/*}{*/}}
+\begin{lstlisting}[basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,caption=\$QTDIR/src/Makefile,label=makefile,escapeinside={/*@}{@*/}]
+CXXFLAGS = /*@\label{CNCT}\textcolor{red}{-DQT\_{}QWS\_{}CNCT}@*/ -pipe -DQWS -fno-exceptions -fno-rtti -Wall -W -O2 -fPIC -DQT_SHARED -DQT_NO_DEBUG -DQT_NO_CUPS -DQT_NO_NIS -DQT_NO_IMAGEIO_MNG -DQT_NO_IMAGEIO_JPEG -DQT_NO_STYLE_MAC -DQT_NO_STYLE_AQUA -DQT_NO_STYLE_INTERLACE -DQT_NO_STYLE_WINDOWSXP -DQT_NO_STYLE_COMPACT -DQT_NO_QWS_VFB -DQT_NO_QWS_VNC -DQT_NO_QWS_VGA16 -DQT_NO_QWS_TRANSFORMED -DQT_NO_QWS_MACH64 -DQT_NO_QWS_VOODOO3 -DQT_NO_QWS_MATROX -DQT_NO_QWS_SHADOWFB -DQT_NO_QWS_REPEATER -DQT_NO_QWS_KBDUSB -DQT_NO_QWS_MOUSE_BUS
+
+#/*@{\McQ\cH165}\z{\MbQ\cH117}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MbQ\cH237}\z{\MaQ\cH159}\z{\MaQ\cH225}\z{\MhQ\cH123}\z{\MbQ\cH70}\z{\MbQ\cH127}\z{\MgQ\cH102}\z{\MbQ\cH144}, {\MbQ\cH226}\z{\MbQ\cH107} qkbdcnct\_{}qws.cpp {\MbQ\cH117}\z{\MbQ\cH104}\z{\MaQ\cH211}\z{\MaQ\cH139}\z{\MbQ\cH237}\z{\MbQ\cH70}\z{\MaQ\cH74}\z{\MaQ\cH54}\z{\McQ\cH98}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\MaQ\cH119}\z{\MaQ\cH50}{\MaQ\cH1}@*/ 
+
+SOURCES = .moc/release-shared-emb-arm/allmoc.cpp \
+                kernel/qsound_qws.cpp \
+                kernel/qsoundqss_qws.cpp \
+                kernel/qapplication_qws.cpp \
+		.
+		.
+		.
+		.
+                embedded/qkbdtty_qws.cpp \
+                embedded/qkbdpc101_qws.cpp \
+                /*@\colorbox{slight}{embedded/qkbdcnct\_{}qws.cpp $\backslash$ }@*/
+                embedded/qmousepc_qws.cpp \
+                tools/qconfig.cpp
+
+
+#/*@{\McQ\cH165}\z{\MbQ\cH117}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MbQ\cH237} obj {\MgQ\cH102}\z{\MbQ\cH144}, {\MbQ\cH226}\z{\MbQ\cH107} qkbdcnct\_{}qws.cpp {\MbQ\cH125}\z{\MbQ\cH223}\z{\MbQ\cH222} qkbdcnct\_{}qws.o {\MbQ\cH70}\z{\MaQ\cH74}\z{\MaQ\cH54}\z{\McQ\cH98}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\MaQ\cH119}\z{\MaQ\cH50}{\MaQ\cH1}@*/ 
+
+OBJECTS = .obj/release-shared-emb-arm/allmoc.o \
+                .obj/release-shared-emb-arm/qsound_qws.o \
+                .obj/release-shared-emb-arm/qsoundqss_qws.o \
+                .obj/release-shared-emb-arm/qapplication_qws.o \
+                .obj/release-shared-emb-arm/qclipboard_qws.o \
+                .obj/release-shared-emb-arm/qcolor_qws.o \
+                .obj/release-shared-emb-arm/qcopchannel_qws.o \
+                .obj/release-shared-emb-arm/qcursor_qws.o \
+                .obj/release-shared-emb-arm/qdesktopwidget_qws.o \
+                .obj/release-shared-emb-arm/qdirectpainter_qws.o \
+		.
+		.
+		.
+		.
+                .obj/release-shared-emb-arm/qkbdtty_qws.o \
+                .obj/release-shared-emb-arm/qkbdpc101_qws.o \
+                /*@\colorbox{slight}{.obj/release-shared-emb-arm/qkbdcnct\_{}qws.o $\backslash$ } @*/
+                .obj/release-shared-emb-arm/qmousepc_qws.o \
+                .obj/release-shared-emb-arm/qconfig.o
+
+
+#/*@{\McQ\cH165}\z{\MbQ\cH117}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MbQ\cH237} moc {\MgQ\cH102}\z{\MbQ\cH144}, {\MbQ\cH226}\z{\MbQ\cH107} qkbdcnct\_{}qws.cpp {\MbQ\cH125}\z{\MbQ\cH223}\z{\MbQ\cH222} qkbdcnct\_{}qws.moc {\MbQ\cH70}\z{\MaQ\cH74}\z{\MaQ\cH54}\z{\McQ\cH98}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\MaQ\cH119}\z{\MaQ\cH50}{\MaQ\cH1}@*/ 
+
+SRCMOC   = .moc/release-shared-emb-arm/qsoundqss_qws.moc \
+                .moc/release-shared-emb-arm/qcopchannel_qws.moc \
+                .moc/release-shared-emb-arm/qprocess_unix.moc \
+                .moc/release-shared-emb-arm/qmovie.moc \
+		.
+		.
+		.
+		.
+                .moc/release-shared-emb-arm/qkbd_qws.moc \
+                .moc/release-shared-emb-arm/qkbdtty_qws.moc \
+                /*@\colorbox{slight}{.moc/release-shared-emb-arm/qkbdcnct\_{}qws.moc $\backslash$ } @*/
+                .moc/release-shared-emb-arm/qmousepc_qws.moc
+
+#/*@{\McQ\cH165}\z{\MdQ\cH201}\z{\MbQ\cH117}\z{\MhQ\cH211}\z{\MhQ\cH199}\z{\MbQ\cH237}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MbQ\cH243}\z{\MaQ\cH89}\z{\MbQ\cH52}, {\MaQ\cH196}\z{\MbQ\cH209} qkbdtty\_{}qws.h {\MbQ\cH127}\z{\MaQ\cH230}\z{\MaQ\cH202}, {\MbQ\cH70}\z{\MaQ\cH74}\z{\MbQ\cH66}\z{\MjQ\cH29}\z{\McQ\cH79}\z{\MaQ\cH139}\z{\MaQ\cH112}@*/
+
+.moc/release-shared-emb-arm/allmoc.cpp: /mypackages/qt-embedded-free-3.1.2/include/qt.h kernel/qsoundqss_qws.h \
+                styles/qcompactstyle.h \
+                kernel/qcopchannel_qws.h \
+                kernel/qdirectpainter_qws.h \
+                kernel/qfontfactorybdf_qws.h \
+                kernel/qfontfactoryttf_qws.h \
+		.
+		.
+		.
+		.
+		.
+		.
+                embedded/qkbdtty_qws.h \
+                embedded/qkbdpc101_qws.h \
+                /*@\colorbox{slight}{embedded/qkbdcnct\_{}qws.h $\backslash$ } @*/
+                embedded/qmousepc_qws.h
+
+
+#/*@{\McQ\cH165}\z{\MdQ\cH201}\z{\MbQ\cH117}\z{\MhQ\cH211}\z{\MhQ\cH199}\z{\MbQ\cH237}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MbQ\cH243}\z{\MaQ\cH89}\z{\MbQ\cH52}, {\MaQ\cH196}\z{\MbQ\cH209} qkbdtty\_{}qws.h {\MbQ\cH127}\z{\MaQ\cH230}\z{\MaQ\cH202}, {\MbQ\cH70}\z{\MaQ\cH74}\z{\MbQ\cH66}\z{\MjQ\cH29}\z{\McQ\cH79}\z{\MaQ\cH139}\z{\MaQ\cH112}@*/
+.obj/release-shared-emb-arm/qkbddriverfactory_qws.o: embedded/qkbddriverfactory_qws.cpp embedded/qkbddriverinterface_p.h \
+                embedded/qkbddriverfactory_qws.h \
+                kernel/qapplication.h \
+                embedded/qkbdtty_qws.h \
+                /*@\colorbox{slight}{embedded/qkbdcnct\_{}qws.h $\backslash$ }@*/
+                embedded/qkbdusb_qws.h \
+                embedded/qkbdsl5000_qws.h \
+                embedded/qkbdyopy_qws.h \
+                embedded/qkbdvr41xx_qws.h \
+                ../include/private/qpluginmanager_p.h \
+                ../include/private/qcom_p.h \
+		.
+		.
+		.
+		.
+
+
+
+#/*@{\McQ\cH165}\z{\MaQ\cH255}\z{\MbQ\cH117}\z{\MbQ\cH223}\z{\MbQ\cH222} .obj/release-shared-emb-arm/qkbdcnct\_{}qws.o {\MbQ\cH237} makefile {\McQ\cH100}\z{\MaQ\cH134}@*/
+/|.obj/release-shared-emb-arm/qkbdcnct_qws.o: embedded/qkbdcnct_qws.cpp embedded/qkbdcnct_qws.h \|/
+                kernel/qgfx_qws.h \
+                kernel/qwindowsystem_qws.h \
+                kernel/qnamespace.h \
+                kernel/qapplication.h \
+                embedded/qkbd_qws.h \
+                kernel/qdesktopwidget.h \
+                tools/qasciidict.h \
+                kernel/qpalette.h \
+                kernel/qtranslator.h \
+                tools/qstrlist.h \
+                tools/qstringlist.h \
+                kernel/qwidget.h \
+                kernel/qwindowdefs.h \
+                kernel/qobject.h \
+                kernel/qpaintdevice.h \
+                kernel/qfont.h \
+		.
+		.
+		.
+		.
+                kernel/qwsutils_qws.h\
+                /|.moc/release-shared-emb-arm/qkbdcnct_qws.moc|/
+        /|$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/release-shared-emb-arm/qkbdcnct_qws.o embedded/qkbdcnct_qws.cpp|/
+
+
+
+
+#/*@{\McQ\cH165}\z{\MaQ\cH255}\z{\MbQ\cH117}\z{\MbQ\cH223}\z{\MbQ\cH222} .moc/release-shared-emb-arm/qkbdcnct\_{}qws.moc {\MbQ\cH237} makefile {\McQ\cH100}\z{\MaQ\cH134}@*/
+/|.moc/release-shared-emb-arm/qkbdcnct_qws.moc: $(MOC) embedded/qkbdcnct_qws.cpp|/
+        /|$(MOC) embedded/qkbdcnct_qws.cpp -o .moc/release-shared-emb-arm/qkbdcnct_qws.moc|/
+
+#/*@{\McQ\cH165}\z{\MbQ\cH117}\z{\MaQ\cH100}\z{\McQ\cH248}\z{\MaQ\cH60}\z{\MiQ\cH181}\z{\McQ\cH96}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MbQ\cH237}\z{\MaQ\cH141}\z{\MaQ\cH84}, {\MaQ\cH196}\z{\MbQ\cH209} qkbdtty\_{}qws.h {\MbQ\cH127}\z{\MaQ\cH230}\z{\MaQ\cH202}, {\MbQ\cH70}\z{\MaQ\cH74}\z{\MbQ\cH66}\z{\MjQ\cH29}\z{\McQ\cH79}\z{\MaQ\cH139}\z{\MaQ\cH112}@*/
+install_headers:
+        @$(CHK_DIR_EXISTS) "$(INSTALL_ROOT)../include/" || $(MKDIR) "$(INSTALL_ROOT)../include/"
+        -$(COPY_FILE) "../include/jri.h" "$(INSTALL_ROOT)../include"
+        -$(COPY_FILE) "../include/jri_md.h" "$(INSTALL_ROOT)../include"
+	.
+	.
+	.
+	.
+	.
+        -$(COPY_FILE) "../include/qkbdpc101_qws.h" "$(INSTALL_ROOT)../include"
+        /|-$(COPY_FILE) "../include/qkbdcnct_qws.h" "$(INSTALL_ROOT)../include"|/
+        -$(COPY_FILE) "../include/qkbdsl5000_qws.h" "$(INSTALL_ROOT)../include"
+        -$(COPY_FILE) "../include/qkbdtty_qws.h" "$(INSTALL_ROOT)../include"
+	.
+	.
+	.
+
+
+#/*@{\McQ\cH84}\z{\MbQ\cH220}\z{\MgQ\cH102}\z{\MbQ\cH144}\z{\MbQ\cH237} makefile {\McQ\cH100}\z{\MaQ\cH134}, {\MaQ\cH196}\z{\MbQ\cH209} qkbdtty\_{}qws.h {\MbQ\cH127}\z{\MaQ\cH230}\z{\MaQ\cH202}, {\MbQ\cH70}\z{\MaQ\cH74}\z{\MbQ\cH66}\z{\MjQ\cH29}\z{\McQ\cH79}\z{\MaQ\cH139}\z{\MaQ\cH112}@*/
+uninstall_headers:
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/jri.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/jri_md.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/jritypes.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/npapi.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/npupp.h"
+	.
+	.
+	.
+	.
+	.
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbd_qws.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbddriverfactory_qws.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbddriverplugin_qws.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbdpc101_qws.h"
+        /|-$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbdcnct_qws.h"|/
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbdsl5000_qws.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbdtty_qws.h"
+        -$(DEL_FILE) -r "$(INSTALL_ROOT)../include/qkbdusb_qws.h"
+	.
+	.
+	.
+	.
+
+
+\end{lstlisting}
+
+Listing \ref{makefile} (page \pageref{makefile}) {\MaQ\cH127}\z{\MaQ\cH124}\z{\MbQ\cH127}\z{\McQ\cH201}\z{\McQ\cH219}\z{\McQ\cH98}\z{\MaQ\cH94}\z{\MbQ\cH90}\z{\MbQ\cH237}\z{\McQ\cH182}\z{\MaQ\cH77},
+{\McQ\cH165}\z{\McQ\cH182}\z{\MaQ\cH77}\z{\MaQ\cH46}\z{\MbQ\cH117}\z{\McQ\cH169}\z{\McQ\cH47}\z{\MaQ\cH45}\z{\MaQ\cH86}\z{\MbQ\cH237}\z{\McQ\cH55}\z{\MbQ\cH117}\z{\MaQ\cH125}\z{\MfQ\cH224}\z{\MaQ\cH202}
+\$QTDIR/src/Makefile {\MaQ\cH46}\z{\MaQ\cH176}\z{\MaQ\cH203}\z{\MbQ\cH106}{\MaQ\cH1}\zZ
+
+{\McQ\cH15} \ref{CNCT} {\McQ\cH87}\z{\MaQ\cH139}\z{\MaQ\cH112} -DQT\_{}QWS\_{}CNCT {\MaQ\cH74}\z{\MaQ\cH90}\z{\MaQ\cH248}\z{\MbQ\cH127} \verb+#ifdef QT_QWS_CNCT+
+{\McQ\cH165}\z{\MbQ\cH154}\z{\MbQ\cH237}\z{\MdQ\cH197}\z{\MjQ\cH72} compile {\MaQ\cH131} QT/E library{\MaQ\cH1}\zZ
+
+{\McQ\cH55}\z{\MaQ\cH224}\z{\MaQ\cH83}\z{\MfQ\cH118}\z{\MaQ\cH124}\z{\McQ\cH98}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\McQ\cH181}\z{\MaQ\cH60}\z{\MbQ\cH127}\z{\McQ\cH201} Makefile {\MbQ\cH237}\z{\MaQ\cH183}\z{\MaQ\cH73}\z{\MdQ\cH225}?
+{\MbQ\cH66}\z{\MbQ\cH117}\z{\MaQ\cH161}\z{\McQ\cH53} qkbdtty\_{}qws.h, qkbdtty\_{}qws.cpp, qkbdpc101\_{}qws.h, qkbdpc101\_{}qws.cpp {\MaQ\cH202} Makefile
+{\MbQ\cH237}\z{\MeQ\cH159}\z{\MbQ\cH182}\z{\MaQ\cH89}\z{\MbQ\cH154}\z{\MbQ\cH229}\z{\MsQ\cH96}\z{\MiQ\cH148}\z{\MbQ\cH237}\z{\MaQ\cH234}\z{\MbQ\cH65} qkbdcnct\_{}qws.h, qkbdcnct\_{}qws.cpp{\MaQ\cH1}\zZ
+
+\section{{\MaQ\cH139}\z{\MaQ\cH112}\z{\MbQ\cH104}\z{\MbQ\cH237} keyboard handler class {\MbQ\cH188}\z{\McQ\cH6}}
+
+{\MaQ\cH199} \ref{flowchart}, page \pageref{flowchart}
+{\MbQ\cH209}\z{\MaQ\cH202} QT/E 3.1.2 {\MaQ\cH139}\z{\MaQ\cH112}\z{\MbQ\cH104}\z{\MbQ\cH237} keyboard handler class {\MbQ\cH188}\z{\McQ\cH6}:
+
+\begin{figure}[htbp]
+\center
+\includegraphics[width=\textwidth]{eps/flowchart.eps}
+\caption{{\MaQ\cH139}\z{\MaQ\cH112}\z{\MbQ\cH104} keyboard handler class {\MbQ\cH237}\z{\MbQ\cH188}\z{\McQ\cH6}\z{\MaQ\cH199}}\label{flowchart}
+\end{figure}
+
+\begin{comment}
+\bigskip
+\newpage
+
+\begin{center}
+\begin{tabular}{|l|}
+\hline
+{\McQ\cH41}\z{\MeQ\cH159}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\MbQ\cH104}\z{\MbQ\cH237} keyboard handler class\\
+\hline
+\end{tabular}
+
+\medskip
+\hspace{\textwidth}$\downarrow$
+\medskip
+
+\begin{tabular}{|p{8cm}|}
+\hline
+{\MbQ\cH223}\z{\MbQ\cH222}\z{\McQ\cH165}\z{\MaQ\cH95}\z{\MbQ\cH104}\z{\MbQ\cH237} keyboard handler class{\MaQ\cH1}\\
+{\MiQ\cH142}\z{\MbQ\cH226}\z{\MaQ\cH94}\z{\MbQ\cH90} \$QTDIR/src/embedded/qkbddriverfactory\_{}qws.cpp {\MbQ\cH237}\\
+QWSKeyboardHandler *QKbdDriverFactory::create( const QString\& key, const QString\& device )\\
+\hline
+\end{tabular}
+
+\medskip
+\hspace{\textwidth}$\downarrow$
+\medskip
+
+\begin{tabular}{|p{8cm}|}
+\hline
+{\MaQ\cH94}\z{\MbQ\cH90} void QWSServer::openKeyboard() ({\MaQ\cH202} \$QTDIR/src/src/kernel/qwindowsystem\_{}qws.cpp)\\
+{\MaQ\cH248}\z{\McQ\cH219}\z{\McQ\cH98}\z{\MbQ\cH237}\z{\MaQ\cH161}\z{\MbQ\cH98}, {\MaQ\cH102}\z{\McQ\cH35} QWSKeyboardHandler *QKbdDriverFactory::create( const QString\& key, const QString\& device )\\
+\hline
+\end{tabular}
+
+\medskip
+\hspace{\textwidth}$\downarrow$
+\medskip
+
+\begin{tabular}{|l|}
+\hline
+{\MaQ\cH94}\z{\MbQ\cH90} \$QTDIR/src/Makefile\\
+\hline
+\end{tabular}
+\end{center}
+\end{comment}
+

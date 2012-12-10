@@ -1,0 +1,73 @@
+\input cinput.tex    \documentclass[a4paper,12pt]{book}
+\usepackage{comment}
+\usepackage{lastpage}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage[dvips]{color}
+
+\renewcommand{\contentsname}{{\MbQ\cH241}\z{\MjQ\cH147}}
+\renewcommand{\tablename}{{\McQ\cH91}}
+\renewcommand{\figurename}{{\MaQ\cH199}}
+\renewcommand{\listtablename}{{\McQ\cH91}\z{\MbQ\cH143}\z{\MbQ\cH241}\z{\MjQ\cH147}}
+\renewcommand{\listfigurename}{{\MaQ\cH199}\z{\MbQ\cH241}\z{\MjQ\cH147}}
+
+\usepackage[sf]{titlesec}
+%\ctxfdef{\chapter}[\CTXFM]{\CTXFM}
+\titleformat{\chapter}[display]{\LARGE\sf}{{\McQ\cH15}\ \thechapter\ {\McQ\cH14}}{0.2cm}{}
+
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{{\McQ\cH15}\ \thechapter\ {\McQ\cH14}\ #1}{}}
+\renewcommand{\sectionmark}[1]%
+{\markright{\thesection~ #1}}
+
+\fancyhf{}
+\fancyhead[LE]{\leftmark}
+\fancyhead[RO]{\rightmark}
+\fancyfoot[CE,EO]{}
+\fancyfoot[RE,LO]{}
+\fancyfoot[LE,RO]{\thepage}
+\renewcommand{\footrulewidth}{0.4pt}
+
+
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[RO]{\thepage}
+\fancyfoot[LE]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+
+
+\begin{document}
+\begin{titlepage}
+\Huge QT Embedded {\MgQ\cH95}\z{\MeQ\cH25}
+%\include{cnct_cover}
+\end{titlepage}
+
+\tableofcontents
+\normalsize
+
+\chapter{{\MaQ\cH135}\z{\McQ\cH107}}
+{\MaQ\cH74}\z{\MaQ\cH45}\z{\MaQ\cH204}\z{\MjQ\cH135}\z{\MaQ\cH250} QT/E 3.1.2 {\MbQ\cH237} source code{\MaQ\cH1}\zZ
+{\MaQ\cH224}\z{\MaQ\cH83}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\MbQ\cH104}\z{\MbQ\cH237} keyboard handler class{\MaQ\cH1}\zZ
+{\MbQ\cH42} 2003/06 {\McQ\cH199}\z{\MaQ\cH225}\z{\MbQ\cH245} QT/E 3.1.2 {\MbQ\cH237}\z{\MaQ\cH159}\z{\MaQ\cH225}\z{\MhQ\cH123},
+{\MbQ\cH241}\z{\MbQ\cH237}\z{\MbQ\cH59}\z{\MaQ\cH55}\z{\McQ\cH106} GUI event {\MbQ\cH237}\z{\MbQ\cH223}\z{\MbQ\cH222}\z{\MaQ\cH163}\z{\MaQ\cH102}\z{\MjQ\cH93}{\MaQ\cH1}\zZ
+
+\definecolor{slight}{gray}{0.75}
+\fboxsep=1pt
+
+\include{qte-connect-server}
+\include{qte-eventloop}
+\include{qte-key-handler}
+\include{qpopupmenu_by_key}
+\include{qte-keyevent}
+
+\chapter{{\MaQ\cH161}\z{\McQ\cH53}\z{\MbQ\cH100}\z{\MhQ\cH46}}
+\begin{itemize}
+\item QT/E 3.1.2 source code{\MaQ\cH1}\zZ
+\end{itemize}
+
+\end{document}

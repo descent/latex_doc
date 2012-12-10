@@ -1,0 +1,78 @@
+\documentclass[a4paper,12pt]{book}
+\usepackage{comment}
+\usepackage{lastpage}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage[dvips]{color}
+\usepackage{cwtex}
+
+
+%\begin{htmlonly} 
+\renewcommand{\contentsname}{目錄}
+\renewcommand{\tablename}{表}
+\renewcommand{\figurename}{圖}
+\renewcommand{\listtablename}{表格目錄}
+\renewcommand{\listfigurename}{圖目錄}
+%\end{htmlonly} 
+
+\usepackage[sf]{titlesec}
+\ctxfdef{\chapter}[\ctxfm]{\ctxfm}
+\titleformat{\chapter}[display]{\LARGE\sf}{第\ \thechapter\ 章}{0.2cm}{}
+
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{第\ \thechapter\ 章\ #1}{}}
+\renewcommand{\sectionmark}[1]%
+{\markright{\thesection~ #1}}
+
+\fancyhf{}
+\fancyhead[LE]{\leftmark}
+\fancyhead[RO]{\rightmark}
+\fancyfoot[CE,EO]{}
+\fancyfoot[RE,LO]{}
+\fancyfoot[LE,RO]{\thepage}
+\renewcommand{\footrulewidth}{0.4pt}
+
+
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[RO]{\thepage}
+\fancyfoot[LE]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+
+\begin{document}
+
+%\begin{htmlonly} 
+\include{descent}
+%\end{htmlonly} 
+
+\tableofcontents
+\normalsize
+
+\chapter{前言}
+以下均針對 QT/E 3.1.2 的 source code。
+如何加入一個新的 keyboard handler class。
+從 2003/06 開始看 QT/E 3.1.2 的原始碼,
+目的想了解 GUI event 的產生及傳遞。
+
+\definecolor{slight}{gray}{0.75}
+\fboxsep=1pt
+
+%\begin{htmlonly} 
+\include{qte-connect-server}
+\include{qte-eventloop}
+\include{qte-key-handler}
+\include{qpopupmenu_by_key}
+\include{qte-keyevent}
+%\end{htmlonly} 
+
+\chapter{參考文獻}
+\begin{itemize}
+\item QT/E 3.1.2 source code。
+\end{itemize}
+
+\end{document}

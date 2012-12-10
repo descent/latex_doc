@@ -1,0 +1,36 @@
+\chapter{Server 和 Client 的連結}
+
+QT Embedded 是一個 client - server 架構, 類似 x window 的 x server, x
+client。 當只有一個 QT/E 程式時, 這個 QT/E 程式既是 server 也是 client。
+而 client 和 server 是以 unix domain socket 來連結。
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qwindowsystem\_{}qws.cpp,escapeinside={/*@}{@*/},label=qkbd_qws.h]
+void QWSServer::newConnection( int socket )
+{
+/*@\label{new_QWSClient}@*/ client[socket] = new QWSClient(this,socket);
+ connect( client[socket], SIGNAL(readyRead()),this, SLOT(doClient()) );
+ connect( client[socket], SIGNAL(connectionClosed()),this, SLOT(clientClosed()) );
+
+ /*@\label{sendConnectedEvent}@*/client[socket]->sendConnectedEvent( qws_display_spec );
+
+ if ( !maxwindow_rect.isEmpty() )
+  client[socket]->sendMaxWindowRectEvent();
+
+ // pre-provide some object id's
+ for (int i=0; i<20; i++)
+  invokeCreate(0,client[socket]);
+}
+\end{lstlisting}
+
+\bigskip
+第 \ref{new_QWSClient} 行會產生一個 QWSClient class 的實體,
+並透過第 \ref{sendConnectedEvent} 行以送出 Connected Event 和 QT/E server 連接。
+
+\subsection*{QWSWindow* QWSServer::newWindow(int id, QWSClient* client)}
+in \$QTDIR/src/kernelwindowsystem\_{}qws.cpp),
+會建立一個新的 QWSWindow。
+
+QWSServer 有一個變數會維護一堆的 QWSWindow:
+\begin{verbatim}
+QPtrList<QWSWindow> windows;
+\end{verbatim}

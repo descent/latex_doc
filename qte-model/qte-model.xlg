@@ -1,0 +1,20 @@
+
+This is cwTeX preprocessor, version 16.5g.
+**qte-model
+(qte-model.ctx
+(\include qte-connect-server.ctx [36])
+Output written on qte-connect-server.tex.
+
+(\include qte-eventloop.ctx [100] [200] [267])
+Output written on qte-eventloop.tex.
+
+(\include qte-key-handler.ctx [100] [200] [300] [400] [500] [600] [700] [800] [900] [949])
+Output written on qte-key-handler.tex.
+
+(\include qpopupmenu_by_key.ctx [82])
+Output written on qpopupmenu_by_key.tex.
+
+(\include qte-keyevent.ctx [100] [104])
+Output written on qte-keyevent.tex.
+ [73])
+Output written on qte-model.tex & cinput.tex.

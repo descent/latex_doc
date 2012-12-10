@@ -1,0 +1,267 @@
+\chapter{QT/E event loop {\MbQ\cH188}\z{\McQ\cH6}}
+QApplication::exec() {\MbQ\cH125}\z{\MdQ\cH227}\z{\MdQ\cH202} QApplication::eventLoop(),
+{\McQ\cH55} QApplication::eventLoop() {\MbQ\cH125}\z{\MbQ\cH223}\z{\MbQ\cH222}\z{\McQ\cH248}\z{\MaQ\cH95} QEventLoop {\MbQ\cH211}\z{\MaQ\cH75},
+{\MbQ\cH205}\z{\MbQ\cH40}\z{\MaQ\cH202}\z{\MaQ\cH207}\z{\McQ\cH87} QEventLoop::exec(){\MaQ\cH1}\zZ
+{\MaQ\cH74}\z{\MaQ\cH45}\z{\MbQ\cH117} source code{\MaQ\cH1}\zZ
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/kernel/qapplication.cpp,escapeinside={/*@}{@*/}]
+int QApplication::exec()
+{
+ return eventLoop()->exec();
+}
+
+QEventLoop *QApplication::eventLoop()
+{
+ if ( !eventloop && !is_app_closing )
+  (void) new QEventLoop( qApp, "default event loop" );
+ return eventloop;
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/kernel/qeventloop.cpp,escapeinside={/*@}{@*/}]
+int QEventLoop::exec()
+{
+ d->reset();
+
+ /*@\colorbox{slight}{enterLoop();}@*/
+
+ // cleanup
+ d->looplevel = 0;
+ d->quitnow  = FALSE;
+ d->exitloop = FALSE;
+ d->shortcut = FALSE;
+ // don't reset quitcode!
+
+ return d->quitcode;
+}
+
+
+int QEventLoop::enterLoop()
+{
+ // save the current exitloop state
+ bool old_exitloop = d->exitloop;
+ d->exitloop = FALSE;
+ d->shortcut = FALSE;
+
+ d->looplevel++;
+ while ( ! d->exitloop )
+  /*@\label{processEvents} \colorbox{slight}{processEvents( AllEvents  $|$  WaitForMore );}@*/
+ d->looplevel--;
+
+ // restore the exitloop state, but if quitnow is TRUE, we need 
+ // to keep exitloop set so that all other event loops drop out.
+ d->exitloop = old_exitloop || d->quitnow;
+ d->shortcut = d->quitnow;
+
+ if ( d->looplevel < 1 ) 
+ {
+  d->quitnow  = FALSE;
+  d->exitloop = FALSE;
+  d->shortcut = FALSE;
+  emit qApp->aboutToQuit();
+
+  // send deferred deletes
+  /*@\label{sendPostedEvents}\colorbox{slight}{QApplication::sendPostedEvents( 0, QEvent::DeferredDelete );}@*/
+ }
+
+ return d->looplevel;
+}
+
+\end{lstlisting}
+
+
+QEventLoop::exec() {\MbQ\cH125}\z{\MdQ\cH227}\z{\MdQ\cH202} QEventLoop::enterLoop(){\MaQ\cH1}\zZ
+QEventLoop::enterLoop() {\MbQ\cH127}\z{\MaQ\cH115}\z{\MaQ\cH95}\z{\MbQ\cH170}\z{\McQ\cH156}\z{\McQ\cH189}\z{\McQ\cH98}\z{\MbQ\cH237} function call:
+
+\begin{enumerate}
+\item QEventLoop::processEvents(ProcessEventsFlags flags) ({\MaQ\cH202} qeventloop\_{}qws.cpp)
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/kernel/qeventloop\_{}qws.cpp,escapeinside={/*@}{@*/}]
+bool QEventLoop::processEvents( ProcessEventsFlags flags )
+{
+    // process events from the QWS server
+    int	   nevents = 0;
+
+#if defined(QT_THREAD_SUPPORT)
+    QMutexLocker locker( QApplication::qt_mutex );
+#endif
+
+    // handle gui and posted events
+    if (qt_is_gui_used ) {
+	QApplication::sendPostedEvents();
+
+	while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
+	    if ( d->shortcut ) {
+		return FALSE;
+	    }
+
+	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
+	    nevents++;
+
+	    bool ret = qApp->qwsProcessEvent( event ) == 1;
+	    delete event;
+	    if ( ret ) {
+		return TRUE;
+	    }
+	}
+    }
+
+    if ( d->shortcut ) {
+	return FALSE;
+    }
+
+    extern QPtrQueue<QWSCommand> *qt_get_server_queue();
+    if ( !qt_get_server_queue()->isEmpty() ) {
+	QWSServer::processEventQueue();
+    }
+
+    QApplication::sendPostedEvents();
+
+    // don't block if exitLoop() or exit()/quit() has been called.
+    bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
+
+    // Process timers and socket notifiers - the common UNIX stuff
+
+    // return the maximum time we can wait for an event.
+    static timeval zerotm;
+    timeval *tm = qt_wait_timer();		// wait for timer or event
+    if ( !canWait ) {
+	if ( !tm )
+	    tm = &zerotm;
+	tm->tv_sec  = 0;			// no time to wait
+	tm->tv_usec = 0;
+    }
+
+    int highest = 0;
+    if ( ! ( flags & ExcludeSocketNotifiers ) ) {
+	// return the highest fd we can wait for input on
+	if ( d->sn_highest >= 0 ) {                     // has socket notifier(s)
+	    if ( d->sn_vec[0].list && ! d->sn_vec[0].list->isEmpty() )
+		d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
+	    else
+		FD_ZERO( &d->sn_vec[0].select_fds );
+
+	    if ( d->sn_vec[1].list && ! d->sn_vec[1].list->isEmpty() )
+		d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
+	    else
+		FD_ZERO( &d->sn_vec[1].select_fds );
+
+	    if ( d->sn_vec[2].list && ! d->sn_vec[2].list->isEmpty() )
+		d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
+	    else
+		FD_ZERO( &d->sn_vec[2].select_fds );
+	} else {
+	    FD_ZERO( &d->sn_vec[0].select_fds );
+	    FD_ZERO( &d->sn_vec[1].select_fds );
+	    FD_ZERO( &d->sn_vec[2].select_fds );
+	}
+
+	highest = d->sn_highest;
+    } else {
+	FD_ZERO( &d->sn_vec[0].select_fds );
+	FD_ZERO( &d->sn_vec[1].select_fds );
+	FD_ZERO( &d->sn_vec[2].select_fds );
+    }
+
+    FD_SET( d->thread_pipe[0], &d->sn_vec[0].select_fds );
+    highest = QMAX( highest, d->thread_pipe[0] );
+
+    if ( canWait )
+	emit aboutToBlock();
+
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator it, end = qt_preselect_handler->end();
+	for ( it = qt_preselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
+
+    // unlock the GUI mutex and select.  when we return from this function, there is
+    // something for us to do
+#if defined(QT_THREAD_SUPPORT)
+    locker.mutex()->unlock();
+#endif
+
+    int nsel;
+    nsel = select( highest + 1,
+		   &d->sn_vec[0].select_fds,
+		   &d->sn_vec[1].select_fds,
+		   &d->sn_vec[2].select_fds,
+		   tm );
+
+    // relock the GUI mutex before processing any pending events
+#if defined(QT_THREAD_SUPPORT)
+    locker.mutex()->lock();
+#endif
+
+    // we are awake, broadcast it
+    emit awake();
+    emit qApp->guiThreadAwake();
+
+    if ( nsel == -1 ) {
+	if ( errno != EINTR && errno != EAGAIN )
+	    perror( "select" );
+	return (nevents > 0);
+    }
+
+#undef FDCAST
+
+    // some other thread woke us up... consume the data on the thread pipe so that
+    // select doesn't immediately return next time
+    if ( nsel > 0 && FD_ISSET( d->thread_pipe[0], &d->sn_vec[0].select_fds ) ) {
+	char c;
+	::read( d->thread_pipe[0], &c, 1 );
+    }
+
+    if ( qt_postselect_handler ) {
+	QVFuncList::Iterator it, end = qt_postselect_handler->end();
+	for ( it = qt_postselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
+
+    // activate socket notifiers
+    if ( ! ( flags & ExcludeSocketNotifiers ) && nsel > 0 && d->sn_highest >= 0 ) {
+	// if select says data is ready on any socket, then set the socket notifier
+	// to pending
+	int i;
+	for ( i=0; i<3; i++ ) {
+	    if ( ! d->sn_vec[i].list )
+		continue;
+
+	    QPtrList<QSockNot> *list = d->sn_vec[i].list;
+	    QSockNot *sn = list->first();
+	    while ( sn ) {
+		if ( FD_ISSET( sn->fd, &d->sn_vec[i].select_fds ) )
+		    setSocketNotifierPending( sn->obj );
+		sn = list->next();
+	    }
+	}
+
+	nevents += activateSocketNotifiers();
+    }
+
+    // activate timers
+    nevents += activateTimers();
+
+    // return true if we handled events, false otherwise
+    return (nevents > 0);
+}
+
+
+\end{lstlisting}
+
+QEventLoop::processEvents() {\MbQ\cH127}\z{\MaQ\cH115}\z{\MaQ\cH95}\z{\MhQ\cH23}\z{\MbQ\cH133}, {\McQ\cH248}\z{\MaQ\cH95}\z{\MbQ\cH117}
+\begin{verbatim}
+void processEvents( ProcessEventsFlags flags, int maxtime );
+virtual bool processEvents( ProcessEventsFlags flags );
+\end{verbatim}
+{\McQ\cH165}\z{\MiQ\cH179}\z{\MdQ\cH227}\z{\MdQ\cH202}\z{\MbQ\cH237}\z{\MbQ\cH117} virtual bool processEvents( ProcessEventsFlags flags )
+(in qeventloop\_{}qwqs.cpp){\MaQ\cH1}\zZ
+{\MbQ\cH164} member function {\MbQ\cH127}\z{\MaQ\cH85}\z{\MbQ\cH224}\z{\McQ\cH248}\z{\MaQ\cH95} qt\_{}fbdpy, {\MeQ\cH133}\z{\MbQ\cH237} type {\MbQ\cH209} QWSDisplay{\MaQ\cH1}\zZ
+
+\item QApplication::sendPostedEvents()\footnote{{\MaQ\cH223}\z{\MdQ\cH100}\z{\MbQ\cH39}\z{\McQ\cH189}\z{\McQ\cH98}\z{\MbQ\cH237}\z{\MbQ\cH154}\z{\MaQ\cH228}, source code
+{\MbQ\cH245}\z{\McQ\cH150}\z{\MaQ\cH86}\z{\MbQ\cH39}\z{\MiQ\cH181}\z{\MjQ\cH198}{\MaQ\cH1}}
+({\MaQ\cH202} qapplication.cpp)
+\end{enumerate}
+
+

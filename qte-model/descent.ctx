@@ -1,0 +1,18 @@
+% 標題頁
+\begin{titlepage}
+\fontsize{30}{30pt plus.5pt minux.4pt}\selectfont
+\noindent
+%Document Title:\\[6pt]
+QT Embedded 模型
+
+\fontsize{14}{20pt plus.5pt minux.4pt}\selectfont
+\par\vfill\noindent
+
+Author: descent\\
+%文件版本：$Revision$
+%文件版本：$Id$
+
+\today
+
+
+\end{titlepage}

@@ -1,0 +1,82 @@
+\chapter{使用按鍵來操作 QPopupMenu}
+\section{操作 QPopupMenu 的按鍵}
+QPopupMenu 內定可接受的按鍵有:
+
+\begin{description}
+\item [ESC]
+\
+
+隱藏 QPopupMenu。
+\item [UpArrow/DownArrow]
+\
+
+選擇 item。
+\item [RightArrow]
+\
+
+顯示子選單。
+\item [LeftArrow]
+\
+
+隱藏子選單。
+\item [Enter]
+\
+
+顯示子選單或是執行該 item 的功能。
+\end{description}
+
+
+在這樣的情形下, 可以這樣定義以下的按鍵:
+
+\medskip
+\begin{tabular}{ll}
+\hline
+ESC & 顯示/隱藏 main menu\\
+\hline
+UpArrow/DownArrow & 選擇 item\\
+\hline
+LeftArrow & 隱藏子選單\\
+\hline
+Enter & 
+顯示子選單或是執行該 item 的功能\\
+\hline
+\end{tabular}
+
+\bigskip
+ESC 按鍵要用來顯示 main menu 需要加入一點程式碼。
+其餘的功能由於 QPopupMenu 已經有了所以可以直接使用。
+
+要如何使用 ESC 來顯示 QPopupMenu 自己呢？
+只要在 QPopupMenu 的 parent QWidget 改寫 QWidget::keyReleaseEvent()
+這個 member funcion 即可。以下為片段程式碼:
+
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,escapeinside={/*@}{@*/}]
+void MyWidget::keyReleaseEvent ( QKeyEvent * e )
+{
+ 
+ switch(e->key())
+ {
+  case (Qt::Key_Escape):
+  {
+   if (_pm_show)
+   {
+    _pm->popup(this->mapToGlobal(QPoint(0,0)));
+    _pm->setActiveItem(1);
+    _pm_show=false;
+   }
+   else
+   {
+    _pm->hide();                                                                   
+    _pm_show=true;                                                                 
+   }
+   break;
+  }
+ }
+}
+\end{lstlisting}
+
+先判斷目前的按鍵是不是 ESC, 若是 ESC 在做進一步的處理, 決定要秀出 QPopupMenu 或是隱藏
+QPopupMenu; \verb+_pm_show+ 紀錄 QPopupMenu 目前是否可見或是隱藏的狀態,
+若 \verb+_pm_show+ 為 true, 則秀出 QPopupMenu 否則把目前的 QPopupMenu 隱藏起來。
+如此便能做到按一次 ESC 可以秀出 QPopupMenu, 再按一次便隱藏 QPopupMenu。

@@ -1,0 +1,82 @@
+\chapter{{\MaQ\cH85}\z{\MbQ\cH224}\z{\MbQ\cH79}\z{\MjQ\cH156}\z{\MaQ\cH86}\z{\MfQ\cH205}\z{\MaQ\cH84} QPopupMenu}
+\section{{\MfQ\cH205}\z{\MaQ\cH84} QPopupMenu {\MbQ\cH237}\z{\MbQ\cH79}\z{\MjQ\cH156}}
+QPopupMenu {\MaQ\cH113}\z{\MaQ\cH236}\z{\MaQ\cH170}\z{\MbQ\cH81}\z{\MaQ\cH167}\z{\MbQ\cH237}\z{\MbQ\cH79}\z{\MjQ\cH156}\z{\MbQ\cH127}:
+
+\begin{description}
+\item [ESC]
+\
+
+{\MjQ\cH191}\z{\McQ\cH82} QPopupMenu{\MaQ\cH1}\zZ
+\item [UpArrow/DownArrow]
+\
+
+{\McQ\cH178}\z{\MfQ\cH207} item{\MaQ\cH1}\zZ
+\item [RightArrow]
+\
+
+{\MjQ\cH233}\z{\MbQ\cH253}\z{\MaQ\cH228}\z{\McQ\cH178}\z{\MaQ\cH192}{\MaQ\cH1}\zZ
+\item [LeftArrow]
+\
+
+{\MjQ\cH191}\z{\McQ\cH82}\z{\MaQ\cH228}\z{\McQ\cH178}\z{\MaQ\cH192}{\MaQ\cH1}\zZ
+\item [Enter]
+\
+
+{\MjQ\cH233}\z{\MbQ\cH253}\z{\MaQ\cH228}\z{\McQ\cH178}\z{\MaQ\cH192}\z{\MbQ\cH67}\z{\MbQ\cH117}\z{\MaQ\cH207}\z{\McQ\cH87}\z{\McQ\cH118} item {\MbQ\cH237}\z{\MaQ\cH138}\z{\McQ\cH63}{\MaQ\cH1}\zZ
+\end{description}
+
+
+{\MaQ\cH202}\z{\McQ\cH165}\z{\MbQ\cH154}\z{\MbQ\cH237}\z{\MbQ\cH56}\z{\MbQ\cH36}\z{\MaQ\cH45}, {\MaQ\cH170}\z{\MaQ\cH74}\z{\McQ\cH165}\z{\MbQ\cH154}\z{\MaQ\cH236}\z{\McQ\cH50}\z{\MaQ\cH74}\z{\MaQ\cH45}\z{\MbQ\cH237}\z{\MbQ\cH79}\z{\MjQ\cH156}:
+
+\medskip
+\begin{tabular}{ll}
+\hline
+ESC & {\MjQ\cH233}\z{\MbQ\cH253}/{\MjQ\cH191}\z{\McQ\cH82} main menu\\
+\hline
+UpArrow/DownArrow & {\McQ\cH178}\z{\MfQ\cH207} item\\
+\hline
+LeftArrow & {\MjQ\cH191}\z{\McQ\cH82}\z{\MaQ\cH228}\z{\McQ\cH178}\z{\MaQ\cH192}\\
+\hline
+Enter & 
+{\MjQ\cH233}\z{\MbQ\cH253}\z{\MaQ\cH228}\z{\McQ\cH178}\z{\MaQ\cH192}\z{\MbQ\cH67}\z{\MbQ\cH117}\z{\MaQ\cH207}\z{\McQ\cH87}\z{\McQ\cH118} item {\MbQ\cH237}\z{\MaQ\cH138}\z{\McQ\cH63}\\
+\hline
+\end{tabular}
+
+\bigskip
+ESC {\MbQ\cH79}\z{\MjQ\cH156}\z{\McQ\cH98}\z{\MbQ\cH224}\z{\MaQ\cH86}\z{\MjQ\cH233}\z{\MbQ\cH253} main menu {\McQ\cH219}\z{\McQ\cH98}\z{\MaQ\cH139}\z{\MaQ\cH112}\z{\McQ\cH248}\z{\McQ\cH245}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MhQ\cH123}{\MaQ\cH1}\zZ
+{\MaQ\cH119}\z{\McQ\cH236}\z{\MbQ\cH237}\z{\MaQ\cH138}\z{\McQ\cH63}\z{\MbQ\cH226}\z{\MbQ\cH107} QPopupMenu {\MbQ\cH11}\z{\McQ\cH37}\z{\MbQ\cH127}\z{\MaQ\cH55}\z{\MbQ\cH70}\z{\MaQ\cH74}\z{\MaQ\cH170}\z{\MaQ\cH74}\z{\MbQ\cH242}\z{\MbQ\cH81}\z{\MaQ\cH85}\z{\MbQ\cH224}{\MaQ\cH1}\zZ
+
+{\McQ\cH98}\z{\MaQ\cH224}\z{\MaQ\cH83}\z{\MaQ\cH85}\z{\MbQ\cH224} ESC {\MaQ\cH86}\z{\MjQ\cH233}\z{\MbQ\cH253} QPopupMenu {\McQ\cH65}\z{\MeQ\cH208}\z{\MdQ\cH225}?
+{\MdQ\cH201}\z{\McQ\cH98}\z{\MaQ\cH202} QPopupMenu {\MbQ\cH237} parent QWidget {\MbQ\cH90}\z{\MeQ\cH159} QWidget::keyReleaseEvent()
+{\McQ\cH165}\z{\MaQ\cH95} member funcion {\MdQ\cH185}\z{\MaQ\cH170}{\MaQ\cH1}\zZ{\MaQ\cH74}\z{\MaQ\cH45}\z{\MbQ\cH209}\z{\MbQ\cH210}\z{\MbQ\cH168}\z{\McQ\cH6}\z{\MbQ\cH31}\z{\MhQ\cH123}:
+
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,escapeinside={/*@}{@*/}]
+void MyWidget::keyReleaseEvent ( QKeyEvent * e )
+{
+ 
+ switch(e->key())
+ {
+  case (Qt::Key_Escape):
+  {
+   if (_pm_show)
+   {
+    _pm->popup(this->mapToGlobal(QPoint(0,0)));
+    _pm->setActiveItem(1);
+    _pm_show=false;
+   }
+   else
+   {
+    _pm->hide();                                                                   
+    _pm_show=true;                                                                 
+   }
+   break;
+  }
+ }
+}
+\end{lstlisting}
+
+{\MaQ\cH108}\z{\MdQ\cH135}\z{\MbQ\cH105}\z{\MbQ\cH241}\z{\MaQ\cH135}\z{\MbQ\cH237}\z{\MbQ\cH79}\z{\MjQ\cH156}\z{\MbQ\cH117}\z{\MaQ\cH46}\z{\MbQ\cH117} ESC, {\McQ\cH74}\z{\MbQ\cH117} ESC {\MaQ\cH202}\z{\MaQ\cH100}\z{\McQ\cH170}\z{\McQ\cH248}\z{\MbQ\cH165}\z{\MbQ\cH237}\z{\McQ\cH84}\z{\MbQ\cH220}, {\MbQ\cH178}\z{\MaQ\cH236}\z{\McQ\cH98}\z{\MhQ\cH145}\z{\MaQ\cH124} QPopupMenu {\MbQ\cH67}\z{\MbQ\cH117}\z{\MjQ\cH191}\z{\McQ\cH82}
+QPopupMenu; \verb+_pm_show+ {\McQ\cH25}\z{\MjQ\cH147} QPopupMenu {\MbQ\cH241}\z{\MaQ\cH135}\z{\MbQ\cH117}\z{\MaQ\cH180}\z{\MaQ\cH170}\z{\McQ\cH99}\z{\MbQ\cH67}\z{\MbQ\cH117}\z{\MjQ\cH191}\z{\McQ\cH82}\z{\MbQ\cH237}\z{\MbQ\cH213}\z{\MfQ\cH71},
+{\McQ\cH74} \verb+_pm_show+ {\MbQ\cH209} true, {\MaQ\cH134}\z{\MhQ\cH145}\z{\MaQ\cH124} QPopupMenu {\MaQ\cH180}\z{\MaQ\cH134}\z{\MfQ\cH122}\z{\MbQ\cH241}\z{\MaQ\cH135}\z{\MbQ\cH237} QPopupMenu {\MjQ\cH191}\z{\McQ\cH82}\z{\McQ\cH150}\z{\MaQ\cH86}{\MaQ\cH1}\zZ
+{\MaQ\cH224}\z{\MbQ\cH164}\z{\MaQ\cH90}\z{\McQ\cH63}\z{\MaQ\cH100}\z{\MaQ\cH131}\z{\MbQ\cH79}\z{\McQ\cH248}\z{\MbQ\cH159} ESC {\MaQ\cH170}\z{\MaQ\cH74}\z{\MhQ\cH145}\z{\MaQ\cH124} QPopupMenu, {\MaQ\cH121}\z{\MbQ\cH79}\z{\McQ\cH248}\z{\MbQ\cH159}\z{\MaQ\cH90}\z{\MjQ\cH191}\z{\McQ\cH82} QPopupMenu{\MaQ\cH1}\zZ

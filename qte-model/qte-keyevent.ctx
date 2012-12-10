@@ -1,0 +1,104 @@
+\chapter{事件傳遞}
+\section{keyevent 的傳遞}
+keyboard 會經由 QWSKeyboardHandler::processKeyEvent()
+來處理 keyevent。
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qkbd\_{}qws.cpp]
+void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+{
+ qwsServer->processKeyEvent(unicode,keycode,modifiers, sPress,autoRepeat );
+}
+\end{lstlisting}
+
+\verb+qwsServer->processKeyEvent(unicode,keycode,modifiers,sPress,autoRepeat)+
+的原始碼在 \$QTDIR/src/embedded/qwindowsystem\_{}qws.cpp,
+以下為一連串的函式呼叫：
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qwindowsystem\_{}qws.cpp,escapeinside={/*@}{@*/}]
+void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+{
+ if ( !keyFilter || !keyFilter->filter( unicode, keycode, modifiers, isPress, autoRepeat ) )
+  sendKeyEvent( unicode, keycode, modifiers, isPress, autoRepeat );
+}
+
+void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+{
+ #ifndef QT_NO_QWS_IM
+
+ if ( !current_IM || !current_IM->filter( unicode, keycode, modifiers,isPress, autoRepeat ) )
+  sendKeyEventUnfiltered( unicode, keycode, modifiers,isPress, autoRepeat);
+}
+
+void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, bool isPress,bool autoRepeat)
+{
+ #endif
+ if ( isPress ) 
+ {
+  if ( keycode != Key_F34 && keycode != Key_F35 )
+   qwsServer->screenSaverWake();
+ }
+
+ qws_keyModifiers = modifiers;
+
+ /|/*@\label{QWSKeyEvent}@*/QWSKeyEvent event;|/
+ QWSWindow *win = keyboardGrabber ? keyboardGrabber :
+ qwsServer->focusw;
+
+ /|/*@\label{event.simpleData.window}@*/event.simpleData.window = win ? win->winId() : 0;|/
+
+ /|/*@\label{event.simpleData.unicode}@*/event.simpleData.unicode =|/
+ #ifndef QT_NO_QWS_KEYBOARD
+  unicode < 0 ? keyUnicode(keycode) :
+ #endif
+ unicode;
+ /|/*@\label{event.simpleData.keycode}@*/event.simpleData.keycode = keycode;|/
+ /|/*@\label{event.simpleData.modifiers}@*/event.simpleData.modifiers = modifiers;|/
+ /|/*@\label{event.simpleData.is_press}@*/event.simpleData.is_press = isPress;|/
+ /|/*@\label{event.simpleData.is_auto_repeat}@*/event.simpleData.is_auto_repeat = autoRepeat;|/
+
+ for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it ) 
+ {
+  /*@\label{sendEvent}@*//|(*it)->sendEvent(&event);|/
+ }
+}
+
+void QWSClient::sendEvent( QWSEvent* event )
+{
+ #ifndef QT_NO_QWS_MULTIPROCESS
+ if ( csocket ) 
+ {
+  /|/*@\label{event_write}@*/event->write( csocket );|/
+  csocket->flush();
+ }
+ else
+ #endif
+ {
+  qt_client_enqueue( event );
+ }
+}
+\end{lstlisting}
+
+\ref{QWSKeyEvent}, \ref{event.simpleData.window}, \ref{event.simpleData.unicode}, \ref{event.simpleData.keycode}, \ref{event.simpleData.modifiers},
+\ref{event.simpleData.is_press}, \ref{event.simpleData.is_auto_repeat}
+行是將 keyevent 所需要的資訊填入。
+第 \ref{sendEvent} 行的 \textbf{*it} 是一個 QWSClient。
+讓我們看看第 \ref{event_write} 行的 QWSEvent, 它繼承 QWSProtocolItem 。
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qwscommand\_{}qws.cpp,escapeinside={/*@}{@*/}]
+void QWSProtocolItem::write( QWSSocket *s ) 
+{
+ //qDebug( "sending type %d", type );
+ qws_write_command( s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen );
+}
+
+void qws_write_command( QWSSocket *socket, int type,char *simpleData, int simpleLen, char *rawData, int rawLen )
+{
+ qws_write_uint( socket, type );
+ qws_write_uint( socket, rawLen == -1 ? 0 : rawLen );
+ if ( simpleData && simpleLen )
+  socket->writeBlock( simpleData, simpleLen );
+ if ( rawLen && rawData )
+  socket->writeBlock( rawData, rawLen );
+}
+
+\end{lstlisting}

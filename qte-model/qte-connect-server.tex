@@ -1,0 +1,36 @@
+\chapter{Server {\MaQ\cH184} Client {\MbQ\cH237}\z{\McQ\cH169}\z{\McQ\cH33}}
+
+QT Embedded {\MbQ\cH117}\z{\McQ\cH248}\z{\MaQ\cH95} client - server {\MgQ\cH45}\z{\MgQ\cH90}, {\McQ\cH233}\z{\MaQ\cH78} x window {\MbQ\cH237} x server, x
+client{\MaQ\cH1} {\MbQ\cH231}\z{\MdQ\cH201}\z{\MbQ\cH127}\z{\McQ\cH248}\z{\MaQ\cH95} QT/E {\McQ\cH6}\z{\MbQ\cH31}\z{\MbQ\cH118}, {\McQ\cH165}\z{\MaQ\cH95} QT/E {\McQ\cH6}\z{\MbQ\cH31}\z{\MbQ\cH109}\z{\MbQ\cH117} server {\MaQ\cH54}\z{\MbQ\cH117} client{\MaQ\cH1}\zZ
+{\McQ\cH55} client {\MaQ\cH184} server {\MbQ\cH117}\z{\MaQ\cH74} unix domain socket {\MaQ\cH86}\z{\McQ\cH169}\z{\McQ\cH33}{\MaQ\cH1}\zZ
+
+\begin{lstlisting}[tabsize=1,basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=\$QTDIR/src/embedded/qwindowsystem\_{}qws.cpp,escapeinside={/*@}{@*/},label=qkbd_qws.h]
+void QWSServer::newConnection( int socket )
+{
+/*@\label{new_QWSClient}@*/ client[socket] = new QWSClient(this,socket);
+ connect( client[socket], SIGNAL(readyRead()),this, SLOT(doClient()) );
+ connect( client[socket], SIGNAL(connectionClosed()),this, SLOT(clientClosed()) );
+
+ /*@\label{sendConnectedEvent}@*/client[socket]->sendConnectedEvent( qws_display_spec );
+
+ if ( !maxwindow_rect.isEmpty() )
+  client[socket]->sendMaxWindowRectEvent();
+
+ // pre-provide some object id's
+ for (int i=0; i<20; i++)
+  invokeCreate(0,client[socket]);
+}
+\end{lstlisting}
+
+\bigskip
+{\McQ\cH15} \ref{new_QWSClient} {\McQ\cH87}\z{\MbQ\cH125}\z{\MbQ\cH223}\z{\MbQ\cH222}\z{\McQ\cH248}\z{\MaQ\cH95} QWSClient class {\MbQ\cH237}\z{\MaQ\cH245}\z{\McQ\cH241},
+{\MaQ\cH49}\z{\MjQ\cH78}\z{\McQ\cH172}\z{\McQ\cH15} \ref{sendConnectedEvent} {\McQ\cH87}\z{\MaQ\cH74}\z{\McQ\cH163}\z{\MaQ\cH124} Connected Event {\MaQ\cH184} QT/E server {\McQ\cH169}\z{\MbQ\cH81}{\MaQ\cH1}\zZ
+
+\subsection*{QWSWindow* QWSServer::newWindow(int id, QWSClient* client)}
+in \$QTDIR/src/kernelwindowsystem\_{}qws.cpp),
+{\MbQ\cH125}\z{\MbQ\cH29}\z{\McQ\cH13}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\MbQ\cH104}\z{\MbQ\cH237} QWSWindow{\MaQ\cH1}\zZ
+
+QWSServer {\MbQ\cH127}\z{\McQ\cH248}\z{\MaQ\cH95}\z{\McQ\cH137}\z{\MbQ\cH98}\z{\MbQ\cH125}\z{\McQ\cH38}\z{\McQ\cH136}\z{\McQ\cH248}\z{\MeQ\cH35}\z{\MbQ\cH237} QWSWindow:
+\begin{verbatim}
+QPtrList<QWSWindow> windows;
+\end{verbatim}
