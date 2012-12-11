@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[12pt]{article}
 %\usepackage[paperwidth=8,paperheight=11cm,textwidth=13cm,textheight=14cm,left=0.5cm,right=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
 %\usepackage[paperwidth=10cm,paperheight=13cm,left=0.5cm,right=0.5cm,bottom=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
 \usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
@@ -189,9 +189,8 @@ ENTER and LEAVE instructions and the Motorola LINK and UNLINK  instructions, hav
 most of the procedure prolog and epilog work efficiently. Let us see what the stack looks like in a simple 
 example:
 
-example1.c: 
-
-\begin{lstlisting}
+%example1.c: 
+\begin{lstlisting}[caption=example1.c]
 void function(int a, int b, int c) 
 {
    char buffer1[5];
@@ -413,9 +412,8 @@ stack                                                       stack
 
 The code to spawn a shell in C looks like:
 
-shellcode.c
-
-\begin{lstlisting}
+%shellcode.c
+\begin{lstlisting}[caption=shellcode.c]
 #include <stdio.h>
 
 void main() 
@@ -493,6 +491,7 @@ Dump of assembler code for function __execve:
 0x80002eb <__execve+47>:nop
 End of assembler dump.
 \end{verbatim}
+}
 
 Lets try to understand what is going on here.  We'll start by studying main: 
 
@@ -594,9 +593,9 @@ stack, which may contain random data! The program will most likely core dump. We
 cleanly if the execve syscall fails. To accomplish this we must then add an exit syscall after the execve syscall. 
 What does  the exit syscall looks like?
 
-exit.c
+%exit.c
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=exit.c]
 #include <stdlib.h>
 
 void main() 
@@ -670,7 +669,7 @@ movl   $0x1, %eax
 movl   $0x0, %ebx
 int    $0x80
 \end{verbatim}
-/bin/sh string goes here.
+\verb+/bin/sh+ string goes here.
 
 The problem is that we don't know where in the memory space of the program we are trying to exploit the code 
 (and the string that follows it) will be placed. One way around it is to use a JMP, and a CALL instruction. The 
@@ -699,7 +698,7 @@ stack                                                                  stack
 \end{verbatim}
 }
 
-[There are not enough small s in the figure; strlen("/bin/sh") == 7.] With this modifications, using indexed addressing, and writing down how many bytes each instruction takes our code looks like: 
+[There are not enough small-s in the figure; strlen("/bin/sh") == 7.] With this modifications, using indexed addressing, and writing down how many bytes each instruction takes our code looks like: 
 
 \begin{verbatim}
 jmp    offset-to-call           # 2 bytes
