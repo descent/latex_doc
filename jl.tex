@@ -1,0 +1,232 @@
+% test for cwtex font is ok.
+
+\documentclass[12pt]{article}
+%\usepackage{CJK}
+\usepackage{longtable}
+\usepackage{CJKutf8}
+%\usepackage[overlap,CJK]{ruby}
+\usepackage[overlap]{ruby}
+\usepackage{comment}
+\usepackage{ucs}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref} % 最好保證 hyperref 是最後載入的 macro
+\hypersetup{%
+%  dvipdfmx,% 设定要使用的 driver 为 dvipdfmx
+  dvips,% 设定要使用的 driver 为 dvipdfmx
+  unicode={true},% 使用 unicode 来编码 PDF 字符串
+  pdfstartview={FitH},% 文档初始视图为匹配宽度
+  bookmarksnumbered={true},% 书签附上章节编号
+  bookmarksopen={true},% 展开书签
+  pdfborder={0 0 0},% 链接无框
+  pdftitle={日文學習心得},
+  pdfauthor={descent},
+  pdfsubject={日文學習},
+  pdfkeywords={日文},
+  pdfcreator={ps2pdf},
+  pdfproducer={PDF 制作程序},% 这个好像没起作用？
+}
+
+\usepackage{html}
+
+\parindent=0cm
+\parskip=20pt
+\begin{document}
+\begin{CJK}{UTF8}{cwku}
+%\begin{CJK}{UTF8}{nsung}
+%\begin{CJK}{UTF8}{cybercjk}
+\renewcommand{\contentsname}{目錄}
+\renewcommand{\tablename}{表}
+\renewcommand{\figurename}{圖}
+\renewcommand{\listtablename}{表格目錄}
+\renewcommand{\listfigurename}{圖目錄}
+
+\tableofcontents
+\newpage
+
+
+\section{五十音}
+
+\begin{table}[htdp]
+%begin{latexonly}
+\caption{平假名}
+%end{latexonly}
+\begin{tabular}{cccccccccc}
+\hline
+あ& か & さ & た & な & は & ま & や & ら & わ\\
+a & ka & sa & ta & na & ha & ma& ya & ra & wa\\
+\hline
+い & き & し & ち & に & ひ & み & & り& \\
+i & ki & shi & chi & ni & hi & mi & & ri& \\
+\hline
+う & く  & す & つ & ぬ & ふ & む & ゆ & る & ん\\	
+ u & ku &  su &  tsu &  nu &  fu &  mu &  yu &  ru & n\\	
+\hline
+え & け & せ & て & ね & へ & め & & る & \\	
+ r & ke &  se &  te &  ne &  he &  me & &  ru & \\	
+\hline
+お & こ  & そ & と & の & ほ & も & よ & ろ & を\\	
+ o &  ko &  so &  to &  no &  ho &  mo &  yo &  ro & o\\	
+
+\hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htdp]
+%begin{latexonly}
+\caption{片假名}
+%end{latexonly}
+\begin{tabular}{cccccccccc}
+\hline
+ア& カ & サ & タ & ナ & ハ & マ & ヤ & ラ & ワ\\
+a & ka & sa & ta & na & ha & ma& ya & ra & wa\\
+\hline
+イ& キ & シ & チ & ニ & ヒ & ミ &  & リ & \\
+i & ki & shi & chi & ni & hi & mi & & ri& \\
+\hline
+ウ& ク & ス & ス & ヌ & フ & ム & ユ & ル & ン\\
+ u & ku &  su &  tsu &  nu &  fu &  mu &  yu &  ru & n\\	
+\hline
+エ& ケ & セ & テ & ネ & ヘ & メ & & レ & \\
+ r & ke &  se &  te &  ne &  he &  me & &  ru & \\	
+\hline
+オ& コ & ソ & ト & ノ & ホ & モ & ヨ & ロ & ヲ\\
+ o &  ko &  so &  to &  no &  ho &  mo &  yo &  ro & o\\	
+
+\hline
+\end{tabular}
+\end{table}
+
+\section{動詞變化}
+
+\subsection{五段動詞語尾變化}
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+\hline
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+ア/オ 段音 & イ 段音 & ウ 段音 & ウ 段音  & エ 段音 & エ 段音  \\
+\hline
+\end{tabular}
+\caption{五段動詞語尾變化}
+\end{table}
+
+\subsection{上一段動詞語尾變化}
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+\hline
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+イ 段音 & イ 段音 & イ 段音 + る &  イ 段音 + る &  イ 段音 + れ &  段音 + ろ/よ \\
+\hline
+\end{tabular}
+\caption{上一段動詞語尾變化}
+\end{table}
+
+\subsection{下一段動詞語尾變化}
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+\hline
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+エ 段音 & エ 段音 & エ 段音 + る &  エ 段音 + る &  エ 段音 + れ &  段音 + ろ/よ \\
+\hline
+\end{tabular}
+\caption{下一段動詞語尾變化}
+\end{table}
+
+\subsection{か行變格動詞語尾變化}
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+\hline
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+こ & き & くる & くる & くれ& こい \\
+来 & 来 & 来る & 来る & 来れ& 来い \\
+\hline
+\end{tabular}
+\caption{か行變格動詞語尾變化}
+\end{table}
+
+\subsection{サ行變格動詞語尾變化}
+\begin{table}[htdp]
+\begin{tabular}{cccccc}
+\hline
+第一變化 & 第二變化 & 第三變化 & 第四變化 & 第五變化 & 第六變化 \\
+\hline
+さ/し/せ & し & する & する & すれ& せよ/しろ \\
+\hline
+\end{tabular}
+\caption{サ行變格動詞語尾變化}
+\end{table}
+
+\section{量詞}
+
+摘錄 ptt akumahirosi:
+\begin{quote}
+  基本上來說，量詞的話先分兩類： 數字(本數詞)  跟  單位(助數詞)
+
+  數字的話，1, 6, 8, 10 有兩種型態
+  例如：いち、いっ/ろく、ろっ這樣。
+  在遇到單位是無聲子音的時候，會使用促音的那個型態。
+
+  何謂無聲子音? 就是 s、k、t、f 這些。
+  其中需要注意的是 6 碰到 S 跟 T 的時候也是會用原本的而不變化成促音。
+\end{quote}
+
+摘錄 wiki 日語數字: \href{http://zh.wikipedia.org/wiki/%E6%97%A5%E8%AA%9E%E6%95%B8%E5%AD%97}{http://zh.wikipedia.org/wiki/日語數字}
+
+日文數字有音讀/訓讀兩種。
+
+%\begin{footnotesize}
+%\begin{table}[htdp]
+%\begin{tabular}{ccccc}
+\begin{longtable}{ccccc}
+\caption{數字的音讀與訓讀}\\
+數值 & 	漢字 &	優先讀法 & 音讀 & 訓讀\\
+\hline
+\begin{comment}
+\end{comment}
+0 &	零或O & zero &	れい &	(無)\footnote{「零」字本身無訓讀，但有時候數字「0」在日語中會讀作「まる(maru)」，但只有在讀出一連串單獨數字(像是電話號碼)而非數值的時候才能夠使用這種讀法。另外，這樣的讀法源自於日文漢字中「丸」和「円」「まる(maru)」的讀音，和英語口語上有時會把數字「0」讀作英文字母「O」(音``oh'')的情況有異曲同工之妙。} \\
+\hline
+1 &	一 &	ichi &	いち  &	ひと(つ)\\
+\hline
+2 &	二 &	ni &	に &	ふた(つ)\\
+\hline
+3 &	三 &	san &	さん &	み(っつ)\\
+\hline
+4 &	四 &	yon &	し &	よ(っつ)\\
+\hline
+5 &	五 &	go &	ご &	いつ(つ)\\
+\hline
+6 &	六 &	roku &	ろく  &	む(っつ)\\
+\hline
+7 &	七 &	nana &	しち  &	なな(つ)\\
+\hline
+8 &	八 &	hachi &	はち  &	や(っつ)\\
+\hline
+9 &	九 &	ky &	きゅう/く   &	ここの(つ)\\
+\hline
+10 &	十 &	j &	じゅう &	とお\\
+\hline
+20 &	二十 &	nij &	にじゅう &	はた(ち)\\
+\hline
+
+\end{longtable}
+%\end{tabular}
+%\footnotetext[1]{abc}
+%\footnotetext[1]{「零」字本身無訓讀，但有時候數字「0」在日語中會讀作「まる(maru)」，但只有在讀出一連串單獨數字(像是電話號碼)而非數值的時候才能夠使用這種讀法。另外，這樣的讀法源自於日文漢字中「丸」和「円」「まる(maru)」的讀音，和英語口語上有時會把數字「0」讀作英文字母「O」(音"oh")的情況有異曲同工之妙。} \\
+%\caption{test}
+%\label{table:dat}
+%\end{table}
+%\addtocounter{footnote}{-1} \footnotetext{「零」字本身無訓讀，但有時候數字「0」在日語中會讀作「まる(maru)」，但只有在讀出一連串單獨數字(像是電話號碼)而非數值的時候才能夠使用這種讀法。另外，這樣的讀法源自於日文漢字中「丸」和「円」「まる(maru)」的讀音，和英語口語上有時會把數字「0」讀作英文字母「O」(音``oh'')的情況有異曲同工之妙。}
+%\end{footnotesize}
+
+
+
+\ruby{注}{ㄓㄨˋ}\ruby{音}{ㄧㄣ}\ruby{符}{ㄈㄨˊ}\ruby{號}{ㄏㄠˋ}
+
+
+\end{CJK}
+
+\end{document}
