@@ -1,4 +1,5 @@
 \documentclass[12pt,a4]{article}
+\usepackage[paperwidth=10.1cm,paperheight=13cm,left=0.3cm,right=0.3cm,bottom=0.5cm,top=0.1cm,nohead,nofoot]{geometry}
 % 轉成 PDF 時，產生 hyperlink 的效果
 %\usepackage{CJK} %使用CJK套件
 \usepackage{CJKutf8} %使用CJK套件
@@ -6,6 +7,7 @@
 \usepackage{type1cm}
 \usepackage{fancyvrb}
 \usepackage{graphicx}
+\usepackage{listings}
 % 在使用 latex2html 可以處理中文
 %\begin{htmlonly}
 %\usepackage{taiwan}
@@ -118,8 +120,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 \section{hello example C version}\label{c_hello}
 
 這是 C 版本的 hello。
-\begin{verbatim}
-
+\begin{lstlisting}[frame=single,frameround=tttt,breaklines=true]
 #include <stdio.h>
 
 int main()
@@ -127,18 +128,16 @@ int main()
   printf("hello\n");
   return 0;
 }
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
-
+\begin{lstlisting}[frame=single,frameround=tttt,breaklines=true]
 $ autoscan
 autom4te: configure.ac: no such file or directory
 autoscan: /usr/bin/autom4te failed with exit status: 1
-
-\end{verbatim}
+\end{lstlisting}
 configure.scan 內容:
-\begin{verbatim}
 
+\begin{lstlisting}[frame=single,frameround=tttt,breaklines=true]
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
@@ -157,10 +156,9 @@ AC_PROG_CC
 
 # Checks for library functions.
 AC_OUTPUT
-\end{verbatim}
+\end{lstlisting}
 
 \begin{verbatim}
-
 $ cp  configure.scan configure.ac
 \end{verbatim}
 
@@ -186,8 +184,8 @@ VERSION \verb+->+ 0.1,
 BUG-REPORT-ADDRESS \verb+->+ \verb+descent@gmail.com+。
 這三個參數分別為 package 的 name, 版本, bug report 到那裡。
 以下為修改後的 configure.ac:
-\begin{verbatim}
 
+\begin{lstlisting}[frame=single,frameround=tttt,breaklines=true]
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -210,7 +208,7 @@ AC_CONFIG_FILES(Makefile)
 
 # Checks for library functions.
 AC_OUTPUT
-\end{verbatim}
+\end{lstlisting}
 
 再來看看 Makefile.am
 
@@ -230,13 +228,12 @@ automake -a
 \end{verbatim}
 
 第一次執行 automake -a 會有以下的訊息：
-\begin{verbatim}
+\begin{lstlisting}[frame=single,frameround=tttt,breaklines=true]
 automake: Makefile.am: required file `./NEWS' not found
 automake: Makefile.am: required file `./README' not found
 automake: Makefile.am: required file `./AUTHORS' not found
 automake: Makefile.am: required file `./ChangeLog' not found
-\end{verbatim}
-
+\end{lstlisting}
 這是因為 automake 需要這些檔案, 而 automake 無法自動產生,
 所以我們自己來產生。
 \begin{verbatim}
@@ -274,10 +271,9 @@ make distclean
 \section{hello example C++ version}
 
 這是 C++ 版本的 hello。
-\begin{verbatim}
 
+\begin{lstlisting}[frame=single,frameround=tttt,breaklines=true]
 #include <iostream>
-
 
 int main()
 {
@@ -286,7 +282,7 @@ int main()
   cout << "hello" << endl;
   return 0;
 }
-\end{verbatim}
+\end{lstlisting}
 
 一樣先執行 autoscan, 再把 configure.scan copy 成 configure.ac。
 autoscan 會得知目前的語言是 C++ 語言, 並會產生相對應的 M4 巨集。
@@ -307,8 +303,9 @@ libtool 是用來產生 library 的 script,
 
 下面的命令可以產生 static/shared library。
 \begin{verbatim}
-libtool --mode=link g++ -o libgraph.la svga.lo shape.lo \
-geometry.lo view.lo painter.lo draw.lo color_convert.lo \
+libtool --mode=link g++ -o libgraph.la \
+svga.lo shape.lo geometry.lo view.lo \
+painter.lo draw.lo color_convert.lo \
 -rpath /usr/local/lib
 \end{verbatim}
 
