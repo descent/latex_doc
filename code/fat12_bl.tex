@@ -1,0 +1,87 @@
+\documentclass[10pt]{article}
+%\usepackage[paperwidth=8,paperheight=11cm,textwidth=13cm,textheight=14cm,left=0.5cm,right=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
+\usepackage[paperwidth=10.1cm,paperheight=13cm,left=0.3cm,right=0.3cm,bottom=0.5cm,top=0.1cm,nohead,nofoot]{geometry} 
+%\usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
+%\usepackage[body={2cm, 5.5in},left=0.2in,right=0.2in,top=0.2in,bottom=0.2in]{geometry}
+
+\parindent=0cm
+\parskip=13pt
+% 轉成 PDF 時, 產生 hyperlink 的效果
+%\usepackage{CJK}
+\usepackage{CJKutf8} %使用 CJKutf8 套件, 配合, \hypersetup 產生中文 pdf 書籤
+%\usepackage[dvips]{hyperref}
+\usepackage{type1cm}
+%\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{lastpage}
+\usepackage[dvips]{color}
+\usepackage{listings}
+\usepackage{comment}
+%\usepackage{ucs}
+%\usepackage[utf8]{inputenc}
+% 在使用 latex2html 可以處理中文
+%\begin{htmlonly}
+%\usepackage{taiwan}
+%\end{htmlonly}
+%\usepackage{cwtex}
+%\begin{htmlonly}
+%\usepackage{html}
+%\end{htmlonly}
+\usepackage{appendix}
+
+%\usepackage[dvips,CJKbookmarks,pdftitle={From TeX/LaTeX to PDF}%
+%                ,pdfsubject={From TeX/LaTeX to PDF}%
+%		 ,pdfkeywords={tex,latex,cjk,typeset,pdf,typography}]{hyperref}
+\usepackage{hyperref} % 最好保证 hyperref 是最后加载的宏包
+\hypersetup{%
+  dvipdfmx,% 设定要使用的 driver 为 dvipdfmx
+  unicode={true},% 使用 unicode 来编码 PDF 字符串
+  pdfstartview={FitH},% 文档初始视图为匹配宽度
+  bookmarksnumbered={true},% 书签附上章节编号
+  bookmarksopen={true},% 展开书签
+  pdfborder={0 0 0},% 链接无框
+  pdftitle={stack smashing},
+  pdfauthor={Aleph1},
+  pdfsubject={stack smashing},
+  pdfkeywords={stack},
+  pdfcreator={应用程序},
+  pdfproducer={PDF 制作程序},% 这个好像没起作用？
+}
+
+%\begin{htmlonly}
+
+%\renewcommand{\abstractname}{\r18 摘要}
+%\renewcommand{\figurename}{\m11 圖}
+%\renewcommand{\contentsname}{\r20 目錄}
+
+%\end{htmlonly}
+
+%\renewcommand{\appendixpagenam}{附錄}
+
+% 標題頁
+% 正文
+\title{fat12\_{}bl.S}
+\begin{document}
+\maketitle
+%\begin{CJK}{UTF8}{cwku}
+%\begin{CJK}{UTF8}{bsmi}
+%\renewcommand{\contentsname}{目錄}
+
+%\begin{htmlonly}
+%\include{auth}
+%\end{htmlonly}
+
+\newpage
+%\addtocontents{toc}{text}
+\tableofcontents
+%\addcontentsline{toc}{section}{abstract}
+%\addcontentsline{toc}{section}{REFERENCE}
+\newpage
+
+\begin{CJK}{UTF8}{bsmi} %開始CJK環境，設定編碼，設定字體
+\section{fat12\_{}bl.S}
+\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,breaklines=true,title=fat12\_{}bl.S]{fat12_bl.S}
+
+
+\end{CJK}
+\end{document}
