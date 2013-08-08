@@ -8,6 +8,8 @@
 %\usepackage{cwtex}
 \usepackage{CJKutf8} %使用CJK套件
 \usepackage{comment}
+\usepackage{listings}
+
 %\usepackage{html}
 
 \hypersetup{%
@@ -117,6 +119,7 @@ int glyph_index=FT_Get_Char_Index(face,char_code);
 \end{Verbatim}
 \subsection{FT\_{}Load\_{}Glyph()}
 load a glyph image into a glyph slot. 有了 glyph index， 便可以載入一個 glyph image 到 glyh slot\footnote{在 freetype library， glyph slot 會將 glyph image 裝在這裡，不管這個 glyph image 是什麼格式。 ex: outline, or bitmap。}。用法如下：
+
 \begin{Verbatim}[commandchars=@\[\]]
 /* load_flags 使用 FT_LOAD_DEFAULT 即可 */
 int error = FT_Load_Glyph(face, glyph_index, load_flags );  
@@ -125,6 +128,7 @@ int error = FT_Load_Glyph(face, glyph_index, load_flags );
 // 若 face->glyph->format 的值是 ft_glyph_format_bitmap,
 // 便代表這個 glyph image 是以 bitmap 的形式存在 glyph slot。
 \end{Verbatim}
+
 \subsection{FT\_{}Render\_{}Glyph()}
 若 face-〉glyph-〉format 的值不是  ft\_{}glyph\_{}format\_{}bitmap， 便可以用  
 ft\_{}glyph\_{}format\_{}bitamp() 這個 function 來產生一個 bitmap。用法如下：
@@ -552,8 +556,30 @@ namespace DS
 // convert.cpp
 #include "convert.h"
 \end{Verbatim}
+
+\newpage
+\section{範例程式 - 終端機版本}
+20130808 新增 
+
+這個範例程式使用的是 freetype 2.3.11 的版本。使用 QT 的 QString 來處理 utf8
+編碼的字串。我想了很久才想到如何在終端機的文字模式下把字印出來, 從執行結果 (p \pageref{lst::result})
+可看出這是``中''這個字。
+
+%\lstinputlisting[frame=single,frameround=tttt,breaklines=true, language={[ANSI]C}, escapeinside={@}{@}, title=sample1]{qstring_utf8/main.cpp}
+
+%\VerbatimInput[fontfamily=tt,fontsize=\footnotesize,frame=lines, framerule=0.4mm, numbers=left, numbersep=3pt, tabsize=2, firstline=1, lastline=99]{qstring_utf8/main.cpp}
+
+\VerbatimInput[fontfamily=tt,fontsize=\footnotesize,frame=lines, framerule=0.4mm, numbers=left, numbersep=3pt, tabsize=2]{qstring_utf8/main.cpp}
+
+\lstinputlisting[frame=single,frameround=tttt,breaklines=true, title=makefile]{qstring_utf8/makefile}
+
+\newpage
+\lstinputlisting[frame=single,frameround=tttt,breaklines=true, title=執行結果, label=lst::result]{qstring_utf8/ret}
+
 \newpage
 \section{範例程式， 使用 SVGALIB 來秀字}
+這個版本已經太舊, 無法在目前的 freetype 版本使用。留著只是為了參考。
+
 \begin{Verbatim}[commandchars=@\^?,numbers=left]
 
 /*
@@ -721,5 +747,6 @@ void my_draw_bitmap(FT_Bitmap *Bitmap,int pen_x,int pen_y)
 
 }
 \end{Verbatim}
-\end{CJK}{UTF8}{cwmu}
+
+\end{CJK}
 \end{document}
