@@ -1,13 +1,13 @@
 ;=============================================================================== 
-SECTION header vstart=0                     ;定义用户程序头部段 
-    program_length  dd program_end          ;程序总长度[0x00]
+SECTION header vstart=0                 ;定义用户程序头部段 
+    program_length  dd program_end      ;程序总长度[0x00]
     
     ;用户程序入口点
-    code_entry      dw start                ;偏移地址[0x04]
+    code_entry      dw start            ;偏移地址[0x04]
                     dd section.code.start   ;段地址[0x06] 
     
     realloc_tbl_len dw (header_end-realloc_begin)/4
-                                            ;段重定位表项个数[0x0a]
+                                   ;段重定位表项个数[0x0a]
     
     realloc_begin:
     ;段重定位表           
@@ -18,16 +18,16 @@ SECTION header vstart=0                     ;定义用户程序头部段
 header_end:                
 
 ;===============================================================================
-SECTION code align=16 vstart=0         ;定义代码段（16字节对齐）
-put_string:                            ;显示字符串（0结尾） 
-                                       ;输入：DS:BX=串地址
+SECTION code align=16 vstart=0     ;定义代码段（16字节对齐）
+put_string:                        ;显示字符串（0结尾） 
+                                   ;输入：DS:BX=串地址
       push ax
       push bx
       push si
       
-      mov ah,0x0e                      ;INT 0x10第0x0e号功能 
-      mov si,bx                        ;字符串起始偏移地址 
-      mov bl,0x07                      ;显示属性 
+      mov ah,0x0e                  ;INT 0x10第0x0e号功能 
+      mov si,bx                    ;字符串起始偏移地址 
+      mov bl,0x07                  ;显示属性 
       
  .gchr:      
       mov al,[si]                      ;逐个取要显示的字符 
@@ -68,10 +68,10 @@ read_dsp:
       mov dx,22eh
  .@22e:
       in al,dx                          
-      and al,1000_0000b                ;监视22e端口的位7，直到它变成1
+      and al,1000_0000b       ;监视22e端口的位7，直到它变成1
       jz .@22e
       mov dx,22ah
-      in al,dx                         ;此时可以从22a端口读取数据
+      in al,dx                ;此时可以从22a端口读取数据
       
       pop dx
       
@@ -80,8 +80,8 @@ read_dsp:
 ;-------------------------------------------------------------------------------
 start:
       mov ax,[stack_segment]
-      mov ss,ax                        ;修改SS时，处理器将在执行下一指
-      mov sp,ss_pointer                ;令前禁止中断
+      mov ss,ax               ;修改SS时，处理器将在执行下一指
+      mov sp,ss_pointer       ;令前禁止中断
       
       mov ax,[data_segment]
       mov ds,ax
@@ -91,23 +91,23 @@ start:
                
       ;以下复位DSP芯片
       mov dx,0x226 
-      mov al,1                         ;第一步，先写“1”到复位端口 
+      mov al,1                ;第一步，先写“1”到复位端口 
       out dx,al
     
       xor ax,ax
   .@1:
       dec ax
-      jnz .@1                          ;一个硬件要求的延时(至少3ms) 
+      jnz .@1                 ;一个硬件要求的延时(至少3ms) 
     
-      out dx,al                        ;第二步，写“0”到复位端口 
+      out dx,al               ;第二步，写“0”到复位端口 
 
       call read_dsp
-      cmp al,0xaa                      ;状态值0xaa表示初始化完成 
+      cmp al,0xaa             ;状态值0xaa表示初始化完成 
       jz .@4
     
-      mov bx,err_msg                   ;显示出错信息 
+      mov bx,err_msg          ;显示出错信息 
       call put_string
-      jmp .idle                        ;直接停机 
+      jmp .idle               ;直接停机 
       
   .@4:
       mov bx,done_msg
@@ -117,21 +117,21 @@ start:
       mov bx,intr_msg
       call put_string
       
-      mov al,0x0d                      ;IR5引脚的中断号 
-      mov bl,4                         ;每个中断向量占4个字节。本段等效于： 
-      mul bl                           ;mov bx,0x0d
-      mov bx,ax                        ;shl bx,2
+      mov al,0x0d           ;IR5引脚的中断号 
+      mov bl,4              ;每个中断向量占4个字节。本段等效于:
+      mul bl                ;mov bx,0x0d
+      mov bx,ax             ;shl bx,2
       
-      cli                              ;禁止在修改IVT期间发生中断 
+      cli                     ;禁止在修改IVT期间发生中断 
       
-      push es                          ;临时使用ES 
+      push es                 ;临时使用ES 
       xor ax,ax
-      mov es,ax                        ;指向内存最低处的中断向量表 
+      mov es,ax               ;指向内存最低处的中断向量表 
       mov word [es:bx],dsp_interrupt
-                                       ;偏移地址 
+                              ;偏移地址 
       inc bx
       inc bx
-      mov word [es:bx],cs              ;当前代码段 
+      mov word [es:bx],cs     ;当前代码段 
       pop es
       
       sti
@@ -152,40 +152,40 @@ start:
       mov al,00000_1_01B               ;关闭主DMAC的1号通道 
       out dx,al                      
                 
-      mov ax,ds                        ;计算缓冲区物理地址
+      mov ax,ds              ;计算缓冲区物理地址
       mov bx,16
       mul bx
       add ax,voice_data
       adc dx,0
-      mov bx,dx                        ;bx:ax=缓冲区20位地址 
+      mov bx,dx              ;bx:ax=缓冲区20位地址 
 
       xor al,al
-      out 0x0c,al                      ;DMAC1高低触发器清零
+      out 0x0c,al            ;DMAC1高低触发器清零
 
-      mov dx,0x02                      ;写通道1基址与当前地址寄存器
-      out dx,al                        ;低8位DMA地址 
+      mov dx,0x02            ;写通道1基址与当前地址寄存器
+      out dx,al              ;低8位DMA地址 
       mov al,ah
-      out dx,al                        ;高8位DMA地址 
+      out dx,al              ;高8位DMA地址 
 
-      mov dx,0x83                      ;写DMA通道 1 的页面寄存器
+      mov dx,0x83            ;写DMA通道 1 的页面寄存器
       mov al,bl
       out dx,al
 
-      mov dx,0x03                      ;写通道1的基字计数与当前字计数器
-      mov ax,init_msg-voice_data       ;数据块（当缓冲区用）的大小 
-      dec ax                           ;DMA要求实际大小减一
-      out dx,al                        ;缓冲区长度低8位
+      mov dx,0x03            ;写通道1的基字计数与当前字计数器
+      mov ax,init_msg-voice_data  ;数据块（当缓冲区用）的大小 
+      dec ax                      ;DMA要求实际大小减一
+      out dx,al                   ;缓冲区长度低8位
       mov al,ah
-      out dx,al                        ;缓冲区长度高8位
+      out dx,al                   ;缓冲区长度高8位
        
-      mov al,0101_1001b                ;设置DMAC1通道1工作方式：单字节传送/
-      out 0x0b,al                      ;地址递增/自动预置/读传送/通道1
+      mov al,0101_1001b  ;设置DMAC1通道1工作方式：单字节传送/
+      out 0x0b,al        ;地址递增/自动预置/读传送/通道1
 
-      mov dx,0x0a                      ;DMAC1屏蔽寄存器
-      mov al,1                         ;允许通道1接受请求
+      mov dx,0x0a        ;DMAC1屏蔽寄存器
+      mov al,1           ;允许通道1接受请求
       out dx,al
 
-      mov al,0x40                      ;设置DSP采样率（播放）
+      mov al,0x40        ;设置DSP采样率（播放）
       call write_dsp
       mov ax,65536-(256000000/(1*8000))
       xchg ah,al                       ;只使用结果的高8位 
