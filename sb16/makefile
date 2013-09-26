@@ -3,9 +3,15 @@ TMP_FILES=*.xlg *.aux *.log *.toc *.out
 
 all: sb16.pdf
 
-%.pdf:%.tex
-	pdflatex $< && pdflatex $<
+#%.pdf:%.tex
+#	pdflatex $< && pdflatex $<
 
+sb16.pdf: c10.asm
+%.pdf:%.ps
+	ps2pdf $<
+
+%.ps:%.dvi
+	dvips $<
 %.dvi:%.tex
 	latex $< && latex $<
 
