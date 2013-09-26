@@ -11,11 +11,13 @@
 % 轉成 PDF 時, 產生 hyperlink 的效果
 %\usepackage{CJK}
 
+\usepackage{picinpar}
+\usepackage[dvips]{graphicx}
+%\usepackage{epstopdf}
 \usepackage[dvips]{hyperref}
 \usepackage{type1cm}
 \usepackage{threeparttable}
 \usepackage{fancyvrb}
-\usepackage{graphicx}
 \usepackage{longtable}
 
 % 在使用 latex2html 可以處理中文
@@ -77,6 +79,8 @@ pdfproducer={PDF 制作程序},% 这个好像没起作用？
 \newpage
 
 \addtocounter{section}{9}
+\addtocounter{table}{9}
+\addtocounter{figure}{9}
 \section{聆听数字的声音}
 每次谈到计算机硬件的时候, 人们无一例外地会说总线有多宽, 速度有多快。很难说什么样的“快”才叫快, 特别是考虑到内存和外部设备在速度上和处理器相比, 从来就不在一个数量级上。
 
@@ -124,6 +128,21 @@ ISA是面向单用户和简单应用环境的总线, 结构并不复杂。所以
 如图10-1所示, 在早期的计算机系统中, DMAC是独立于处理器和外部设备之外的第三方 (Thrid party) 总线主控器。设备向DMAC发送DMA请求 (DMA REQuest：DREQ) ；如果总线空闲, 可以占用, DMAC用DMA确认信号 (DMA ACKnology) 回应。此后, 就可以正常开始DMA传送。
  
 图10-1  直接存储器访问控制逻辑
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{eps/10-1.bmp.eps}
+\caption{直接存储器访问控制逻辑}\label{dma}
+
+%  \begin{adjustbox}{addcode={\begin{minipage}{\width}}{\caption{%
+%General-Pupose Instruction}\label{gpinst}
+%      \end{minipage}},rotate=90,center}
+%      \includegraphics[scale=.6]{eps/instruction_format.eps}%
+%  \end{adjustbox}
+
+\end{center}
+\end{figure}
+
+
 
 对大批量、高速数据传输的需求一直是存在着的, 区别仅仅在于这种需求有多强烈。所谓水涨船高, 要求自然也跟着提高了, 当我们的显卡能够支持高分辨率和真彩色显示模式时, 大家就开始考虑让它能够播放高码率的高清电影。
 DMA技术曾经很流行, 但总线技术发展速度更快, 所以, 现在的情况是, DMA技术依然在大学的教材上非常流行, 现实生活中, 在实际的计算机系统中, 它已经渐渐离我们远去。
@@ -144,6 +163,12 @@ Virtual Box虚拟机中有声卡类型选项, 甚至可以选择“Bound Blaster
 启动Virtual Box, 选择你创建的虚拟机 (比如LEARN-ASM) , 单击“设置”, 进入参数设置对话框。如图10-2所示, 选择“声音”项目。
  
 图10-2  为虚拟机设置声卡类型
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{eps/10-2.bmp.eps}
+\caption{为虚拟机设置声卡类型}\label{vm}
+\end{center}
+\end{figure}
 
 首先要选择 ``启动声音''。然后, 选择声卡类型为 ``Windows DirectSound''。该选项的意思是, 当你在虚拟机里针对声卡硬件进行操作时, 虚拟机也会访问真实的物理声卡来做转换工作, 而虚拟机访问物理声卡的方式是调用Windows操作系统的DirectSound驱动程序。除了我们, 现在谁还会直接针对硬件编程？
 
