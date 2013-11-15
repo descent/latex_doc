@@ -189,6 +189,40 @@ for (int i=0 ; i < Bitmap->rows ; i++) // bitmap 的高
  }
 }
 \end{Verbatim}
+
+\subsection{兩個字之間的位置}
+ref: http://www.freetype.org/freetype2/docs/tutorial/step1.html
+\begin{Verbatim}[commandchars=@\[\]]
+for ( n = 0; n < num_chars; n++ ) 
+{ 
+  /* load glyph image into the slot (erase previous one) */ 
+  error = FT_Load_Char( face, text[n], FT_LOAD_RENDER ); 
+  if ( error ) continue; /* ignore errors */ 
+  /* now, draw to our target surface */ 
+  my_draw_bitmap( &slot->bitmap, pen_x + slot->bitmap_left, 
+                  pen_y - slot->bitmap_top ); 
+  /* increment pen position */ 
+  pen_x += slot->advance.x >> 6; 
+  pen_y += slot->advance.y >> 6; 
+}
+
+
+for ( n = 0; n < num_chars; n++ ) 
+{ 
+  /* set transformation */ 
+  FT_Set_Transform( face, &matrix, &pen ); 
+  /* load glyph image into the slot (erase previous one) */ 
+  error = FT_Load_Char( face, text[n], FT_LOAD_RENDER ); 
+  if ( error ) continue; /* ignore errors */ 
+  /* now, draw to our target surface (convert position) */ 
+  my_draw_bitmap( &slot->bitmap, slot->bitmap_left, 
+                  my_target_height - slot->bitmap_top ); 
+  /* increment pen position */ 
+  pen.x += slot->advance.x; 
+  pen.y += slot->advance.y; 
+}
+\end{Verbatim}
+
 \newpage
 \section{字元編碼 (charset)}
 由於地方文字的不同， 便有了不同的編碼。 例如 ASCII、Big5、unicode 等等。
