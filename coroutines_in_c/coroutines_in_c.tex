@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[12pt]{article}
 %\usepackage[paperwidth=8,paperheight=11cm,textwidth=13cm,textheight=14cm,left=0.5cm,right=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
 
 
@@ -276,48 +276,54 @@ It's still ugly, though. The worst part of it is that the set of labels must be 
 
 The famous "Duff's device" in C makes use of the fact that a case statement is still legal within a sub-block of its matching switch statement. Tom Duff used this for an optimised output loop: 
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
-    switch (count % 8) {
-        case 0:        do {  *to = *from++;
-        case 7:              *to = *from++;
-        case 6:              *to = *from++;
-        case 5:              *to = *from++;
-        case 4:              *to = *from++;
-        case 3:              *to = *from++;
-        case 2:              *to = *from++;
-        case 1:              *to = *from++;
-                       } while ((count -= 8) > 0);
-    }
+\begin{lstlisting}[caption=xx, basicstyle=\footnotesize, breaklines=true]
+switch (count % 8) 
+{
+  case 0:  do {  *to = *from++;
+  case 7:        *to = *from++;
+  case 6:        *to = *from++;
+  case 5:        *to = *from++;
+  case 4:        *to = *from++;
+  case 3:        *to = *from++;
+  case 2:        *to = *from++;
+  case 1:        *to = *from++;
+           } while ((count -= 8) > 0);
+}
 \end{lstlisting}
 
 We can put it to a slightly different use in the coroutine trick. Instead of using a switch statement to decide which goto statement to execute, we can use the switch statement to perform the jump itself:
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
-int function(void) {
-    static int i, state = 0;
-    switch (state) {
-        case 0: /* start of function */
-        for (i = 0; i < 10; i++) {
-            state = 1; /* so we will come back to ``case 1'' */
-            return i;
-            case 1:; /* resume control straight after the return */
-        }
+\begin{lstlisting}[caption=yy, basicstyle=\footnotesize, breaklines=true]
+int function(void) 
+{
+  static int i, state = 0;
+  switch (state) 
+  {
+    case 0: /* start of function */
+    for (i = 0; i < 10; i++) 
+    {
+      state = 1; /* so we will come back to ``case 1'' */
+      return i;
+      case 1:; /* resume control straight after the return */
     }
+  }
 }
 \end{lstlisting}
 
 Now this is looking promising. All we have to do now is construct a few well chosen macros, and we can hide the gory details in something plausible-looking:
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
+\begin{lstlisting}[caption=yy, basicstyle=\footnotesize, breaklines=true]
 #define crBegin static int state=0; switch(state) { case 0:
 #define crReturn(i,x) do { state=i; return x; case i:; } while (0)
 #define crFinish }
-int function(void) {
-    static int i;
-    crBegin;
-    for (i = 0; i < 10; i++)
-        crReturn(1, i);
-    crFinish;
+
+int function(void) 
+{
+  static int i;
+  crBegin;
+  for (i = 0; i < 10; i++)
+    crReturn(1, i);
+  crFinish;
 }
 \end{lstlisting}
 
@@ -329,7 +335,7 @@ The only snag remaining is the first parameter to crReturn. Just as when we inve
 
 Even this can be solved. ANSI C provides the special macro name \verb+__LINE__+, which expands to the current source line number. So we can rewrite crReturn as
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
+\begin{lstlisting}[caption=xx, basicstyle=\footnotesize, breaklines=true]
 #define crReturn(x) do { state=__LINE__; return x; \
                          case __LINE__:; } while (0)
 \end{lstlisting}
