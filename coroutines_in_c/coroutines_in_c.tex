@@ -108,11 +108,12 @@ Simon Tatham
 \newpage
 \begin{multicols}{2}
 
-\begin{lstlisting}[caption=decompression, basicstyle=\footnotesize]
-/* Decompression code */
+\begin{lstlisting}[caption=decompression, basicstyle=\footnotesize, breaklines=true, frame=single,frameround=tttt]
+//Decompression code
 while (1) 
 {
   c = getchar();
+
   if (c == EOF)
     break;
   if (c == 0xFF) 
@@ -126,27 +127,26 @@ while (1)
     emit(c);
 }
 emit(EOF);
-
-    
 \end{lstlisting}
 
-\begin{lstlisting}[caption=parser, basicstyle=\footnotesize]
-/* Parser code */
-while (1) {
-  c = getchar();
-  if (c == EOF)
+\begin{lstlisting}[caption=parser, basicstyle=\footnotesize, breaklines=true, frame=single,frameround=tttt]
+// Parser code 
+while (1) 
+{
+ c = getchar();
+ if (c == EOF)
     break;
-  if (isalpha(c)) 
+ if (isalpha(c)) 
+ {
+  do 
   {
-    do 
-    {
-      add_to_token(c);
-      c = getchar();
-    } while (isalpha(c));
-    got_token(WORD);
-  }
-  add_to_token(c);
-  got_token(PUNCT);
+   add_to_token(c);
+   c = getchar();
+  }while(isalpha(c));
+  got_token(WORD);
+ }
+ add_to_token(c);
+ got_token(PUNCT);
 }
 
 \end{lstlisting}
@@ -178,46 +178,49 @@ int decompressor(void)
   }
 
   c = getchar();
+
   if (c == EOF)
     return EOF;
   if (c == 0xFF) 
   {
-    replen = getchar();
-    repchar = getchar();
+    replen=getchar();
+    repchar=getchar();
     replen--;
     return repchar;
   }
   else
     return c;
+
 }
 \end{lstlisting}
 
-\begin{lstlisting}[caption=parsesr, basicstyle=\footnotesize]
+\begin{lstlisting}[caption=parsesr, basicstyle=\footnotesize, breaklines=true]
 void parser(int c) 
 {
-  static enum 
+ static enum 
+ {
+  START, IN_WORD
+ }state;
+ switch (state) 
+ {
+  case IN_WORD:
+  if (isalpha(c)) 
   {
-    START, IN_WORD
-  }state;
-  switch (state) 
-  {
-    case IN_WORD:
-    if (isalpha(c)) {
-      add_to_token(c);
-      return;
-    }
-    got_token(WORD);
-    state = START;
-    /* fall through */
-
-    case START:
-    add_to_token(c);
-    if (isalpha(c))
-      state = IN_WORD;
-    else
-      got_token(PUNCT);
-    break;
+   add_to_token(c);
+   return;
   }
+  got_token(WORD);
+  state = START;
+  /* fall through */
+
+  case START:
+  add_to_token(c);
+  if (isalpha(c))
+   state = IN_WORD;
+  else
+   got_token(PUNCT);
+  break;
+ }
 }
 \end{lstlisting}
 \end{multicols}
