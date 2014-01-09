@@ -239,7 +239,7 @@ So what we would really like is the ability to mimic Knuth's coroutine call prim
 
 The callee has all the problems. For our callee, we want a function which has a ``return and continue'' operation: return from the function, and next time it is called, resume control from just after the return statement. For example, we would like to be able to write a function that says
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize, breaklines=true]
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
 {
   int i;
@@ -252,19 +252,22 @@ and have ten successive calls to the function return the numbers 0 through 9.
 
 How can we implement this? Well, we can transfer control to an arbitrary point in the function using a goto statement. So if we use a state variable, we could do this:
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
-int function(void) {
-    static int i, state = 0;
-    switch (state) {
-        case 0: goto LABEL0;
-        case 1: goto LABEL1;
-    }
-    LABEL0: /* start of function */
-    for (i = 0; i < 10; i++) {
-        state = 1; /* so we will come back to LABEL1 */
-        return i;
-        LABEL1:; /* resume control straight after the return */
-    }
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
+int function(void) 
+{
+  static int i, state = 0;
+  switch (state) 
+  {
+    case 0: goto LABEL0;
+    case 1: goto LABEL1;
+  }
+  LABEL0: /* start of function */
+  for (i = 0; i < 10; i++) 
+  {
+    state = 1; /* so we will come back to LABEL1 */
+    return i;
+    LABEL1:; /* resume control straight after the return */
+  }
 }
 \end{lstlisting}
 
@@ -276,7 +279,7 @@ It's still ugly, though. The worst part of it is that the set of labels must be 
 
 The famous "Duff's device" in C makes use of the fact that a case statement is still legal within a sub-block of its matching switch statement. Tom Duff used this for an optimised output loop: 
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize, breaklines=true]
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 switch (count % 8) 
 {
   case 0:  do {  *to = *from++;
@@ -293,7 +296,7 @@ switch (count % 8)
 
 We can put it to a slightly different use in the coroutine trick. Instead of using a switch statement to decide which goto statement to execute, we can use the switch statement to perform the jump itself:
 
-\begin{lstlisting}[caption=yy, basicstyle=\footnotesize, breaklines=true]
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
 {
   static int i, state = 0;
@@ -312,7 +315,7 @@ int function(void)
 
 Now this is looking promising. All we have to do now is construct a few well chosen macros, and we can hide the gory details in something plausible-looking:
 
-\begin{lstlisting}[caption=yy, basicstyle=\footnotesize, breaklines=true]
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 #define crBegin static int state=0; switch(state) { case 0:
 #define crReturn(i,x) do { state=i; return x; case i:; } while (0)
 #define crFinish }
@@ -335,7 +338,7 @@ The only snag remaining is the first parameter to crReturn. Just as when we inve
 
 Even this can be solved. ANSI C provides the special macro name \verb+__LINE__+, which expands to the current source line number. So we can rewrite crReturn as
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize, breaklines=true]
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 #define crReturn(x) do { state=__LINE__; return x; \
                          case __LINE__:; } while (0)
 \end{lstlisting}
@@ -346,50 +349,62 @@ and then we no longer have to worry about those state parameters at all, provide
 
 So now we have this monstrosity, let's rewrite our original code fragments using it.
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
-int decompressor(void) {
-    static int c, len;
-    crBegin;
-    while (1) {
-        c = getchar();
-        if (c == EOF)
-            break;
-        if (c == 0xFF) {
-            len = getchar();
-            c = getchar();
-            while (len--)
-                    crReturn(c);
-        } else
-            crReturn(c);
-    }
-    crReturn(EOF);
-    crFinish;
+\newpage
+\begin{multicols}{2}
+\begin{lstlisting}[caption=decompressor, basicstyle=\footnotesize, breaklines=true]
+int decompressor(void) 
+{
+  static int c, len;
+  crBegin;
+
+  while (1) 
+  {
+    c = getchar();
+
+    if (c == EOF)
+      break;
+    if (c == 0xFF) 
+    {
+      len = getchar();
+      c = getchar();
+      while (len--)
+        crReturn(c);
+    } 
+    else
+      crReturn(c);
+  }
+  crReturn(EOF);
+  crFinish;
 }
 \end{lstlisting}
 
 
-
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
-void parser(int c) {
-    crBegin;
-    while (1) {
-        /* first char already in c */
-        if (c == EOF)
-            break;
-        if (isalpha(c)) {
-            do {
-                add_to_token(c);
-                crReturn( );
-            } while (isalpha(c));
-            got_token(WORD);
-        }
+\begin{lstlisting}[caption=parser, basicstyle=\footnotesize, breaklines=true]
+void parser(int c) 
+{
+  crBegin;
+  while (1) 
+  {
+    /* first char already in c */
+    if (c == EOF)
+      break;
+    if (isalpha(c)) 
+    {
+      do 
+      {
         add_to_token(c);
-        got_token(PUNCT);
         crReturn( );
+      } while (isalpha(c));
+      got_token(WORD);
     }
-    crFinish;
+    add_to_token(c);
+    got_token(PUNCT);
+    crReturn( );
+  }
+  crFinish;
 }
 \end{lstlisting}
+\end{multicols}
 
 We have rewritten both decompressor and parser as callees, with no need at all for the massive restructuring we had to do last time we did this. The structure of each function exactly mirrors the structure of its original form. A reader can deduce the grammar recognised by the parser, or the compressed data format used by the decompressor, far more easily than by reading the obscure state-machine code. The control flow is intuitive once you have wrapped your mind around the new format: when the decompressor has a character, it passes it back to the caller with crReturn and waits to be called again when another character is required. When the parser needs another character, it returns using crReturn, and waits to be called again with the new character in the parameter c.
 
@@ -407,18 +422,18 @@ I would claim that the coding standards are at fault here. The examples I've sho
 
 Consider. A function built of small blocks of the form
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
-    case STATE1:
-    /* perform some activity */
-    if (condition) state = STATE2; else state = STATE3;
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
+case STATE1:
+/* perform some activity */
+if (condition) state = STATE2; else state = STATE3;
 \end{lstlisting}
 
 is not very different, to a reader, from a function built of small blocks of the form
 
-\begin{lstlisting}[caption=xx, basicstyle=\footnotesize]
-    LABEL1:
-    /* perform some activity */
-    if (condition) goto LABEL2; else goto LABEL3;
+\begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
+LABEL1:
+/* perform some activity */
+if (condition) goto LABEL2; else goto LABEL3;
 \end{lstlisting}
 
 One is caller and the other is callee, true, but the visual structure of the functions are the same, and the insights they provide into their underlying algorithms are exactly as small as each other. The same people who would fire you for using my coroutine macros would fire you just as loudly for building a function out of small blocks connected by goto statements! And this time they would be right, because laying out a function like that obscures the structure of the algorithm horribly.
@@ -445,18 +460,24 @@ Note that Visual C++ version 6 doesn't like this coroutine trick, because its de
 
 Follow this link for coroutine.h.
 
+%\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,breaklines=true,title=modify a little version]{coroutine.h}
+\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=coroutine.h]{coroutine.h}
+
 Thanks for reading. Share and enjoy!
 
 \section{References}
 
-    Donald Knuth, The Art of Computer Programming, Volume 1. Addison-Wesley, ISBN 0-201-89683-4. Section 1.4.2 describes coroutines in the ``pure'' form.
+\begin{itemize}
+\item Donald Knuth, The Art of Computer Programming, Volume 1. Addison-Wesley, ISBN 0-201-89683-4. Section 1.4.2 describes coroutines in the ``pure'' form.
 
-    http://www.lysator.liu.se/c/duffs-device.html is Tom Duff's own discussion of Duff's device. Note, right at the bottom, a hint that Duff might also have independently invented this coroutine trick or something very like it.
+\item http://www.lysator.liu.se/c/duffs-device.html is Tom Duff's own discussion of Duff's device. Note, right at the bottom, a hint that Duff might also have independently invented this coroutine trick or something very like it.
 
 
-    Update, 2005-03-07: Tom Duff confirms this in a blog comment. The ``revolting way to use switches to implement interrupt driven state machines'' of which he speaks in his original email is indeed the same trick as I describe here.
+Update, 2005-03-07: Tom Duff confirms this in a blog comment. The ``revolting way to use switches to implement interrupt driven state machines'' of which he speaks in his original email is indeed the same trick as I describe here.
 
-    PuTTY is a Win32 Telnet and SSH client. The SSH protocol code contains real-life use of this coroutine trick. As far as I know, this is the worst piece of C hackery ever seen in serious production code. tion using a goto statement. So if we use a state variable, we could do this:
+\item PuTTY is a Win32 Telnet and SSH client. The SSH protocol code contains real-life use of this coroutine trick. As far as I know, this is the worst piece of C hackery ever seen in serious production code. 
+
+\end{itemize}
 
 
 \end{CJK}
