@@ -82,7 +82,7 @@
 %\addcontentsline{toc}{section}{REFERENCE}
 \newpage
 
-\begin{CJK}{UTF8}{bsmi} %開始CJK環境，設定編碼，設定字體
+\begin{CJK}{UTF8}{bsmi} %開始CJK環境, 設定編碼, 設定字體
 \begin{comment}
 .oO Phrack 49 Oo.
 
@@ -104,7 +104,7 @@ Simon Tatham
 
  Here is a very simple piece of run-length decompression code, and an equally simple piece of parser code: 
 
-我們都知道構建一個大型的程序是一件非常困難的工作。一個經常面臨的問題來自於此：如果你有一個代碼片段用來生產數據，另一個代碼片段來調用它，哪一個是調用者，哪一個是被調用者呢？
+我們都知道構建一個大型的程序是一件非常困難的工作。一個經常面臨的問題來自於此：如果你有一個代碼片段用來生產數據, 另一個代碼片段來調用它, 哪一個是調用者, 哪一個是被調用者呢？
 
 這裡有一個簡單的解壓過程的代碼片段和一個同樣簡單的解析代碼片段: 
 
@@ -161,16 +161,16 @@ while (1)
 
  In this article I offer a creative solution to this sort of structure problem. 
 
-每個代碼片段都很簡單，通俗易懂。一個通過調用emit()方法每次產生一個字節；另一個調用getchar()每次獲取一個字節。如果只通過調用emit()和getchar()就能彼此間提交數據，那麼就能簡單的把兩個代碼片段連接到一起，因此也就能把解壓的輸出直接傳遞到解析部分。
+每個代碼片段都很簡單, 通俗易懂。一個通過調用emit()方法每次產生一個字節；另一個調用getchar()每次獲取一個字節。如果只通過調用emit()和getchar()就能彼此間提交數據, 那麼就能簡單的把兩個代碼片段連接到一起, 因此也就能把解壓的輸出直接傳遞到解析部分。
 
-在很多現在操作系統中，你可以使用管道在兩個進程間通信或者兩個線程emit()——在解壓代碼中寫入管道，在解析代碼中使用getchar()從另一端相同的管道中讀取。簡單強壯，但是也重量不可移植。通常你不想把你的一個簡單程序分到線程中。
+在很多現在操作系統中, 你可以使用管道在兩個進程間通信或者兩個線程emit()——在解壓代碼中寫入管道, 在解析代碼中使用getchar()從另一端相同的管道中讀取。簡單強壯, 但是也重量不可移植。通常你不想把你的一個簡單程序分到線程中。
 
 在這篇文章中我提供了一個創造性的解決方案來處理這個構造的問題。 
 
 \section{Rewriting}
  The conventional answer is to rewrite one of the ends of the communication channel so that it's a function that can be called. Here's an example of what that might mean for each of the example fragments.
 
-常見的方式是重寫末端的通信管道，把它作為一個可調用的函數。這有個簡單的例子。 
+常見的方式是重寫末端的通信管道, 把它作為一個可調用的函數。這有個簡單的例子。 
 
 \newpage
 \begin{multicols}{2}
@@ -239,9 +239,9 @@ void parser(int c)
 
  And that's the point, really. Both these rewritten functions are thoroughly ugly compared to their originals. Both of the processes taking place here are easier to read when written as a caller, not as a callee. Try to deduce the grammar recognised by the parser, or the compressed data format understood by the decompressor, just by reading the code, and you will find that both the originals are clear and both the rewritten forms are less clear. It would be much nicer if we didn't have to turn either piece of code inside out.
 
- 當然你不需要兩個都重寫；只修改一個就可以。如果把解壓片段重寫為以上形式，那麼每次調用它都返回一個字符，原始的解析代碼片段中就可以把調用getchar()改為調用decompressor()，這樣程序看起來舒心多了。相反的，如果把解析代碼重寫為上面的形式，那麼每次調用都會輸入一個字符，原始的解壓代碼中可以通過調用parser()替換掉了調用emit()。如果你是個貪婪的人你可以把兩個函數都重寫，都作為被調用者。
+ 當然你不需要兩個都重寫；只修改一個就可以。如果把解壓片段重寫為以上形式, 那麼每次調用它都返回一個字符, 原始的解析代碼片段中就可以把調用getchar()改為調用decompressor(), 這樣程序看起來舒心多了。相反的, 如果把解析代碼重寫為上面的形式, 那麼每次調用都會輸入一個字符, 原始的解壓代碼中可以通過調用parser()替換掉了調用emit()。如果你是個貪婪的人你可以把兩個函數都重寫, 都作為被調用者。
 
-這就是我的真實觀點。和兩個重寫後的函數相比原始的代碼醜陋無比，在這裡當兩個進程被寫為調用者而不是被調用者時更易讀了。如果你試圖通過解析器推斷出語法，或者通過解壓器瞭解解壓數據格式，只需閱讀下代碼就可以，同時你會發現原始的代碼清晰些，重寫後的代碼格式上不太清晰，如果沒有嵌入另外一者的代碼這會更好些。 
+這就是我的真實觀點。和兩個重寫後的函數相比原始的代碼醜陋無比, 在這裡當兩個進程被寫為調用者而不是被調用者時更易讀了。如果你試圖通過解析器推斷出語法, 或者通過解壓器瞭解解壓數據格式, 只需閱讀下代碼就可以, 同時你會發現原始的代碼清晰些, 重寫後的代碼格式上不太清晰, 如果沒有嵌入另外一者的代碼這會更好些。 
 
 \section{Knuth's coroutines}
  In The Art of Computer Programming, Donald Knuth presents a solution to this sort of problem. His answer is to throw away the stack concept completely. Stop thinking of one process as the caller and the other as the callee, and start thinking of them as cooperating equals.
@@ -250,11 +250,11 @@ void parser(int c)
 
  This is very nice in theory, but in practice you can only do it in assembly language, because no commonly used high level language supports the coroutine call primitive. Languages like C depend utterly on their stack-based structure, so whenever control passes from any function to any other, one must be the caller and the other must be the callee. So if you want to write portable code, this technique is at least as impractical as the Unix pipe solution.
 
- 在《計算機程序設計藝術》中，Donald Knuth提供了一個解決這類問題的方法。他的方法是徹底丟掉堆棧的概念，不要再想一個進程作為調用者，另一個作為被調用者，把他們當做平等的協作者關係。
+ 在《計算機程序設計藝術》中, Donald Knuth提供了一個解決這類問題的方法。他的方法是徹底丟掉堆棧的概念, 不要再想一個進程作為調用者, 另一個作為被調用者, 把他們當做平等的協作者關係。
 
- 實際上就是：把傳統的「調用」稍微改為一個不同的方式。新的「調用」將在某個地方保存返回值而不是堆棧上，並且還能跳轉到另一個保存返回值的指定位置上。因此，解碼器每次生成一個字符，就保存它的程序計數器並且跳轉到上次解析器的位置-解析器每次都需要一個新的字符，它保存自己的程序計數器並且跳轉到上次解碼器的位置。程序可以在兩個函數之間來回自如的傳遞需要的數據了。
+ 實際上就是：把傳統的「調用」稍微改為一個不同的方式。新的「調用」將在某個地方保存返回值而不是堆棧上, 並且還能跳轉到另一個保存返回值的指定位置上。因此, 解碼器每次生成一個字符, 就保存它的程序計數器並且跳轉到上次解析器的位置-解析器每次都需要一個新的字符, 它保存自己的程序計數器並且跳轉到上次解碼器的位置。程序可以在兩個函數之間來回自如的傳遞需要的數據了。
 
-理論上看起來很美，但實際中你卻只能在彙編語言中使用，因為通用的高級語言沒有一個支持調用原始的協程。像類似於C的都是依賴於基礎的堆棧結構，因此當在函數間進行數據傳遞時，一個必須作為調用者，領一個必須作為被調用者。所以如果你想寫可移植的代碼，這種技術和Unix管道一樣不切實際。
+理論上看起來很美, 但實際中你卻只能在彙編語言中使用, 因為通用的高級語言沒有一個支持調用原始的協程。像類似於C的都是依賴於基礎的堆棧結構, 因此當在函數間進行數據傳遞時, 一個必須作為調用者, 領一個必須作為被調用者。所以如果你想寫可移植的代碼, 這種技術和Unix管道一樣不切實際。
 
 \section{Stack-based coroutines}
 
@@ -262,9 +262,9 @@ So what we would really like is the ability to mimic Knuth's coroutine call prim
 
 The callee has all the problems. For our callee, we want a function which has a ``return and continue'' operation: return from the function, and next time it is called, resume control from just after the return statement. For example, we would like to be able to write a function that says
 
-我們真正想要的是在 C 中模仿 Knuth 協程調用原語的能力。我們必須接受這個現實，在C語言中，一個函數將作為調用者，另一個作為被調用者。對於調用者我們沒有任何問題；我們按照原始算法寫代碼就可以，無論什麼時候，如果它生成一個字符那麼它就需要調用另一個函數。
+我們真正想要的是在 C 中模仿 Knuth 協程調用原語的能力。我們必須接受這個現實, 在C語言中, 一個函數將作為調用者, 另一個作為被調用者。對於調用者我們沒有任何問題；我們按照原始算法寫代碼就可以, 無論什麼時候, 如果它生成一個字符那麼它就需要調用另一個函數。
 
- 被調用者有很多問題。對於被調用者，我們想要一個函數，該函數具有「返回並繼續」的操作：從函數返回後，當再次調用它，只需要在上次位置繼續執行就可以。比如，我們希望寫這樣一個函數 
+ 被調用者有很多問題。對於被調用者, 我們想要一個函數, 該函數具有「返回並繼續」的操作：從函數返回後, 當再次調用它, 只需要在上次位置繼續執行就可以。比如, 我們希望寫這樣一個函數 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
@@ -277,11 +277,11 @@ int function(void)
 
 and have ten successive calls to the function return the numbers 0 through 9.
 
-連續調用這個函數10次，返回0-9的數字。 
+連續調用這個函數10次, 返回0-9的數字。 
 
 How can we implement this? Well, we can transfer control to an arbitrary point in the function using a goto statement. So if we use a state variable, we could do this:
 
-我們怎麼能實現這個呢？好吧，我們可以用一個goto語句將控制跳轉到這個函數中的任何一點。所以如果我們有一個狀態變量，我們可以這樣做： 
+我們怎麼能實現這個呢？好吧, 我們可以用一個goto語句將控制跳轉到這個函數中的任何一點。所以如果我們有一個狀態變量, 我們可以這樣做： 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
@@ -306,9 +306,9 @@ This method works. We have a set of labels at the points where we might need to 
 
 It's still ugly, though. The worst part of it is that the set of labels must be maintained manually, and must be consistent between the function body and the initial switch statement. Every time we add a new return statement, we must invent a new label name and add it to the list in the switch; every time we remove a return statement, we must remove its corresponding label. We've just increased our maintenance workload by a factor of two.
 
-這個方法可以奏效。在一些我們可能需要恢復控制的地方，我們擁有一組標籤：一個在開始位置，其他的緊跟著每個返回語句。我們有一個保留在函數調用之間的狀態變量，它指明了下一步我們需要恢復控制那個標籤。在任何返回之前，我們會更新狀態變量到正確的標籤位；任何調用之後，我們會對這個變量的值做一個switch操作來查看它當前進行到哪裡。
+這個方法可以奏效。在一些我們可能需要恢復控制的地方, 我們擁有一組標籤：一個在開始位置, 其他的緊跟著每個返回語句。我們有一個保留在函數調用之間的狀態變量, 它指明了下一步我們需要恢復控制那個標籤。在任何返回之前, 我們會更新狀態變量到正確的標籤位；任何調用之後, 我們會對這個變量的值做一個switch操作來查看它當前進行到哪裡。
 
-雖然這樣，它還是比較醜。最糟糕的的部分是，這一組標籤必須手動維護，並且在函數體和初始的switch語句之間保持一致。每次新增一個返回語句，我們必須引進一個新表簽名並把它加到switch列表中；而每次刪除一個返回語句，我們又必須移除相應的標籤。剛剛我們只是考慮一個因素增加的兩倍維護工作量。
+雖然這樣, 它還是比較醜。最糟糕的的部分是, 這一組標籤必須手動維護, 並且在函數體和初始的switch語句之間保持一致。每次新增一個返回語句, 我們必須引進一個新表簽名並把它加到switch列表中；而每次刪除一個返回語句, 我們又必須移除相應的標籤。剛剛我們只是考慮一個因素增加的兩倍維護工作量。
 
 \section{Duff's device}
 
@@ -333,7 +333,7 @@ switch (count % 8)
 
 We can put it to a slightly different use in the coroutine trick. Instead of using a switch statement to decide which goto statement to execute, we can use the switch statement to perform the jump itself:
 
-我們可以稍加變動將它應用到協同程序技巧上。我們可以用switch語句本身執行跳轉，而不是用它來確定跳到哪裡去執行。 
+我們可以稍加變動將它應用到協同程序技巧上。我們可以用switch語句本身執行跳轉, 而不是用它來確定跳到哪裡去執行。 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
@@ -354,7 +354,7 @@ int function(void)
 
 Now this is looking promising. All we have to do now is construct a few well chosen macros, and we can hide the gory details in something plausible-looking:
 
-現在這看起來更理想了。我們現在需要做的只是構造一些精確的 macro，並且可以把細節隱藏到這些似是而非的定義裡： 
+現在這看起來更理想了。我們現在需要做的只是構造一些精確的 macro, 並且可以把細節隱藏到這些似是而非的定義裡： 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 #define crBegin static int state=0; switch(state) { case 0:
@@ -379,11 +379,11 @@ The only snag remaining is the first parameter to crReturn. Just as when we inve
 
 Even this can be solved. ANSI C provides the special macro name \verb+__LINE__+, which expands to the current source line number. So we can rewrite crReturn as
 
-這差不多就是我們想要的了。我們可以通過這種一返回就控制下一個調用回覆的方式，用crReturn從函數返回。當然，我們必須遵守一些基本規則（用crBegin和crFinish包住函數體；聲明所需的所有保存在acrReturn中的靜態局部變量；絕不要在一個顯式switch語句中設置一個crReturn）；但那些並不會限制我們太多。
+這差不多就是我們想要的了。我們可以通過這種一返回就控制下一個調用回覆的方式, 用crReturn從函數返回。當然, 我們必須遵守一些基本規則（用crBegin和crFinish包住函數體；聲明所需的所有保存在acrReturn中的靜態局部變量；絕不要在一個顯式switch語句中設置一個crReturn）；但那些並不會限制我們太多。
 
-剩下的唯一問題是傳給crReturn的第一個參數。就像在上一節引進一個新標籤一樣，我們必須避免與已存在的標籤名衝突，確保所有給crReturn的狀態參數都是不同的。這影響是相當小的 -- 編譯器會抓住它並並不讓它在運行時出錯 -- 但我們還是要避免這樣做。
+剩下的唯一問題是傳給crReturn的第一個參數。就像在上一節引進一個新標籤一樣, 我們必須避免與已存在的標籤名衝突, 確保所有給crReturn的狀態參數都是不同的。這影響是相當小的 -- 編譯器會抓住它並並不讓它在運行時出錯 -- 但我們還是要避免這樣做。
 
-雖然這可以解決，ANSI C還是提供了擴展到當前行號的專門的宏名：\verb+__LINE__+，因此我們可以把crReturn重寫成： 
+雖然這可以解決, ANSI C還是提供了擴展到當前行號的專門的宏名：\verb+__LINE__+, 因此我們可以把crReturn重寫成： 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 #define crReturn(x) do { state=__LINE__; return x; \
@@ -392,13 +392,13 @@ Even this can be solved. ANSI C provides the special macro name \verb+__LINE__+,
 
 and then we no longer have to worry about those state parameters at all, provided we obey a fourth ground rule (never put two crReturn statements on the same line).
 
-而且只要遵守第四條基本規則，我們就不再需要擔心這些狀態參數了（決不在同一行寫兩個crReturn語句）。 
+而且只要遵守第四條基本規則, 我們就不再需要擔心這些狀態參數了（決不在同一行寫兩個crReturn語句）。 
 
 \section{Evaluation}
 
 So now we have this monstrosity, let's rewrite our original code fragments using it.
 
-現在我們有了這個畸形的東西，讓我們來重寫下原始的代碼片段吧。 
+現在我們有了這個畸形的東西, 讓我們來重寫下原始的代碼片段吧。 
 
 \newpage
 \begin{multicols}{2}
@@ -459,33 +459,33 @@ void parser(int c)
 
 We have rewritten both decompressor and parser as callees, with no need at all for the massive restructuring we had to do last time we did this. The structure of each function exactly mirrors the structure of its original form. A reader can deduce the grammar recognised by the parser, or the compressed data format used by the decompressor, far more easily than by reading the obscure state-machine code. The control flow is intuitive once you have wrapped your mind around the new format: when the decompressor has a character, it passes it back to the caller with crReturn and waits to be called again when another character is required. When the parser needs another character, it returns using crReturn, and waits to be called again with the new character in the parameter c.
 
-我們已經重寫瞭解碼器和解析器都作為了被調用者，不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像，讀者能夠通過解析器推斷出相應的語法，或者通過解碼器瞭解到解壓數據格式，比起讀那些狀態機代碼簡單多了。一旦你適應了新的格式，你就會發現控制流程非常直觀：當解壓器產生一個字符，它就調用crReturn將這個字符傳給調用函數，並等待當需要下一個字符時再次被調用。當解析器需要一個新字符時，它通過crReturn返回，並等待下一次被調用時通過參數c傳入新的字符。
+我們已經重寫瞭解碼器和解析器都作為了被調用者, 不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像, 讀者能夠通過解析器推斷出相應的語法, 或者通過解碼器瞭解到解壓數據格式, 比起讀那些狀態機代碼簡單多了。一旦你適應了新的格式, 你就會發現控制流程非常直觀：當解壓器產生一個字符, 它就調用crReturn將這個字符傳給調用函數, 並等待當需要下一個字符時再次被調用。當解析器需要一個新字符時, 它通過crReturn返回, 並等待下一次被調用時通過參數c傳入新的字符。
 
 There has been one small structural alteration to the code: parser() now has its getchar() (well, the corresponding crReturn) at the end of the loop instead of the start, because the first character is already in c when the function is entered. We could accept this small change in structure, or if we really felt strongly about it we could specify that parser() required an ``initialisation'' call before you could start feeding it characters.
 
-這裡代碼裡還有一個小的結構變化：parser()中getchar()放在了循環的結尾而不是開頭了，這是因為當進入函數時，第一個字符已經通過c傳進來了。我們應該可以接受這個小的結構改變，或者如果我們真的對此抱有輕盈態度，我們可以認為在parse()傳入數據前，需要一次「初始化」調用。 
+這裡代碼裡還有一個小的結構變化：parser()中getchar()放在了循環的結尾而不是開頭了, 這是因為當進入函數時, 第一個字符已經通過c傳進來了。我們應該可以接受這個小的結構改變, 或者如果我們真的對此抱有輕盈態度, 我們可以認為在parse()傳入數據前, 需要一次「初始化」調用。 
 
 As before, of course, we don't have to rewrite both routines using the coroutine macros. One will suffice; the other can be its caller.
 
 We have achieved what we set out to achieve: a portable ANSI C means of passing data between a producer and a consumer without the need to rewrite one as an explicit state machine. We have done this by combining the C preprocessor with a little-used feature of the switch statement to create an implicit state machine.
 
- 當然像前面一樣，我們不必把兩個函數都使用協程的宏重寫，修改一個足矣；另一個可以作為他的被調用者。
+ 當然像前面一樣, 我們不必把兩個函數都使用協程的宏重寫, 修改一個足矣；另一個可以作為他的被調用者。
 
- 我們已經取得了我們想要達到的目標：一個可移植的ANSI C在生產者和消費者之間傳遞數據，而不用狀態機重寫代碼。我們已經通過把一個switch語句的生僻的功能結合C的預處理創建一個隱式的狀態機。 
+ 我們已經取得了我們想要達到的目標：一個可移植的ANSI C在生產者和消費者之間傳遞數據, 而不用狀態機重寫代碼。我們已經通過把一個switch語句的生僻的功能結合C的預處理創建一個隱式的狀態機。 
 
 \section{Coding Standards}
 
 Of course, this trick violates every coding standard in the book. Try doing this in your company's code and you will probably be subject to a stern telling off if not disciplinary action! You have embedded unmatched braces in macros, used case within sub-blocks, and as for the crReturn macro with its terrifyingly disruptive contents . . . It's a wonder you haven't been fired on the spot for such irresponsible coding practice. You should be ashamed of yourself.
 
-當然，這種方式違背了書上的編碼規範，在公司代碼中嘗試這樣使用你會受到嚴厲的警告！在宏定義中，你的大括號沒有完全匹配，子區塊中使用了case，至於crReturn宏中內容不完整···使用這種不負責任的編碼實踐你沒有被解僱真是一種奇蹟。你應該感到自行慚愧。 
+當然, 這種方式違背了書上的編碼規範, 在公司代碼中嘗試這樣使用你會受到嚴厲的警告！在宏定義中, 你的大括號沒有完全匹配, 子區塊中使用了case, 至於crReturn宏中內容不完整···使用這種不負責任的編碼實踐你沒有被解僱真是一種奇蹟。你應該感到自行慚愧。 
 
 I would claim that the coding standards are at fault here. The examples I've shown in this article are not very long, not very complicated, and still just about comprehensible when rewritten as state machines. But as the functions get longer, the degree of rewriting required becomes greater and the loss of clarity becomes much, much worse.
 
-我需要聲明下編碼規範在這裡不適用。在這篇文章裡我展示的例子不是很長，也不複雜，即使使用狀態機重寫也能看懂。但是隨著函數變長，重寫的難度越來愈大，並且失去了代碼清晰度，越來越糟糕。 
+我需要聲明下編碼規範在這裡不適用。在這篇文章裡我展示的例子不是很長, 也不複雜, 即使使用狀態機重寫也能看懂。但是隨著函數變長, 重寫的難度越來愈大, 並且失去了代碼清晰度, 越來越糟糕。 
 
 Consider. A function built of small blocks of the form
 
-考慮下，如果一個函數有下面的代碼塊構成 
+考慮下, 如果一個函數有下面的代碼塊構成 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 case STATE1:
@@ -505,45 +505,45 @@ if (condition) goto LABEL2; else goto LABEL3;
 
 One is caller and the other is callee, true, but the visual structure of the functions are the same, and the insights they provide into their underlying algorithms are exactly as small as each other. The same people who would fire you for using my coroutine macros would fire you just as loudly for building a function out of small blocks connected by goto statements! And this time they would be right, because laying out a function like that obscures the structure of the algorithm horribly.
 
- 一個調用者，一個被調用者。是的，這兩個函數在可視結構上是一樣的，它們提供的底層算法都非常少。因為使用協程宏想要解僱你的人同樣會因為你寫的連接goto語句的小塊函數而怒斥你！這次它們做對了，因為這樣的函數佈局破壞了算法的結構。 
+ 一個調用者, 一個被調用者。是的, 這兩個函數在可視結構上是一樣的, 它們提供的底層算法都非常少。因為使用協程宏想要解僱你的人同樣會因為你寫的連接goto語句的小塊函數而怒斥你！這次它們做對了, 因為這樣的函數佈局破壞了算法的結構。 
 
 Coding standards aim for clarity. By hiding vital things like switch, return and case statements inside ``obfuscating'' macros, the coding standards would claim you have obscured the syntactic structure of the program, and violated the requirement for clarity. But you have done so in the cause of revealing the algorithmic structure of the program, which is far more likely to be what the reader wants to know!
 
-編程規範目標就是為了清晰。像switch，return和case語句把這些重要的東西隱藏到「不清晰」的宏中，從編程標準角度來看你已經破壞了程序的語法結構，違背了代碼清晰的要求。但是我們這樣做是為了突出程序的算法結構，而算法結構也正好是讀者想要瞭解的！
+編程規範目標就是為了清晰。像switch, return和case語句把這些重要的東西隱藏到「不清晰」的宏中, 從編程標準角度來看你已經破壞了程序的語法結構, 違背了代碼清晰的要求。但是我們這樣做是為了突出程序的算法結構, 而算法結構也正好是讀者想要瞭解的！
 
 Any coding standard which insists on syntactic clarity at the expense of algorithmic clarity should be rewritten. If your employer fires you for using this trick, tell them that repeatedly as the security staff drag you out of the building.
 
- 任何的編碼規範堅持語法的清晰度而犧牲了算法的清晰度都應該被重寫。如果你的老闆因為使用這個技巧而解僱你，當安保人員把你拖走時要不斷告訴他們。 
+ 任何的編碼規範堅持語法的清晰度而犧牲了算法的清晰度都應該被重寫。如果你的老闆因為使用這個技巧而解僱你, 當安保人員把你拖走時要不斷告訴他們。 
 \section{Refinements and Code}
 
 In a serious application, this toy coroutine implementation is unlikely to be useful, because it relies on static variables and so it fails to be re-entrant or multi-threadable. Ideally, in a real application, you would want to be able to call the same function in several different contexts, and at each call in a given context, have control resume just after the last return in the same context.
 
- 在正兒八經的應用程序中，協程很少使用，因為它依賴於靜態變量，因此不能重入或者支持多線程。理想情況下，在真實應用程序中，你可能想在多個不同的上下文中調用同一個函數，並且在給定的一個上下文中每次調用時，都能在這個上下文中上一次返回的位置繼續執行。 
+ 在正兒八經的應用程序中, 協程很少使用, 因為它依賴於靜態變量, 因此不能重入或者支持多線程。理想情況下, 在真實應用程序中, 你可能想在多個不同的上下文中調用同一個函數, 並且在給定的一個上下文中每次調用時, 都能在這個上下文中上一次返回的位置繼續執行。 
 
 This is easily enough done. We arrange an extra function parameter, which is a pointer to a context structure; we declare all our local state, and our coroutine state variable, as elements of that structure.
 
- 這很容易做到，我們增加一個新的函數參數——一個上下文結構的指針；我們將所有的局部變量和協程用到的狀態變量都聲明成結構體中的元素. 
+ 這很容易做到, 我們增加一個新的函數參數——一個上下文結構的指針；我們將所有的局部變量和協程用到的狀態變量都聲明成結構體中的元素. 
 
 It's a little bit ugly, because suddenly you have to use ctx->i as a loop counter where you would previously just have used i; virtually all your serious variables become elements of the coroutine context structure. But it removes the problems with re-entrancy, and still hasn't impacted the structure of the routine.
 
-這樣寫醜了點，因為突然間你不得不使用 \verb+ctx->i+ 作為循環計數器而不是之前使用的i；事實上所有重要的變量都成了協程上下文結構體中的元素。但是這消除了重入的問題，並且沒有影響到程序的結構。 
+這樣寫醜了點, 因為突然間你不得不使用 \verb+ctx->i+ 作為循環計數器而不是之前使用的i；事實上所有重要的變量都成了協程上下文結構體中的元素。但是這消除了重入的問題, 並且沒有影響到程序的結構。 
 
 (Of course, if C only had Pascal's with statement, we could arrange for the macros to make this layer of indirection truly transparent as well. A pity. Still, at least C++ users can manage this by having their coroutine be a class member, and keeping all its local variables in the class so that the scoping is implicit.)
 
-（當然，要是C有Pascal語言的with語句，我們就可以將這個間接的引用隱藏掉，但是很遺憾沒有這些。對於C++語言，我們可以把協程的兩個函數設計成類的成員函數，所有的局部變量設計成類的成員變量，從而將作用域的問題隱藏掉） 
+（當然, 要是C有Pascal語言的with語句, 我們就可以將這個間接的引用隱藏掉, 但是很遺憾沒有這些。對於C++語言, 我們可以把協程的兩個函數設計成類的成員函數, 所有的局部變量設計成類的成員變量, 從而將作用域的問題隱藏掉） 
 
 Included here is a C header file that implements this coroutine trick as a set of pre-defined macros. There are two sets of macros defined in the file, prefixed scr and ccr. The scr macros are the simple form of the technique, for when you can get away with using static variables; the ccr macros provide the advanced re-entrant form. Full documentation is given in a comment in the header file itself.
 
- 這兒包含的C語言頭文件實現了一套預定義的協程使用的宏。在文件中定義了二套宏函數，前綴分別是scr和ccr。scr宏是一套簡單的實現，用於可以使用靜態變量的情況；ccr宏更高級一些，能支持重入。在頭文件的註釋中有完整的說明。 
+ 這兒包含的C語言頭文件實現了一套預定義的協程使用的宏。在文件中定義了二套宏函數, 前綴分別是scr和ccr。scr宏是一套簡單的實現, 用於可以使用靜態變量的情況；ccr宏更高級一些, 能支持重入。在頭文件的註釋中有完整的說明。 
 
 Note that Visual C++ version 6 doesn't like this coroutine trick, because its default debug state (Program Database for Edit and Continue) does something strange to the
 \verb+__LINE__+ macro. To compile a coroutine-using program with VC++ 6, you must turn off Edit and Continue. (In the project settings, go to the ``C/C++'' tab, category ``General'', setting ``Debug info''. Select any option other than ``Program Database for Edit and Continue''.)
 
- 需要注意的是，VC++ 6並不喜歡這種協程技巧，因為其默認的debug狀態（Program Database for Edit and Continue）對 \verb+__LINE__+ 宏的支持有點兒怪。如果想用VC++ 6編譯一個使用了協程的宏，你就要關掉Edit and Continue。（在project settings中，選擇c/c++標籤，在General中，將Debug info改為Program Database for Edit and Continue之外的其他值)。 
+ 需要注意的是, VC++ 6並不喜歡這種協程技巧, 因為其默認的debug狀態（Program Database for Edit and Continue）對 \verb+__LINE__+ 宏的支持有點兒怪。如果想用VC++ 6編譯一個使用了協程的宏, 你就要關掉Edit and Continue。（在project settings中, 選擇c/c++標籤, 在General中, 將Debug info改為Program Database for Edit and Continue之外的其他值)。 
 
 (The header file is MIT-licensed, so you can use it in anything you like without restriction. If you do find something the MIT licence doesn't permit you to do, mail me, and I'll probably give you explicit permission to do it anyway.)
 
- （這個頭文件是MIT許可的，所以你可以任意使用，沒有任何限制。如果你發現MIT對你的使用方式有限制，可以給我發郵件，我會考慮給你授權。） 
+ （這個頭文件是MIT許可的, 所以你可以任意使用, 沒有任何限制。如果你發現MIT對你的使用方式有限制, 可以給我發郵件, 我會考慮給你授權。） 
 
 Follow this link for coroutine.h.
 
@@ -569,10 +569,10 @@ Update, 2005-03-07: Tom Duff confirms this in a blog comment. The ``revolting wa
 
 \begin{itemize}
 \item    Donald Knuth,計算機編程藝術, 卷 1. Addison-Wesley, ISBN 0-201-89683-4. Section 1.4.2 describes coroutines in the "pure" form.
-\item        http://www.lysator.liu.se/c/duffs-device.html 是 Tom Duff's自己關於Duff策略的討論。注意，右下角，暗示著Duff有可能獨立的完成這樣的協程技巧或者其他類似的東西。
+\item        http://www.lysator.liu.se/c/duffs-device.html 是 Tom Duff's 自己關於 Duff 策略的討論。注意, 右下角, 暗示著 Duff 有可能獨立的完成這樣的協程技巧或者其他類似的東西。
 
 \item            更新與, 2005-03-07: Tom Duff 在一篇博客評論中證實了這一點。「revolting way to use switches to implement interrupt driven state machines」這篇文章中和他最初在郵件中說的確實一樣.
-\item                PuTTY是一個 Win32 Telnet 和 SSH 客戶端。SSH協議其中一部分使用了協程技巧.，據我所知，這是一個在生產代碼中最糟糕的C代碼片段的輪子。
+\item                PuTTY 是一個 Win32 Telnet 和 SSH 客戶端。SSH 協議其中一部分使用了協程技巧。據我所知, 這是一個在生產代碼中最糟糕的C代碼片段的輪子。
 \end{itemize}
 
 
