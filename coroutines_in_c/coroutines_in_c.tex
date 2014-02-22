@@ -467,9 +467,10 @@ There has been one small structural alteration to the code: parser() now has its
 
 As before, of course, we don't have to rewrite both routines using the coroutine macros. One will suffice; the other can be its caller.
 
+當然像前面一樣, 我們不必把兩個函數都使用協程的 macro 重寫, 修改一個足矣; 另一個可以作為他的呼叫者。
+
 We have achieved what we set out to achieve: a portable ANSI C means of passing data between a producer and a consumer without the need to rewrite one as an explicit state machine. We have done this by combining the C preprocessor with a little-used feature of the switch statement to create an implicit state machine.
 
-當然像前面一樣, 我們不必把兩個函數都使用協程的 macro 重寫, 修改一個足矣; 另一個可以作為他的被呼叫者。
 
 我們已經取得了我們想要達到的目標: 一個可移植的 ANSI C 在生產者和消費者之間傳遞數據, 而不用狀態機重寫程式碼。我們已經通過把一個
 switch 敘述句的生僻的功能結合 C 的預處理創建一個隱式的狀態機。 
