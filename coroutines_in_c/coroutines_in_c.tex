@@ -526,7 +526,7 @@ This is easily enough done. We arrange an extra function parameter, which is a p
 
  這很容易做到, 我們增加一個新的函數參數——一個上下文結構的指針；我們將所有的局部變數和協程用到的狀態變數都聲明成結構體中的元素. 
 
-It's a little bit ugly, because suddenly you have to use ctx->i as a loop counter where you would previously just have used i; virtually all your serious variables become elements of the coroutine context structure. But it removes the problems with re-entrancy, and still hasn't impacted the structure of the routine.
+It's a little bit ugly, because suddenly you have to use \verb+ctx->i+ as a loop counter where you would previously just have used i; virtually all your serious variables become elements of the coroutine context structure. But it removes the problems with re-entrancy, and still hasn't impacted the structure of the routine.
 
 這樣寫醜了點, 因為突然間你不得不使用 \verb+ctx->i+ 作為循環計數器而不是之前使用的 i;
 事實上所有重要的變數都成了協程上下文結構體中的元素。但是這消除了重入的問題, 並且沒有影響到程序的結構。 
@@ -551,10 +551,8 @@ Note that Visual C++ version 6 doesn't like this coroutine trick, because its de
 
 (這個頭文件是 MIT 授權, 所以你可以任意使用, 沒有任何限制。如果你發現 MIT 對你的使用方式有限制, 可以給我發郵件, 我會考慮給你授權。)
 
-Follow this link for coroutine.h.
+Follow this link for coroutine.h (page \pageref{ref_coroutine_h}, \ref{ref_coroutine_h}).
 
-%\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,breaklines=true,title=modify a little version]{coroutine.h}
-\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=coroutine.h]{coroutine.h}
 
 Thanks for reading. Share and enjoy!
 
@@ -577,7 +575,7 @@ Update, 2005-03-07: Tom Duff confirms this in a blog comment. The ``revolting wa
 \item    Donald Knuth,計算機編程藝術, 卷 1. Addison-Wesley, ISBN 0-201-89683-4. Section 1.4.2 describes coroutines in the "pure" form.
 \item        http://www.lysator.liu.se/c/duffs-device.html 是 Tom Duff's 自己關於 Duff 策略的討論。注意, 右下角, 暗示著 Duff 有可能獨立的完成這樣的協程技巧或者其他類似的東西。
 
-\item            更新與, 2005-03-07: Tom Duff 在一篇博客評論中證實了這一點。「revolting way to use switches to implement interrupt driven state machines」這篇文章中和他最初在郵件中說的確實一樣.
+2005-03-07 更新: Tom Duff 在一篇博客評論中證實了這一點。「revolting way to use switches to implement interrupt driven state machines」這篇文章中和他最初在郵件中說的確實一樣.
 \item                PuTTY 是一個 Win32 Telnet 和 SSH 客戶端。SSH 協議其中一部分使用了協程技巧。據我所知, 這是一個在生產程式碼中最糟糕的
 C 程式碼片段的輪子。
 \end{itemize}
@@ -585,6 +583,13 @@ C 程式碼片段的輪子。
 
 
 
+\appendix
+\appendixpage
+\section{coroutine.h}\label{ref_coroutine_h}
+
+%\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,numbers=left,breaklines=true,title=coroutine.h]{coroutine.h}
+\lstinputlisting[basicstyle=\footnotesize,numbers=left,breaklines=true,title=coroutine.h]{coroutine.h}
+%\lstinputlisting[basicstyle=\footnotesize,frame=single,frameround=tttt,breaklines=true,title=modify a little version]{coroutine.h}
 
 \end{CJK}
 \end{document}
