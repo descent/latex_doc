@@ -102,12 +102,12 @@ Simon Tatham
 
  Structuring a large program is always a difficult job. One of the particular problems that often comes up is this: if you have a piece of code producing data, and another piece of code consuming it, which should be the caller and which should be the callee?
 
-我們都知道構建一個大型的程序是一件非常困難的工作。一個經常面臨的問題來自於此：如果你有一個代碼片段用來生產數據, 另一個代碼片段來呼叫它, 哪一個是呼叫者, 哪一個是被呼叫者呢？
+我們都知道構建一個大型的程序是一件非常困難的工作。一個經常面臨的問題來自於此：如果你有一個程式碼片段用來生產數據, 另一個程式碼片段來呼叫它, 哪一個是呼叫者, 哪一個是被呼叫者呢？
 
  Here is a very simple piece of run-length decompression code, and an equally simple piece of parser code: 
 
 
-這裡有一個簡單的解壓過程的代碼片段和一個同樣簡單的解析代碼片段: 
+這裡有一個簡單的解壓過程的程式碼片段和一個同樣簡單的解析程式碼片段: 
 
 \newpage
 \begin{multicols}{2}
@@ -158,12 +158,12 @@ while (1)
 
  Each of these code fragments is very simple, and easy to read and understand. One produces a character at a time by calling emit(); the other consumes a character at a time by calling getchar(). If only the calls to emit() and the calls to getchar() could be made to feed data to each other, it would be simple to connect the two fragments together so that the output from the decompressor went straight to the parser.
 
-每個代碼片段都很簡單, 通俗易懂。一個通過呼叫 emit() 方法每次產生一個 byte; 另一個呼叫 getchar() 每次獲取一個 byte 。如果只通過呼叫
-emit() 和 getchar() 就能彼此間提交數據, 那麼就能簡單的把兩個代碼片段連接到一起, 因此也就能把解壓的輸出直接傳遞到解析部分。
+每個程式碼片段都很簡單, 通俗易懂。一個通過呼叫 emit() 方法每次產生一個 byte; 另一個呼叫 getchar() 每次獲取一個 byte 。如果只通過呼叫
+emit() 和 getchar() 就能彼此間提交數據, 那麼就能簡單的把兩個程式碼片段連接到一起, 因此也就能把解壓的輸出直接傳遞到解析部分。
 
  In many modern operating systems, you could do this using pipes between two processes or two threads. emit() in the decompressor writes to a pipe, and getchar() in the parser reads from the other end of the same pipe. Simple and robust, but also heavyweight and not portable. Typically you don't want to have to divide your program into threads for a task this simple.
 
-在很多現在操作系統中, 你可以使用管道在兩個進程間通信或者兩個線程emit()——在解壓代碼中寫入管道, 在解析代碼中使用getchar()從另一端相同的管道中讀取。簡單強壯, 但是也重量不可移植。通常你不想把你的一個簡單程序分到線程中。
+在很多現在操作系統中, 你可以使用管道在兩個進程間通信或者兩個線程emit()——在解壓程式碼中寫入管道, 在解析程式碼中使用getchar()從另一端相同的管道中讀取。簡單強壯, 但是也重量不可移植。通常你不想把你的一個簡單程序分到線程中。
 
 In this article I offer a creative solution to this sort of structure problem. 
 
@@ -239,12 +239,12 @@ void parser(int c)
 
  Of course you don't have to rewrite both of them; just one will do. If you rewrite the decompressor in the form shown, so that it returns one character every time it's called, then the original parser code can replace calls to getchar() with calls to decompressor(), and the program will be happy. Conversely, if you rewrite the parser in the form shown, so that it is called once for every input character, then the original decompression code can call parser() instead of emit() with no problems. You would only want to rewrite both functions as callees if you were a glutton for punishment.
 
-當然你不需要兩個都重寫; 只修改一個就可以。如果把解壓片段重寫為以上形式, 那麼每次呼叫它都返回一個字符, 原始的解析代碼片段中就可以把呼叫 getchar() 改為呼叫 decompressor(), 這樣程序看起來舒心多了。相反的, 如果把解析代碼重寫為上面的形式, 那麼每次呼叫都會輸入一個字符, 原始的解壓代碼中可以通過呼叫 parser() 替換掉了呼叫 emit()。如果你是個貪婪的人你可以把兩個函數都重寫, 都作為被呼叫者。
+當然你不需要兩個都重寫; 只修改一個就可以。如果把解壓片段重寫為以上形式, 那麼每次呼叫它都返回一個字符, 原始的解析程式碼片段中就可以把呼叫 getchar() 改為呼叫 decompressor(), 這樣程序看起來舒心多了。相反的, 如果把解析程式碼重寫為上面的形式, 那麼每次呼叫都會輸入一個字符, 原始的解壓程式碼中可以通過呼叫 parser() 替換掉了呼叫 emit()。如果你是個貪婪的人你可以把兩個函數都重寫, 都作為被呼叫者。
 
  And that's the point, really. Both these rewritten functions are thoroughly ugly compared to their originals. Both of the processes taking place here are easier to read when written as a caller, not as a callee. Try to deduce the grammar recognised by the parser, or the compressed data format understood by the decompressor, just by reading the code, and you will find that both the originals are clear and both the rewritten forms are less clear. It would be much nicer if we didn't have to turn either piece of code inside out.
 
 
-這就是我的真實觀點。和兩個重寫後的函數相比原始的代碼醜陋無比, 在這裡當兩個進程被寫為呼叫者而不是被呼叫者時更易讀了。如果你試圖通過解析器推斷出語法, 或者通過解壓器瞭解解壓數據格式, 只需閱讀下代碼就可以, 同時你會發現原始的代碼清晰些, 重寫後的代碼格式上不太清晰, 如果沒有嵌入另外一者的代碼這會更好些。 
+這就是我的真實觀點。和兩個重寫後的函數相比原始的程式碼醜陋無比, 在這裡當兩個進程被寫為呼叫者而不是被呼叫者時更易讀了。如果你試圖通過解析器推斷出語法, 或者通過解壓器瞭解解壓數據格式, 只需閱讀下程式碼就可以, 同時你會發現原始的程式碼清晰些, 重寫後的程式碼格式上不太清晰, 如果沒有嵌入另外一者的程式碼這會更好些。 
 
 \section{Knuth's coroutines}
  In The Art of Computer Programming, Donald Knuth presents a solution to this sort of problem. His answer is to throw away the stack concept completely. Stop thinking of one process as the caller and the other as the callee, and start thinking of them as cooperating equals.
@@ -257,13 +257,13 @@ void parser(int c)
 
  This is very nice in theory, but in practice you can only do it in assembly language, because no commonly used high level language supports the coroutine call primitive. Languages like C depend utterly on their stack-based structure, so whenever control passes from any function to any other, one must be the caller and the other must be the callee. So if you want to write portable code, this technique is at least as impractical as the Unix pipe solution.
 
-理論上看起來很美, 但實際中你卻只能在組合語言中使用, 因為通用的高階語言沒有一個支援呼叫原始的協程。像類似於 C 的都是依賴於基礎的堆棧結構, 因此當在函數間進行數據傳遞時, 一個必須作為呼叫者, 領一個必須作為被呼叫者。所以如果你想寫可移植的代碼, 這種技術和 Unix 管道一樣不切實際。
+理論上看起來很美, 但實際中你卻只能在組合語言中使用, 因為通用的高階語言沒有一個支援呼叫原始的協程。像類似於 C 的都是依賴於基礎的堆棧結構, 因此當在函數間進行數據傳遞時, 一個必須作為呼叫者, 另一個必須作為被呼叫者。所以如果你想寫可移植的程式碼, 這種技術和 Unix 管道一樣不切實際。
 
 \section{Stack-based coroutines}
 
 So what we would really like is the ability to mimic Knuth's coroutine call primitive in C. We must accept that in reality, at the C level, one function will be caller and the other will be callee. In the caller, we have no problem; we code the original algorithm, pretty much exactly as written, and whenever it has (or needs) a character it calls the other function.
 
-我們真正想要的是在 C 中模仿 Knuth 協程呼叫原語的能力。我們必須接受這個現實, 在 C 語言中, 一個函數將作為呼叫者, 另一個作為被呼叫者。對於呼叫者我們沒有任何問題；我們按照原始算法寫代碼就可以, 無論什麼時候, 如果它生成一個字符那麼它就需要呼叫另一個函數。
+我們真正想要的是在 C 中模仿 Knuth 協程呼叫原語的能力。我們必須接受這個現實, 在 C 語言中, 一個函數將作為呼叫者, 另一個作為被呼叫者。對於呼叫者我們沒有任何問題；我們按照原始算法寫程式碼就可以, 無論什麼時候, 如果它生成一個字符那麼它就需要呼叫另一個函數。
 
 The callee has all the problems. For our callee, we want a function which has a ``return and continue'' operation: return from the function, and next time it is called, resume control from just after the return statement. For example, we would like to be able to write a function that says
 
@@ -469,12 +469,12 @@ void parser(int c)
 
 We have rewritten both decompressor and parser as callees, with no need at all for the massive restructuring we had to do last time we did this. The structure of each function exactly mirrors the structure of its original form. A reader can deduce the grammar recognised by the parser, or the compressed data format used by the decompressor, far more easily than by reading the obscure state-machine code. The control flow is intuitive once you have wrapped your mind around the new format: when the decompressor has a character, it passes it back to the caller with crReturn and waits to be called again when another character is required. When the parser needs another character, it returns using crReturn, and waits to be called again with the new character in the parameter c.
 
-我們已經重寫瞭解碼器和解析器都作為了被呼叫者, 不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像, 讀者能夠通過解析器推斷出相應的語法, 或者通過解碼器瞭解到解壓數據格式, 比起讀那些狀態機代碼簡單多了。一旦你適應了新的格式, 你就會發現控制流程非常直觀：當解壓器產生一個字符, 它就呼叫 crReturn 將這個字符傳給呼叫函數, 並等待當需要下一個字符時再次被呼叫。當解析器需要一個新字符時, 它通過
+我們已經重寫瞭解碼器和解析器都作為了被呼叫者, 不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像, 讀者能夠通過解析器推斷出相應的語法, 或者通過解碼器瞭解到解壓數據格式, 比起讀那些狀態機程式碼簡單多了。一旦你適應了新的格式, 你就會發現控制流程非常直觀：當解壓器產生一個字符, 它就呼叫 crReturn 將這個字符傳給呼叫函數, 並等待當需要下一個字符時再次被呼叫。當解析器需要一個新字符時, 它通過
 crReturn 返回, 並等待下一次被呼叫時通過參數 c 傳入新的字符。
 
 There has been one small structural alteration to the code: parser() now has its getchar() (well, the corresponding crReturn) at the end of the loop instead of the start, because the first character is already in c when the function is entered. We could accept this small change in structure, or if we really felt strongly about it we could specify that parser() required an ``initialisation'' call before you could start feeding it characters.
 
-這裡代碼裡還有一個小的結構變化: parser() 中 getchar() 放在了迴圈的結尾而不是開頭了, 這是因為當進入函數時, 第一個字符已經通過 c
+這裡程式碼裡還有一個小的結構變化: parser() 中 getchar() 放在了迴圈的結尾而不是開頭了, 這是因為當進入函數時, 第一個字符已經通過 c
 傳進來了。我們應該可以接受這個小的結構改變, 或者如果我們真的對此抱有輕盈態度, 我們可以認為在 parse()
 傳入數據前, 需要一次「初始化」呼叫。 
 
@@ -484,22 +484,22 @@ We have achieved what we set out to achieve: a portable ANSI C means of passing 
 
 當然像前面一樣, 我們不必把兩個函數都使用協程的 macro 重寫, 修改一個足矣; 另一個可以作為他的被呼叫者。
 
-我們已經取得了我們想要達到的目標: 一個可移植的 ANSI C 在生產者和消費者之間傳遞數據, 而不用狀態機重寫代碼。我們已經通過把一個
+我們已經取得了我們想要達到的目標: 一個可移植的 ANSI C 在生產者和消費者之間傳遞數據, 而不用狀態機重寫程式碼。我們已經通過把一個
 switch 敘述句的生僻的功能結合 C 的預處理創建一個隱式的狀態機。 
 
 \section{Coding Standards}
 
 Of course, this trick violates every coding standard in the book. Try doing this in your company's code and you will probably be subject to a stern telling off if not disciplinary action! You have embedded unmatched braces in macros, used case within sub-blocks, and as for the crReturn macro with its terrifyingly disruptive contents . . . It's a wonder you haven't been fired on the spot for such irresponsible coding practice. You should be ashamed of yourself.
 
-當然, 這種方式違背了書上的編碼規範, 在公司代碼中嘗試這樣使用你會受到嚴厲的警告! 在 macro 定義中, 你的大括號沒有完全匹配, 子區塊中使用了 case, 至於 crReturn 宏中內容不完整 ... 使用這種不負責任的編碼實踐你沒有被解僱真是一種奇蹟。你應該感到自行慚愧。 
+當然, 這種方式違背了書上的編碼規範, 在公司程式碼中嘗試這樣使用你會受到嚴厲的警告! 在 macro 定義中, 你的大括號沒有完全匹配, 子區塊中使用了 case, 至於 crReturn 宏中內容不完整 ... 使用這種不負責任的編碼實踐你沒有被解僱真是一種奇蹟。你應該感到自行慚愧。 
 
 I would claim that the coding standards are at fault here. The examples I've shown in this article are not very long, not very complicated, and still just about comprehensible when rewritten as state machines. But as the functions get longer, the degree of rewriting required becomes greater and the loss of clarity becomes much, much worse.
 
-我需要聲明下編碼規範在這裡不適用。在這篇文章裡我展示的例子不是很長, 也不複雜, 即使使用狀態機重寫也能看懂。但是隨著函數變長, 重寫的難度越來愈大, 並且失去了代碼清晰度, 越來越糟糕。 
+我需要聲明下編碼規範在這裡不適用。在這篇文章裡我展示的例子不是很長, 也不複雜, 即使使用狀態機重寫也能看懂。但是隨著函數變長, 重寫的難度越來愈大, 並且失去了程式碼清晰度, 越來越糟糕。 
 
 Consider. A function built of small blocks of the form
 
-考慮下, 如果一個函數有下面的代碼塊構成 
+考慮下, 如果一個函數有下面的程式碼塊構成 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 case STATE1:
@@ -523,7 +523,7 @@ One is caller and the other is callee, true, but the visual structure of the fun
 
 Coding standards aim for clarity. By hiding vital things like switch, return and case statements inside ``obfuscating'' macros, the coding standards would claim you have obscured the syntactic structure of the program, and violated the requirement for clarity. But you have done so in the cause of revealing the algorithmic structure of the program, which is far more likely to be what the reader wants to know!
 
-編程規範目標就是為了清晰。像 switch, return 和 case 敘述句把這些重要的東西隱藏到「不清晰」的宏中, 從編程標準角度來看你已經破壞了程序的語法結構, 違背了代碼清晰的要求。但是我們這樣做是為了突出程序的算法結構, 而算法結構也正好是讀者想要瞭解的！
+編程規範目標就是為了清晰。像 switch, return 和 case 敘述句把這些重要的東西隱藏到「不清晰」的宏中, 從編程標準角度來看你已經破壞了程序的語法結構, 違背了程式碼清晰的要求。但是我們這樣做是為了突出程序的算法結構, 而算法結構也正好是讀者想要瞭解的！
 
 Any coding standard which insists on syntactic clarity at the expense of algorithmic clarity should be rewritten. If your employer fires you for using this trick, tell them that repeatedly as the security staff drag you out of the building.
 
@@ -590,8 +590,8 @@ Update, 2005-03-07: Tom Duff confirms this in a blog comment. The ``revolting wa
 \item        http://www.lysator.liu.se/c/duffs-device.html 是 Tom Duff's 自己關於 Duff 策略的討論。注意, 右下角, 暗示著 Duff 有可能獨立的完成這樣的協程技巧或者其他類似的東西。
 
 \item            更新與, 2005-03-07: Tom Duff 在一篇博客評論中證實了這一點。「revolting way to use switches to implement interrupt driven state machines」這篇文章中和他最初在郵件中說的確實一樣.
-\item                PuTTY 是一個 Win32 Telnet 和 SSH 客戶端。SSH 協議其中一部分使用了協程技巧。據我所知, 這是一個在生產代碼中最糟糕的
-C 代碼片段的輪子。
+\item                PuTTY 是一個 Win32 Telnet 和 SSH 客戶端。SSH 協議其中一部分使用了協程技巧。據我所知, 這是一個在生產程式碼中最糟糕的
+C 程式碼片段的輪子。
 \end{itemize}
 
 
