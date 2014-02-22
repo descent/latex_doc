@@ -380,7 +380,7 @@ The only snag remaining is the first parameter to crReturn. Just as when we inve
 
 Even this can be solved. ANSI C provides the special macro name \verb+__LINE__+, which expands to the current source line number. So we can rewrite crReturn as
 
-雖然這可以解決, ANSI C 還是提供了擴展到當前行號的專門的 macro:\verb+__LINE__+, 因此我們可以把 crReturn 重寫成:
+即使可以解決。ANSI C 還是提供了擴展到當前行號的 macro:\verb+__LINE__+, 因此我們可以把 crReturn 重寫成:
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 #define crReturn(x) do { state=__LINE__; return x; \
