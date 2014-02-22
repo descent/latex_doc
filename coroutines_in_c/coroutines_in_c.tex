@@ -149,7 +149,7 @@ emit() 和 getchar() 就能彼此間提交數據, 那麼就能簡單的把兩個
 
  In many modern operating systems, you could do this using pipes between two processes or two threads. emit() in the decompressor writes to a pipe, and getchar() in the parser reads from the other end of the same pipe. Simple and robust, but also heavyweight and not portable. Typically you don't want to have to divide your program into threads for a task this simple.
 
-在很多現在作業系統中, 你可以使用管道在兩個行程間通信或者兩個 thread。 emit() 在解壓程式碼中寫入管道, 在解析程式碼中使用
+在很多現在作業系統中, 你可以使用管道在兩個行程或者兩個 thread 間通信。 emit() 在解壓程式碼中寫入管道, 在解析程式碼中使用
 getchar() 從另一端相同的管道中讀取。簡單強壯, 但是也重量不可移植。通常你不想把你的一個簡單程序分到 thread 中。
 
 In this article I offer a creative solution to this sort of structure problem. 
@@ -236,15 +236,15 @@ void parser(int c)
 \section{Knuth's coroutines}
  In The Art of Computer Programming, Donald Knuth presents a solution to this sort of problem. His answer is to throw away the stack concept completely. Stop thinking of one process as the caller and the other as the callee, and start thinking of them as cooperating equals.
 
-在《計算機程序設計藝術》中, Donald Knuth 提供了一個解決這類問題的方法。他的方法是徹底丟掉堆棧的概念, 不要再想一個行程作為呼叫者, 另一個作為被呼叫者, 把他們當做平等的協作者關係。
+在《計算機程序設計藝術》中, Donald Knuth 提供了一個解決這類問題的方法。他的方法是徹底丟掉堆疊的概念, 不要再想一個行程作為呼叫者, 另一個作為被呼叫者, 把他們當做平等的協作者關係。
 
  In practical terms: replace the traditional "call" primitive with a slightly different one. The new "call" will save the return value somewhere other than on the stack, and will then jump to a location specified in another saved return value. So each time the decompressor emits another character, it saves its program counter and jumps to the last known location within the parser - and each time the parser needs another character, it saves its own program counter and jumps to the location saved by the decompressor. Control shuttles back and forth between the two routines exactly as often as necessary.
 
-實際上就是: 把傳統的「呼叫」稍微改為一個不同的方式。新的「呼叫」將在某個地方保存返回值而不是堆棧上, 並且還能跳轉到另一個保存返回值的指定位置上。因此, 解碼器每次生成一個字符, 就保存它的程序計數器並且跳轉到上次解析器的位置-解析器每次都需要一個新的字符, 它保存自己的程序計數器並且跳轉到上次解碼器的位置。程序可以在兩個函數之間來回自如的傳遞需要的數據了。
+實際上就是: 把傳統的「呼叫」稍微改為一個不同的方式。新的「呼叫」將在某個地方保存返回值而不是堆疊上, 並且還能跳轉到另一個保存返回值的指定位置上。因此, 解碼器每次生成一個字符, 就保存它的程序計數器並且跳轉到上次解析器的位置 - 解析器每次都需要一個新的字符, 它保存自己的程序計數器並且跳轉到上次解碼器的位置。程序可以在兩個函數之間來回自如的傳遞需要的數據了。
 
  This is very nice in theory, but in practice you can only do it in assembly language, because no commonly used high level language supports the coroutine call primitive. Languages like C depend utterly on their stack-based structure, so whenever control passes from any function to any other, one must be the caller and the other must be the callee. So if you want to write portable code, this technique is at least as impractical as the Unix pipe solution.
 
-理論上看起來很美, 但實際中你卻只能在組合語言中使用, 因為通用的高階語言沒有一個支援呼叫原始的協程。像類似於 C 的都是依賴於基礎的堆棧結構, 因此當在函數間進行數據傳遞時, 一個必須作為呼叫者, 另一個必須作為被呼叫者。所以如果你想寫可移植的程式碼, 這種技術和 Unix 管道一樣不切實際。
+理論上看起來很美, 但實際中你卻只能在組合語言中使用, 因為通用的高階語言沒有一個支援呼叫原始的協程。像類似於 C 的都是依賴於基礎的堆疊結構, 因此當在函數間進行數據傳遞時, 一個必須作為呼叫者, 另一個必須作為被呼叫者。所以如果你想寫可移植的程式碼, 這種技術和 Unix 管道一樣不切實際。
 
 \section{Stack-based coroutines}
 
