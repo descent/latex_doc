@@ -456,13 +456,13 @@ void parser(int c)
 
 We have rewritten both decompressor and parser as callees, with no need at all for the massive restructuring we had to do last time we did this. The structure of each function exactly mirrors the structure of its original form. A reader can deduce the grammar recognised by the parser, or the compressed data format used by the decompressor, far more easily than by reading the obscure state-machine code. The control flow is intuitive once you have wrapped your mind around the new format: when the decompressor has a character, it passes it back to the caller with crReturn and waits to be called again when another character is required. When the parser needs another character, it returns using crReturn, and waits to be called again with the new character in the parameter c.
 
-我們已經重寫瞭解碼器和解析器都作為了被呼叫者, 不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像, 讀者能夠透過解析器推斷出相應的語法, 或者透過解碼器瞭解到解壓數據格式, 比起讀那些狀態機程式碼簡單多了。一旦你適應了新的格式, 你就會發現控制流程非常直觀：當解壓器產生一個字符, 它就呼叫 crReturn 將這個字符傳給呼叫函數, 並等待當需要下一個字符時再次被呼叫。當解析器需要一個新字符時, 它透過
+我們已經重寫了解壓器和解析器都作為了被呼叫者, 不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像, 讀者能夠透過解析器推斷出相應的語法, 或者透過解壓器推導出壓縮的資料格式, 比起讀那些狀態機程式碼簡單多了。一旦你適應了新的格式, 你就會發現控制流程非常直觀：當解壓器產生一個字符, 它就呼叫 crReturn 將這個字符傳給呼叫函數, 並等待當需要下一個字符時再次被呼叫。當解析器需要一個新字符時, 它透過
 crReturn 返回, 並等待下一次被呼叫時透過參數 c 傳入新的字符。
 
 There has been one small structural alteration to the code: parser() now has its getchar() (well, the corresponding crReturn) at the end of the loop instead of the start, because the first character is already in c when the function is entered. We could accept this small change in structure, or if we really felt strongly about it we could specify that parser() required an ``initialisation'' call before you could start feeding it characters.
 
-這裡程式碼裡還有一個小的結構變化: parser() 中 getchar() 放在了迴圈的結尾而不是開頭了, 這是因為當進入函數時, 第一個字符已經透過 c
-傳進來了。我們應該可以接受這個小的結構改變, 或者如果我們真的對此抱有輕盈態度, 我們可以認為在 parse()
+程式碼裡還有一個小小的結構變化: parser() 中 getchar() 放在了迴圈的結尾而不是開頭了, 這是因為當進入函數時, 第一個字符已經透過 c
+傳進來了。我們應該可以接受這個小小的改變, 或者如果我們真的對此抱有輕盈態度, 我們可以認為在 parse()
 傳入數據前, 需要一次「初始化」呼叫。 
 
 As before, of course, we don't have to rewrite both routines using the coroutine macros. One will suffice; the other can be its caller.
