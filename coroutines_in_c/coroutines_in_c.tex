@@ -295,14 +295,14 @@ int function(void)
 
 This method works. We have a set of labels at the points where we might need to resume control: one at the start, and one just after each return statement. We have a state variable, preserved between calls to the function, which tells us which label we need to resume control at next. Before any return, we update the state variable to point at the right label; after any call, we do a switch on the value of the variable to find out where to jump to.
 
-這個方法可以奏效。在一些我們可能需要恢復控制的地方, 我們擁有一組標籤: 一個在開始位置, 其他的緊跟著每個 return。我們有一個保留在函數呼叫之間的狀態變數, 它指明了下一步我們需要恢復控制那個標籤。在任何返回之前, 我們會更新狀態變數到正確的標籤位;
+這個方法可以運作。在一些需要恢復控制的地方, 我們擁有一組標籤: 一個在開始位置, 其他的緊跟著每個 return。我們有一個保留在函數呼叫之間的狀態變數, 它指明了下一步我們需要恢復控制那個標籤。在任何返回之前, 我們會更新狀態變數到正確的標籤位;
 任何呼叫之後, 我們會對這個變數的值做一個 switch 操作來查看它當前進行到哪裡。
 
 It's still ugly, though. The worst part of it is that the set of labels must be maintained manually, and must be consistent between the function body and the initial switch statement. Every time we add a new return statement, we must invent a new label name and add it to the list in the switch; every time we remove a return statement, we must remove its corresponding label. We've just increased our maintenance workload by a factor of two.
 
 
-雖然這樣, 它還是比較醜。最糟糕的的部分是, 這一組標籤必須手動維護, 並且在函數體和初始的 switch 敘述句之間保持一致。每次新增一個 return, 我們必須引進一個新表簽名並把它加到 switch 列表中;
-而每次刪除一個 return, 我們又必須移除相應的標籤。剛剛我們只是考慮一個因素增加的兩倍維護工作量。
+然而它很醜。最糟糕的部分是, 這一組標籤必須手工維護, 並且在函數體和初始的 switch 敘述句之間保持一致。每次新增一個 return, 我們必須創造一個新的 label name 並把它加進 switch 列表中;
+而每次刪除一個 return, 我們又必須移除與之相對應的 label。僅僅是一個變化便會增加兩倍的維護工作。
 
 \section{Duff's device}
 
