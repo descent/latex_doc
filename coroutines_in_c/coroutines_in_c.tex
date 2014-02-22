@@ -91,8 +91,7 @@
 
 我們都知道構建一個大型的程序是一件非常困難的工作。一個經常面臨的問題來自於此：如果你有一個程式碼片段用來生產數據, 另一個程式碼片段來使用它, 哪一個是呼叫者, 哪一個是被呼叫者呢？
 
- Here is a very simple piece of run-length decompression code, and an equally simple piece of parser code: 
-
+Here is a very simple piece of run-length decompression code, and an equally simple piece of parser code: 
 
 這裡有一個簡單的解壓程式碼片段和一個同樣簡單的解析程式碼片段: 
 
@@ -151,7 +150,7 @@ emit() 和 getchar() 就能彼此間提交數據, 那麼就能簡單的把兩個
  In many modern operating systems, you could do this using pipes between two processes or two threads. emit() in the decompressor writes to a pipe, and getchar() in the parser reads from the other end of the same pipe. Simple and robust, but also heavyweight and not portable. Typically you don't want to have to divide your program into threads for a task this simple.
 
 在很多現在作業系統中, 你可以使用管道在兩個行程或者兩個 thread 間通信。 emit() 在解壓程式碼中寫入管道, 在解析程式碼中使用
-getchar() 從另一端相同的管道中讀取。簡單強壯, 但是也重量不可移植。通常你不想把你的一個簡單程序分到 thread 中。
+getchar() 從另一端相同的管道中讀取。簡單強壯, 但是負擔太重也不可移植。通常你不想把一個簡單程序分到 thread 中。
 
 In this article I offer a creative solution to this sort of structure problem. 
 
