@@ -401,27 +401,27 @@ So now we have this monstrosity, let's rewrite our original code fragments using
 \begin{lstlisting}[caption=decompressor, basicstyle=\footnotesize, breaklines=true]
 int decompressor(void) 
 {
-  static int c, len;
-  crBegin;
+ static int c, len;
+ crBegin;
 
-  while (1) 
+ while(1) 
+ {
+  c = getchar();
+
+  if (c == EOF)
+   break;
+  if (c == 0xFF) 
   {
-    c = getchar();
-
-    if (c == EOF)
-      break;
-    if (c == 0xFF) 
-    {
-      len = getchar();
-      c = getchar();
-      while (len--)
-        crReturn(c);
-    } 
-    else
-      crReturn(c);
-  }
-  crReturn(EOF);
-  crFinish;
+   len = getchar();
+   c = getchar();
+   while (len--)
+    crReturn(c);
+  } 
+  else
+   crReturn(c);
+ }
+ crReturn(EOF);
+ crFinish;
 }
 \end{lstlisting}
 
@@ -429,26 +429,26 @@ int decompressor(void)
 \begin{lstlisting}[caption=parser, basicstyle=\footnotesize, breaklines=true]
 void parser(int c) 
 {
-  crBegin;
-  while (1) 
+ crBegin;
+ while (1) 
+ {
+  /* first char already in c */
+  if (c == EOF)
+   break;
+  if (isalpha(c)) 
   {
-    /* first char already in c */
-    if (c == EOF)
-      break;
-    if (isalpha(c)) 
-    {
-      do 
-      {
-        add_to_token(c);
-        crReturn( );
-      } while (isalpha(c));
-      got_token(WORD);
-    }
+   do 
+   {
     add_to_token(c);
-    got_token(PUNCT);
     crReturn( );
+   }while(isalpha(c));
+   got_token(WORD);
   }
-  crFinish;
+  add_to_token(c);
+  got_token(PUNCT);
+  crReturn( );
+ }
+ crFinish;
 }
 \end{lstlisting}
 \end{multicols}
