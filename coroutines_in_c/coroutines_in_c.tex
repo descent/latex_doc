@@ -309,7 +309,7 @@ It's still ugly, though. The worst part of it is that the set of labels must be 
 The famous ``Duff's device'' in C makes use of the fact that a case statement is still legal within a sub-block of its matching switch statement. Tom Duff used this for an optimised output loop: 
 
 C 語言中著名的 ``達夫設備'' 利用 case 敘述句在其匹配 switch 敘述句子塊中也是合法的這一事實。Tom Duff
-利用這個方法優化輸出回路:
+利用這招將輸出迴圈做了最佳化:
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 switch (count % 8) 
@@ -328,7 +328,7 @@ switch (count % 8)
 
 We can put it to a slightly different use in the coroutine trick. Instead of using a switch statement to decide which goto statement to execute, we can use the switch statement to perform the jump itself:
 
-我們可以稍加變動將它應用到協同程序技巧上。我們可以用switch敘述句本身執行跳轉, 而不是用它來確定跳到哪裡去執行。 
+我們可以稍加變動將它應用到協同程序技巧上。我們可以用 switch 敘述句本身執行跳轉, 而不是用它來確定跳到哪裡去執行。 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
