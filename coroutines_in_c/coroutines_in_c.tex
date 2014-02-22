@@ -230,7 +230,7 @@ void parser(int c)
 
 And that's the point, really. Both these rewritten functions are thoroughly ugly compared to their originals. Both of the processes taking place here are easier to read when written as a caller, not as a callee. Try to deduce the grammar recognised by the parser, or the compressed data format understood by the decompressor, just by reading the code, and you will find that both the originals are clear and both the rewritten forms are less clear. It would be much nicer if we didn't have to turn either piece of code inside out.
 
-這就是我的真實觀點。這兩個重寫後的函數比起原本的那兩個, 真是醜陋, 在這裡當兩個行程被寫為呼叫者而不是被呼叫者時更易讀了。如果你試圖透過解析器推斷出語法, 或者透過解壓器瞭解解壓數據格式, 只需閱讀下程式碼就可以, 同時你會發現原始的程式碼清晰些, 重寫後的程式碼格式上不太清晰, 如果沒有嵌入另外一者的程式碼這會更好些。 
+那就是我的真實觀點。這兩個重寫後的函數比起原本的那兩個, 真是醜陋, 在這裡當兩個行程被寫為呼叫者而不是被呼叫者時更容易讀。如果你試圖透過解析器推斷出語法, 或者透過解壓器瞭解壓縮資料格式, 只需閱讀程式碼就可以, 同時你會發現原始的程式碼清晰些, 重寫後的程式碼格式上不太清晰, 如果沒有嵌入另一個程式碼會更好些。 
 
 \section{Knuth's coroutines}
  In The Art of Computer Programming, Donald Knuth presents a solution to this sort of problem. His answer is to throw away the stack concept completely. Stop thinking of one process as the caller and the other as the callee, and start thinking of them as cooperating equals.
