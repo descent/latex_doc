@@ -272,7 +272,7 @@ and have ten successive calls to the function return the numbers 0 through 9.
 
 How can we implement this? Well, we can transfer control to an arbitrary point in the function using a goto statement. So if we use a state variable, we could do this:
 
-如何實作這個呢? 好的, 我們可以用一個 goto 語句將控制跳轉到這個函數中的任何一點。所以如果我們有一個狀態變量, 我們可以這樣做:
+如何實作這個呢? 好的, 我們可以用一個 goto 語句將控制跳轉到這個函數中的任何一點。所以如果我們有一個狀態變數, 我們可以這樣做:
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
@@ -295,8 +295,8 @@ int function(void)
 
 This method works. We have a set of labels at the points where we might need to resume control: one at the start, and one just after each return statement. We have a state variable, preserved between calls to the function, which tells us which label we need to resume control at next. Before any return, we update the state variable to point at the right label; after any call, we do a switch on the value of the variable to find out where to jump to.
 
-這個方法可以奏效。在一些我們可能需要恢復控制的地方, 我們擁有一組標籤: 一個在開始位置, 其他的緊跟著每個返回語句。我們有一個保留在函數呼叫之間的狀態變量, 它指明了下一步我們需要恢復控制那個標籤。在任何返回之前, 我們會更新狀態變量到正確的標籤位;
-任何呼叫之後, 我們會對這個變量的值做一個 switch 操作來查看它當前進行到哪裡。
+這個方法可以奏效。在一些我們可能需要恢復控制的地方, 我們擁有一組標籤: 一個在開始位置, 其他的緊跟著每個返回語句。我們有一個保留在函數呼叫之間的狀態變數, 它指明了下一步我們需要恢復控制那個標籤。在任何返回之前, 我們會更新狀態變數到正確的標籤位;
+任何呼叫之後, 我們會對這個變數的值做一個 switch 操作來查看它當前進行到哪裡。
 
 It's still ugly, though. The worst part of it is that the set of labels must be maintained manually, and must be consistent between the function body and the initial switch statement. Every time we add a new return statement, we must invent a new label name and add it to the list in the switch; every time we remove a return statement, we must remove its corresponding label. We've just increased our maintenance workload by a factor of two.
 
@@ -372,7 +372,7 @@ This is almost exactly what we wanted. We can use crReturn to return from the fu
 
 這差不多就是我們想要的了。我們可以通過這種一返回就控制下一個呼叫回覆的方式, 用 crReturn
 從函數返回。當然, 我們必須遵守一些基本規則 (用 crBegin 和 crFinish 包住函數體; 聲明所需的所有保存在
-acrReturn 中的靜態局部變量; 絕不要在一個顯式 switch 語句中設置一個 crReturn); 但那些並不會限制我們太多。
+acrReturn 中的靜態局部變數; 絕不要在一個顯式 switch 語句中設置一個 crReturn); 但那些並不會限制我們太多。
 
 The only snag remaining is the first parameter to crReturn. Just as when we invented a new label in the previous section we had to avoid it colliding with existing label names, now we must ensure all our state parameters to crReturn are different. The consequences will be fairly benign - the compiler will catch it and not let it do horrible things at run time - but we still need to avoid doing it.
 
@@ -519,25 +519,25 @@ Any coding standard which insists on syntactic clarity at the expense of algorit
 
 In a serious application, this toy coroutine implementation is unlikely to be useful, because it relies on static variables and so it fails to be re-entrant or multi-threadable. Ideally, in a real application, you would want to be able to call the same function in several different contexts, and at each call in a given context, have control resume just after the last return in the same context.
 
- 在正兒八經的應用程序中, 協程很少使用, 因為它依賴於靜態變量, 因此不能重入或者支持多 thread。理想情況下, 在真實應用程序中, 你可能想在多個不同的上下文中呼叫同一個函數, 並且在給定的一個上下文中每次呼叫時, 都能在這個上下文中上一次返回的位置繼續執行。 
+ 在正兒八經的應用程序中, 協程很少使用, 因為它依賴於靜態變數, 因此不能重入或者支持多 thread。理想情況下, 在真實應用程序中, 你可能想在多個不同的上下文中呼叫同一個函數, 並且在給定的一個上下文中每次呼叫時, 都能在這個上下文中上一次返回的位置繼續執行。 
 
 This is easily enough done. We arrange an extra function parameter, which is a pointer to a context structure; we declare all our local state, and our coroutine state variable, as elements of that structure.
 
- 這很容易做到, 我們增加一個新的函數參數——一個上下文結構的指針；我們將所有的局部變量和協程用到的狀態變量都聲明成結構體中的元素. 
+ 這很容易做到, 我們增加一個新的函數參數——一個上下文結構的指針；我們將所有的局部變數和協程用到的狀態變數都聲明成結構體中的元素. 
 
 It's a little bit ugly, because suddenly you have to use ctx->i as a loop counter where you would previously just have used i; virtually all your serious variables become elements of the coroutine context structure. But it removes the problems with re-entrancy, and still hasn't impacted the structure of the routine.
 
 這樣寫醜了點, 因為突然間你不得不使用 \verb+ctx->i+ 作為循環計數器而不是之前使用的 i;
-事實上所有重要的變量都成了協程上下文結構體中的元素。但是這消除了重入的問題, 並且沒有影響到程序的結構。 
+事實上所有重要的變數都成了協程上下文結構體中的元素。但是這消除了重入的問題, 並且沒有影響到程序的結構。 
 
 (Of course, if C only had Pascal's with statement, we could arrange for the macros to make this layer of indirection truly transparent as well. A pity. Still, at least C++ users can manage this by having their coroutine be a class member, and keeping all its local variables in the class so that the scoping is implicit.)
 
 （當然, 要是 C 有 Pascal 語言的 with 敘述句, 我們就可以將這個間接的引用隱藏掉, 但是很遺憾沒有這些。對於 C++
-語言, 我們可以把協程的兩個函數設計成類的成員函數, 所有的局部變量設計成類的成員變量, 從而將作用域的問題隱藏掉） 
+語言, 我們可以把協程的兩個函數設計成類的成員函數, 所有的局部變數設計成類的成員變數, 從而將作用域的問題隱藏掉） 
 
 Included here is a C header file that implements this coroutine trick as a set of pre-defined macros. There are two sets of macros defined in the file, prefixed scr and ccr. The scr macros are the simple form of the technique, for when you can get away with using static variables; the ccr macros provide the advanced re-entrant form. Full documentation is given in a comment in the header file itself.
 
-這兒包含的 C 語言頭文件實現了一套預定義的協程使用的宏。在文件中定義了二套宏函數, 前綴分別是 scr 和 ccr。scr macro 是一套簡單的實現, 用於可以使用靜態變量的情況; ccr macro 更高級一些, 能支援重入。在頭文件的註釋中有完整的說明。 
+這兒包含的 C 語言頭文件實現了一套預定義的協程使用的宏。在文件中定義了二套宏函數, 前綴分別是 scr 和 ccr。scr macro 是一套簡單的實現, 用於可以使用靜態變數的情況; ccr macro 更高級一些, 能支援重入。在頭文件的註釋中有完整的說明。 
 
 Note that Visual C++ version 6 doesn't like this coroutine trick, because its default debug state (Program Database for Edit and Continue) does something strange to the
 \verb+__LINE__+ macro. To compile a coroutine-using program with VC++ 6, you must turn off Edit and Continue. (In the project settings, go to the ``C/C++'' tab, category ``General'', setting ``Debug info''. Select any option other than ``Program Database for Edit and Continue''.)
