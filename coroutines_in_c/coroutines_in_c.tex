@@ -272,7 +272,7 @@ and have ten successive calls to the function return the numbers 0 through 9.
 
 How can we implement this? Well, we can transfer control to an arbitrary point in the function using a goto statement. So if we use a state variable, we could do this:
 
-如何實作這個呢? 好的, 我們可以用一個 goto 語句將控制跳轉到這個函數中的任何一點。所以如果我們有一個狀態變數, 我們可以這樣做:
+如何實作這個呢? 好的, 我們可以用一個 goto 敘述句將控制跳轉到這個函數中的任何一點。所以如果我們有一個狀態變數, 我們可以這樣做:
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
@@ -295,20 +295,20 @@ int function(void)
 
 This method works. We have a set of labels at the points where we might need to resume control: one at the start, and one just after each return statement. We have a state variable, preserved between calls to the function, which tells us which label we need to resume control at next. Before any return, we update the state variable to point at the right label; after any call, we do a switch on the value of the variable to find out where to jump to.
 
-這個方法可以奏效。在一些我們可能需要恢復控制的地方, 我們擁有一組標籤: 一個在開始位置, 其他的緊跟著每個返回語句。我們有一個保留在函數呼叫之間的狀態變數, 它指明了下一步我們需要恢復控制那個標籤。在任何返回之前, 我們會更新狀態變數到正確的標籤位;
+這個方法可以奏效。在一些我們可能需要恢復控制的地方, 我們擁有一組標籤: 一個在開始位置, 其他的緊跟著每個 return。我們有一個保留在函數呼叫之間的狀態變數, 它指明了下一步我們需要恢復控制那個標籤。在任何返回之前, 我們會更新狀態變數到正確的標籤位;
 任何呼叫之後, 我們會對這個變數的值做一個 switch 操作來查看它當前進行到哪裡。
 
 It's still ugly, though. The worst part of it is that the set of labels must be maintained manually, and must be consistent between the function body and the initial switch statement. Every time we add a new return statement, we must invent a new label name and add it to the list in the switch; every time we remove a return statement, we must remove its corresponding label. We've just increased our maintenance workload by a factor of two.
 
 
-雖然這樣, 它還是比較醜。最糟糕的的部分是, 這一組標籤必須手動維護, 並且在函數體和初始的 switch 敘述句之間保持一致。每次新增一個返回語句, 我們必須引進一個新表簽名並把它加到 switch 列表中;
-而每次刪除一個返回語句, 我們又必須移除相應的標籤。剛剛我們只是考慮一個因素增加的兩倍維護工作量。
+雖然這樣, 它還是比較醜。最糟糕的的部分是, 這一組標籤必須手動維護, 並且在函數體和初始的 switch 敘述句之間保持一致。每次新增一個 return, 我們必須引進一個新表簽名並把它加到 switch 列表中;
+而每次刪除一個 return, 我們又必須移除相應的標籤。剛剛我們只是考慮一個因素增加的兩倍維護工作量。
 
 \section{Duff's device}
 
 The famous ``Duff's device'' in C makes use of the fact that a case statement is still legal within a sub-block of its matching switch statement. Tom Duff used this for an optimised output loop: 
 
-C 語言中著名的 ``達夫設備'' 利用 case 語句在其匹配 switch 語句子塊中也是合法的這一事實。Tom Duff
+C 語言中著名的 ``達夫設備'' 利用 case 敘述句在其匹配 switch 敘述句子塊中也是合法的這一事實。Tom Duff
 利用這個方法優化輸出回路:
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
@@ -328,7 +328,7 @@ switch (count % 8)
 
 We can put it to a slightly different use in the coroutine trick. Instead of using a switch statement to decide which goto statement to execute, we can use the switch statement to perform the jump itself:
 
-我們可以稍加變動將它應用到協同程序技巧上。我們可以用switch語句本身執行跳轉, 而不是用它來確定跳到哪裡去執行。 
+我們可以稍加變動將它應用到協同程序技巧上。我們可以用switch敘述句本身執行跳轉, 而不是用它來確定跳到哪裡去執行。 
 
 \begin{lstlisting}[basicstyle=\footnotesize, breaklines=true]
 int function(void) 
@@ -372,7 +372,7 @@ This is almost exactly what we wanted. We can use crReturn to return from the fu
 
 這差不多就是我們想要的了。我們可以通過這種一返回就控制下一個呼叫回覆的方式, 用 crReturn
 從函數返回。當然, 我們必須遵守一些基本規則 (用 crBegin 和 crFinish 包住函數體; 聲明所需的所有保存在
-acrReturn 中的靜態局部變數; 絕不要在一個顯式 switch 語句中設置一個 crReturn); 但那些並不會限制我們太多。
+acrReturn 中的靜態局部變數; 絕不要在一個顯式 switch 敘述句中設置一個 crReturn); 但那些並不會限制我們太多。
 
 The only snag remaining is the first parameter to crReturn. Just as when we invented a new label in the previous section we had to avoid it colliding with existing label names, now we must ensure all our state parameters to crReturn are different. The consequences will be fairly benign - the compiler will catch it and not let it do horrible things at run time - but we still need to avoid doing it.
 
@@ -389,7 +389,7 @@ Even this can be solved. ANSI C provides the special macro name \verb+__LINE__+,
 
 and then we no longer have to worry about those state parameters at all, provided we obey a fourth ground rule (never put two crReturn statements on the same line).
 
-而且只要遵守第四條基本規則, 我們就不再需要擔心這些狀態參數了 (決不在同一行寫兩個 crReturn 語句)。 
+而且只要遵守第四條基本規則, 我們就不再需要擔心這些狀態參數了 (決不在同一行寫兩個 crReturn 敘述句)。 
 
 \section{Evaluation}
 
@@ -507,7 +507,7 @@ if (condition) goto LABEL2; else goto LABEL3;
 
 One is caller and the other is callee, true, but the visual structure of the functions are the same, and the insights they provide into their underlying algorithms are exactly as small as each other. The same people who would fire you for using my coroutine macros would fire you just as loudly for building a function out of small blocks connected by goto statements! And this time they would be right, because laying out a function like that obscures the structure of the algorithm horribly.
 
- 一個呼叫者, 一個被呼叫者。是的, 這兩個函數在可視結構上是一樣的, 它們提供的底層算法都非常少。因為使用協程宏想要解僱你的人同樣會因為你寫的連接 goto 語句的小塊函數而怒斥你! 這次它們做對了, 因為這樣的函數佈局破壞了算法的結構。 
+ 一個呼叫者, 一個被呼叫者。是的, 這兩個函數在可視結構上是一樣的, 它們提供的底層算法都非常少。因為使用 coroutine macro 想要解僱你的人同樣會因為你寫的連接 goto 敘述句的小塊函數而怒斥你! 這次它們做對了, 因為這樣的函數佈局破壞了算法的結構。 
 
 Coding standards aim for clarity. By hiding vital things like switch, return and case statements inside ``obfuscating'' macros, the coding standards would claim you have obscured the syntactic structure of the program, and violated the requirement for clarity. But you have done so in the cause of revealing the algorithmic structure of the program, which is far more likely to be what the reader wants to know!
 
