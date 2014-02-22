@@ -88,12 +88,12 @@
 
  Structuring a large program is always a difficult job. One of the particular problems that often comes up is this: if you have a piece of code producing data, and another piece of code consuming it, which should be the caller and which should be the callee?
 
-我們都知道構建一個大型的程序是一件非常困難的工作。一個經常面臨的問題來自於此：如果你有一個程式碼片段用來生產數據, 另一個程式碼片段來呼叫它, 哪一個是呼叫者, 哪一個是被呼叫者呢？
+我們都知道構建一個大型的程序是一件非常困難的工作。一個經常面臨的問題來自於此：如果你有一個程式碼片段用來生產數據, 另一個程式碼片段來使用它, 哪一個是呼叫者, 哪一個是被呼叫者呢？
 
  Here is a very simple piece of run-length decompression code, and an equally simple piece of parser code: 
 
 
-這裡有一個簡單的解壓過程的程式碼片段和一個同樣簡單的解析程式碼片段: 
+這裡有一個簡單的解壓程式碼片段和一個同樣簡單的解析程式碼片段: 
 
 \newpage
 \begin{multicols}{2}
@@ -149,7 +149,8 @@ emit() 和 getchar() 就能彼此間提交數據, 那麼就能簡單的把兩個
 
  In many modern operating systems, you could do this using pipes between two processes or two threads. emit() in the decompressor writes to a pipe, and getchar() in the parser reads from the other end of the same pipe. Simple and robust, but also heavyweight and not portable. Typically you don't want to have to divide your program into threads for a task this simple.
 
-在很多現在操作系統中, 你可以使用管道在兩個進程間通信或者兩個線程emit()——在解壓程式碼中寫入管道, 在解析程式碼中使用getchar()從另一端相同的管道中讀取。簡單強壯, 但是也重量不可移植。通常你不想把你的一個簡單程序分到線程中。
+在很多現在作業系統中, 你可以使用管道在兩個行程間通信或者兩個 thread。 emit() 在解壓程式碼中寫入管道, 在解析程式碼中使用
+getchar() 從另一端相同的管道中讀取。簡單強壯, 但是也重量不可移植。通常你不想把你的一個簡單程序分到 thread 中。
 
 In this article I offer a creative solution to this sort of structure problem. 
 
@@ -230,12 +231,12 @@ void parser(int c)
  And that's the point, really. Both these rewritten functions are thoroughly ugly compared to their originals. Both of the processes taking place here are easier to read when written as a caller, not as a callee. Try to deduce the grammar recognised by the parser, or the compressed data format understood by the decompressor, just by reading the code, and you will find that both the originals are clear and both the rewritten forms are less clear. It would be much nicer if we didn't have to turn either piece of code inside out.
 
 
-這就是我的真實觀點。和兩個重寫後的函數相比原始的程式碼醜陋無比, 在這裡當兩個進程被寫為呼叫者而不是被呼叫者時更易讀了。如果你試圖通過解析器推斷出語法, 或者通過解壓器瞭解解壓數據格式, 只需閱讀下程式碼就可以, 同時你會發現原始的程式碼清晰些, 重寫後的程式碼格式上不太清晰, 如果沒有嵌入另外一者的程式碼這會更好些。 
+這就是我的真實觀點。和兩個重寫後的函數相比原始的程式碼醜陋無比, 在這裡當兩個行程被寫為呼叫者而不是被呼叫者時更易讀了。如果你試圖通過解析器推斷出語法, 或者通過解壓器瞭解解壓數據格式, 只需閱讀下程式碼就可以, 同時你會發現原始的程式碼清晰些, 重寫後的程式碼格式上不太清晰, 如果沒有嵌入另外一者的程式碼這會更好些。 
 
 \section{Knuth's coroutines}
  In The Art of Computer Programming, Donald Knuth presents a solution to this sort of problem. His answer is to throw away the stack concept completely. Stop thinking of one process as the caller and the other as the callee, and start thinking of them as cooperating equals.
 
-在《計算機程序設計藝術》中, Donald Knuth 提供了一個解決這類問題的方法。他的方法是徹底丟掉堆棧的概念, 不要再想一個進程作為呼叫者, 另一個作為被呼叫者, 把他們當做平等的協作者關係。
+在《計算機程序設計藝術》中, Donald Knuth 提供了一個解決這類問題的方法。他的方法是徹底丟掉堆棧的概念, 不要再想一個行程作為呼叫者, 另一個作為被呼叫者, 把他們當做平等的協作者關係。
 
  In practical terms: replace the traditional "call" primitive with a slightly different one. The new "call" will save the return value somewhere other than on the stack, and will then jump to a location specified in another saved return value. So each time the decompressor emits another character, it saves its program counter and jumps to the last known location within the parser - and each time the parser needs another character, it saves its own program counter and jumps to the location saved by the decompressor. Control shuttles back and forth between the two routines exactly as often as necessary.
 
@@ -518,7 +519,7 @@ Any coding standard which insists on syntactic clarity at the expense of algorit
 
 In a serious application, this toy coroutine implementation is unlikely to be useful, because it relies on static variables and so it fails to be re-entrant or multi-threadable. Ideally, in a real application, you would want to be able to call the same function in several different contexts, and at each call in a given context, have control resume just after the last return in the same context.
 
- 在正兒八經的應用程序中, 協程很少使用, 因為它依賴於靜態變量, 因此不能重入或者支持多線程。理想情況下, 在真實應用程序中, 你可能想在多個不同的上下文中呼叫同一個函數, 並且在給定的一個上下文中每次呼叫時, 都能在這個上下文中上一次返回的位置繼續執行。 
+ 在正兒八經的應用程序中, 協程很少使用, 因為它依賴於靜態變量, 因此不能重入或者支持多 thread。理想情況下, 在真實應用程序中, 你可能想在多個不同的上下文中呼叫同一個函數, 並且在給定的一個上下文中每次呼叫時, 都能在這個上下文中上一次返回的位置繼續執行。 
 
 This is easily enough done. We arrange an extra function parameter, which is a pointer to a context structure; we declare all our local state, and our coroutine state variable, as elements of that structure.
 
