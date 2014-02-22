@@ -84,6 +84,7 @@
 
 \begin{CJK}{UTF8}{bsmi} %開始CJK環境, 設定編碼, 設定字體
 
+% ref: http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
 \section{Introduction}
 
  Structuring a large program is always a difficult job. One of the particular problems that often comes up is this: if you have a piece of code producing data, and another piece of code consuming it, which should be the caller and which should be the callee?
@@ -144,7 +145,7 @@ while (1)
 
  Each of these code fragments is very simple, and easy to read and understand. One produces a character at a time by calling emit(); the other consumes a character at a time by calling getchar(). If only the calls to emit() and the calls to getchar() could be made to feed data to each other, it would be simple to connect the two fragments together so that the output from the decompressor went straight to the parser.
 
-每個程式碼片段都很簡單, 通俗易懂。一個通過呼叫 emit() 方法每次產生一個 byte; 另一個呼叫 getchar() 每次獲取一個 byte 。如果只通過呼叫
+每個程式碼片段都很簡單, 通俗易懂。一個透過呼叫 emit() 方法每次產生一個 byte; 另一個呼叫 getchar() 每次獲取一個 byte 。如果只透過呼叫
 emit() 和 getchar() 就能彼此間提交數據, 那麼就能簡單的把兩個程式碼片段連接到一起, 因此也就能把解壓的輸出直接傳遞到解析部分。
 
  In many modern operating systems, you could do this using pipes between two processes or two threads. emit() in the decompressor writes to a pipe, and getchar() in the parser reads from the other end of the same pipe. Simple and robust, but also heavyweight and not portable. Typically you don't want to have to divide your program into threads for a task this simple.
@@ -154,12 +155,12 @@ getchar() 從另一端相同的管道中讀取。簡單強壯, 但是也重量�
 
 In this article I offer a creative solution to this sort of structure problem. 
 
-在這篇文章中我提供了一個創造性的解決方案來處理這個構造的問題。 
+在這篇文章中我提供一個有創意的方式來處理這個問題。 
 
 \section{Rewriting}
  The conventional answer is to rewrite one of the ends of the communication channel so that it's a function that can be called. Here's an example of what that might mean for each of the example fragments.
 
-常見的方式是重寫末端的通信管道, 把它作為一個可呼叫的函數。這有個簡單的例子。 
+依照慣例是重寫末端的通信管道, 把它作為一個可呼叫的函數。這邊有個簡單的例子。 
 
 \newpage
 \begin{multicols}{2}
@@ -226,12 +227,11 @@ void parser(int c)
 
  Of course you don't have to rewrite both of them; just one will do. If you rewrite the decompressor in the form shown, so that it returns one character every time it's called, then the original parser code can replace calls to getchar() with calls to decompressor(), and the program will be happy. Conversely, if you rewrite the parser in the form shown, so that it is called once for every input character, then the original decompression code can call parser() instead of emit() with no problems. You would only want to rewrite both functions as callees if you were a glutton for punishment.
 
-當然你不需要兩個都重寫; 只修改一個就可以。如果把解壓片段重寫為以上形式, 那麼每次呼叫它都返回一個字符, 原始的解析程式碼片段中就可以把呼叫 getchar() 改為呼叫 decompressor(), 這樣程序看起來舒心多了。相反的, 如果把解析程式碼重寫為上面的形式, 那麼每次呼叫都會輸入一個字符, 原始的解壓程式碼中可以通過呼叫 parser() 替換掉了呼叫 emit()。如果你是個貪婪的人你可以把兩個函數都重寫, 都作為被呼叫者。
+當然你不需要兩個都重寫; 只修改一個就可以。如果把解壓片段重寫為以上形式, 那麼每次呼叫它都返回一個字符, 原始的解析程式碼片段中就可以把呼叫 getchar() 改為呼叫 decompressor(), 這樣程序看起來舒心多了。相反的, 如果把解析程式碼重寫為上面的形式, 那麼每次呼叫都會輸入一個字符, 原始的解壓程式碼中可以透過呼叫 parser() 替換掉了呼叫 emit()。如果你是個貪婪的人你可以把兩個函數都重寫, 都作為被呼叫者。
 
- And that's the point, really. Both these rewritten functions are thoroughly ugly compared to their originals. Both of the processes taking place here are easier to read when written as a caller, not as a callee. Try to deduce the grammar recognised by the parser, or the compressed data format understood by the decompressor, just by reading the code, and you will find that both the originals are clear and both the rewritten forms are less clear. It would be much nicer if we didn't have to turn either piece of code inside out.
+And that's the point, really. Both these rewritten functions are thoroughly ugly compared to their originals. Both of the processes taking place here are easier to read when written as a caller, not as a callee. Try to deduce the grammar recognised by the parser, or the compressed data format understood by the decompressor, just by reading the code, and you will find that both the originals are clear and both the rewritten forms are less clear. It would be much nicer if we didn't have to turn either piece of code inside out.
 
-
-這就是我的真實觀點。和兩個重寫後的函數相比原始的程式碼醜陋無比, 在這裡當兩個行程被寫為呼叫者而不是被呼叫者時更易讀了。如果你試圖通過解析器推斷出語法, 或者通過解壓器瞭解解壓數據格式, 只需閱讀下程式碼就可以, 同時你會發現原始的程式碼清晰些, 重寫後的程式碼格式上不太清晰, 如果沒有嵌入另外一者的程式碼這會更好些。 
+這就是我的真實觀點。這兩個重寫後的函數比起原本的那兩個, 真是醜陋, 在這裡當兩個行程被寫為呼叫者而不是被呼叫者時更易讀了。如果你試圖透過解析器推斷出語法, 或者透過解壓器瞭解解壓數據格式, 只需閱讀下程式碼就可以, 同時你會發現原始的程式碼清晰些, 重寫後的程式碼格式上不太清晰, 如果沒有嵌入另外一者的程式碼這會更好些。 
 
 \section{Knuth's coroutines}
  In The Art of Computer Programming, Donald Knuth presents a solution to this sort of problem. His answer is to throw away the stack concept completely. Stop thinking of one process as the caller and the other as the callee, and start thinking of them as cooperating equals.
@@ -370,7 +370,7 @@ int function(void)
 
 This is almost exactly what we wanted. We can use crReturn to return from the function in such a way that control at the next call resumes just after the return. Of course we must obey some ground rules (surround the function body with crBegin and crFinish; declare all local variables static if they need to be preserved across a crReturn; never put a crReturn within an explicit switch statement); but those do not limit us very much.
 
-這差不多就是我們想要的了。我們可以通過這種一返回就控制下一個呼叫回覆的方式, 用 crReturn
+這差不多就是我們想要的了。我們可以透過這種一返回就控制下一個呼叫回覆的方式, 用 crReturn
 從函數返回。當然, 我們必須遵守一些基本規則 (用 crBegin 和 crFinish 包住函數體; 聲明所需的所有保存在
 acrReturn 中的靜態局部變數; 絕不要在一個顯式 switch 敘述句中設置一個 crReturn); 但那些並不會限制我們太多。
 
@@ -456,12 +456,12 @@ void parser(int c)
 
 We have rewritten both decompressor and parser as callees, with no need at all for the massive restructuring we had to do last time we did this. The structure of each function exactly mirrors the structure of its original form. A reader can deduce the grammar recognised by the parser, or the compressed data format used by the decompressor, far more easily than by reading the obscure state-machine code. The control flow is intuitive once you have wrapped your mind around the new format: when the decompressor has a character, it passes it back to the caller with crReturn and waits to be called again when another character is required. When the parser needs another character, it returns using crReturn, and waits to be called again with the new character in the parameter c.
 
-我們已經重寫瞭解碼器和解析器都作為了被呼叫者, 不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像, 讀者能夠通過解析器推斷出相應的語法, 或者通過解碼器瞭解到解壓數據格式, 比起讀那些狀態機程式碼簡單多了。一旦你適應了新的格式, 你就會發現控制流程非常直觀：當解壓器產生一個字符, 它就呼叫 crReturn 將這個字符傳給呼叫函數, 並等待當需要下一個字符時再次被呼叫。當解析器需要一個新字符時, 它通過
-crReturn 返回, 並等待下一次被呼叫時通過參數 c 傳入新的字符。
+我們已經重寫瞭解碼器和解析器都作為了被呼叫者, 不需要像最後一次那樣大規模的重寫。每個函數的結構恰好是原始結構的鏡像, 讀者能夠透過解析器推斷出相應的語法, 或者透過解碼器瞭解到解壓數據格式, 比起讀那些狀態機程式碼簡單多了。一旦你適應了新的格式, 你就會發現控制流程非常直觀：當解壓器產生一個字符, 它就呼叫 crReturn 將這個字符傳給呼叫函數, 並等待當需要下一個字符時再次被呼叫。當解析器需要一個新字符時, 它透過
+crReturn 返回, 並等待下一次被呼叫時透過參數 c 傳入新的字符。
 
 There has been one small structural alteration to the code: parser() now has its getchar() (well, the corresponding crReturn) at the end of the loop instead of the start, because the first character is already in c when the function is entered. We could accept this small change in structure, or if we really felt strongly about it we could specify that parser() required an ``initialisation'' call before you could start feeding it characters.
 
-這裡程式碼裡還有一個小的結構變化: parser() 中 getchar() 放在了迴圈的結尾而不是開頭了, 這是因為當進入函數時, 第一個字符已經通過 c
+這裡程式碼裡還有一個小的結構變化: parser() 中 getchar() 放在了迴圈的結尾而不是開頭了, 這是因為當進入函數時, 第一個字符已經透過 c
 傳進來了。我們應該可以接受這個小的結構改變, 或者如果我們真的對此抱有輕盈態度, 我們可以認為在 parse()
 傳入數據前, 需要一次「初始化」呼叫。 
 
@@ -472,7 +472,7 @@ As before, of course, we don't have to rewrite both routines using the coroutine
 We have achieved what we set out to achieve: a portable ANSI C means of passing data between a producer and a consumer without the need to rewrite one as an explicit state machine. We have done this by combining the C preprocessor with a little-used feature of the switch statement to create an implicit state machine.
 
 
-我們已經取得了我們想要達到的目標: 一個可移植的 ANSI C 在生產者和消費者之間傳遞數據, 而不用狀態機重寫程式碼。我們已經通過把一個
+我們已經取得了我們想要達到的目標: 一個可移植的 ANSI C 在生產者和消費者之間傳遞數據, 而不用狀態機重寫程式碼。我們已經透過把一個
 switch 敘述句的生僻的功能結合 C 的預處理創建一個隱式的狀態機。 
 
 \section{Coding Standards}
