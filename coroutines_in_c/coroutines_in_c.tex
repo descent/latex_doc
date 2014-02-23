@@ -560,27 +560,22 @@ Thanks for reading. Share and enjoy!
 \begin{itemize}
 \item Donald Knuth, The Art of Computer Programming, Volume 1. Addison-Wesley, ISBN 0-201-89683-4. Section 1.4.2 describes coroutines in the ``pure'' form.
 
+\item    Donald Knuth,計算機編程藝術, 卷 1. Addison-Wesley, ISBN 0-201-89683-4. Section 1.4.2 describes coroutines in the "pure" form.
+
 \item http://www.lysator.liu.se/c/duffs-device.html is Tom Duff's own discussion of Duff's device. Note, right at the bottom, a hint that Duff might also have independently invented this coroutine trick or something very like it.
 
 
 Update, 2005-03-07: Tom Duff confirms this in a blog comment. The ``revolting way to use switches to implement interrupt driven state machines'' of which he speaks in his original email is indeed the same trick as I describe here.
 
-\item PuTTY is a Win32 Telnet and SSH client. The SSH protocol code contains real-life use of this coroutine trick. As far as I know, this is the worst piece of C hackery ever seen in serious production code. 
-
-\end{itemize}
-
-
-\begin{itemize}
-\item    Donald Knuth,計算機編程藝術, 卷 1. Addison-Wesley, ISBN 0-201-89683-4. Section 1.4.2 describes coroutines in the "pure" form.
 \item        http://www.lysator.liu.se/c/duffs-device.html 是 Tom Duff's 自己關於 Duff 策略的討論。注意, 右下角, 暗示著 Duff 有可能獨立的完成這樣的協程技巧或者其他類似的東西。
 
 2005-03-07 更新: Tom Duff 在一篇博客評論中證實了這一點。「revolting way to use switches to implement interrupt driven state machines」這篇文章中和他最初在郵件中說的確實一樣.
-\item                PuTTY 是一個 Win32 Telnet 和 SSH 客戶端。SSH 協議其中一部分使用了協程技巧。據我所知, 這是一個在生產程式碼中最糟糕的
+
+\item PuTTY is a Win32 Telnet and SSH client. The SSH protocol code contains real-life use of this coroutine trick. As far as I know, this is the worst piece of C hackery ever seen in serious production code. 
+
+\item PuTTY 是一個 Win32 Telnet 和 SSH 客戶端。SSH 協議其中一部分使用了協程技巧。據我所知, 這是一個在生產程式碼中最糟糕的
 C 程式碼片段的輪子。
 \end{itemize}
-
-
-
 
 \appendix
 \appendixpage
