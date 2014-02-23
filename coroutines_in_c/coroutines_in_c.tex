@@ -537,7 +537,7 @@ It's a little bit ugly, because suddenly you have to use \verb+ctx->i+ as a loop
 
 Included here is a C header file that implements this coroutine trick as a set of pre-defined macros. There are two sets of macros defined in the file, prefixed scr and ccr. The scr macros are the simple form of the technique, for when you can get away with using static variables; the ccr macros provide the advanced re-entrant form. Full documentation is given in a comment in the header file itself.
 
-這兒包含的 C 語言頭文件實現了一套預定義的協程使用的宏。在文件中定義了二套宏函數, 前綴分別是 scr 和 ccr。scr macro 是一套簡單的實現, 用於可以使用靜態變數的情況; ccr macro 更高級一些, 能支援重入。在頭文件的註釋中有完整的說明。 
+這兒包含的 C 語言 header file 實作了一套預先定義的協程 macro。在文件中定義了二套 macro, 前綴詞分別是 scr 和 ccr。scr macro 是一套簡單的實作, 可用於靜態變數的情況; ccr macro 更高級一些, 能支援重入。在 header file 的註釋中有完整的說明。 
 
 Note that Visual C++ version 6 doesn't like this coroutine trick, because its default debug state (Program Database for Edit and Continue) does something strange to the
 \verb+__LINE__+ macro. To compile a coroutine-using program with VC++ 6, you must turn off Edit and Continue. (In the project settings, go to the ``C/C++'' tab, category ``General'', setting ``Debug info''. Select any option other than ``Program Database for Edit and Continue''.)
@@ -548,7 +548,7 @@ Note that Visual C++ version 6 doesn't like this coroutine trick, because its de
 
 (The header file is MIT-licensed, so you can use it in anything you like without restriction. If you do find something the MIT licence doesn't permit you to do, mail me, and I'll probably give you explicit permission to do it anyway.)
 
-(這個頭文件是 MIT 授權, 所以你可以任意使用, 沒有任何限制。如果你發現 MIT 對你的使用方式有限制, 可以給我發郵件, 我會考慮給你授權。)
+(這個 header file 是 MIT 授權, 所以你可以任意使用, 沒有任何限制。如果你發現 MIT 對你的使用方式有限制, 寄個信給我, 我會考慮給你授權。)
 
 Follow this link for coroutine.h (page \pageref{ref_coroutine_h}, \ref{ref_coroutine_h}).
 
