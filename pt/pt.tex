@@ -1,0 +1,184 @@
+\documentclass[12pt]{article}
+%\usepackage[paperwidth=8,paperheight=11cm,textwidth=13cm,textheight=14cm,left=0.5cm,right=0.5cm,top=0.5cm,nohead,nofoot]{geometry} 
+
+
+\usepackage[paperwidth=10.1cm,paperheight=13cm,left=0.3cm,right=0.3cm,bottom=0.5cm,top=0.1cm,nohead,nofoot]{geometry} 
+
+%\usepackage[papersize={4.5in,6in},margin=0.5cm]{geometry}
+%\usepackage[body={2cm, 5.5in},left=0.2in,right=0.2in,top=0.2in,bottom=0.2in]{geometry}
+\usepackage{multicol}
+
+\parindent=0cm
+\parskip=13pt
+% 轉成 PDF 時, 產生 hyperlink 的效果
+%\usepackage{CJK}
+\usepackage{CJKutf8} %使用 CJKutf8 套件, 配合, \hypersetup 產生中文 pdf 書籤
+%\usepackage[dvips]{hyperref}
+\usepackage{type1cm}
+%\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{lastpage}
+\usepackage[dvips]{color}
+\usepackage{listings}
+\usepackage{comment}
+%\usepackage{ucs}
+%\usepackage[utf8]{inputenc}
+% 在使用 latex2html 可以處理中文
+%\begin{htmlonly}
+%\usepackage{taiwan}
+%\end{htmlonly}
+%\usepackage{cwtex}
+%\begin{htmlonly}
+%\usepackage{html}
+%\end{htmlonly}
+\usepackage{appendix}
+
+%\usepackage[dvips,CJKbookmarks,pdftitle={From TeX/LaTeX to PDF}%
+%                ,pdfsubject={From TeX/LaTeX to PDF}%
+%		 ,pdfkeywords={tex,latex,cjk,typeset,pdf,typography}]{hyperref}
+\usepackage{hyperref} % 最好保证 hyperref 是最后加载的宏包
+\hypersetup{%
+  dvipdfmx,% 设定要使用的 driver 为 dvipdfmx
+  unicode={true},% 使用 unicode 来编码 PDF 字符串
+  pdfstartview={FitH},% 文档初始视图为匹配宽度
+  bookmarksnumbered={true},% 书签附上章节编号
+  bookmarksopen={true},% 展开书签
+  pdfborder={0 0 0},% 链接无框
+  pdftitle={Protothreads}
+  pdfauthor={Adam Dunkels}
+  pdfsubject={Protothreads}
+  pdfkeywords={Protothreads},
+  pdfcreator={应用程序},
+  pdfproducer={PDF 制作程序},% 这个好像没起作用？
+}
+
+%\begin{htmlonly}
+
+%\renewcommand{\abstractname}{\r18 摘要}
+%\renewcommand{\figurename}{\m11 圖}
+%\renewcommand{\contentsname}{\r20 目錄}
+
+%\end{htmlonly}
+
+%\renewcommand{\appendixpagenam}{附錄}
+
+% 標題頁
+% 正文
+\title{Protothreads}
+\author{Adam Dunkels <adam@sics.se>}
+\begin{document}
+\maketitle
+%\begin{CJK}{UTF8}{cwku}
+%\renewcommand{\contentsname}{目錄}
+
+%\begin{htmlonly}
+%\include{auth}
+%\end{htmlonly}
+
+\newpage
+%\addtocontents{toc}{text}
+\tableofcontents
+%\addcontentsline{toc}{section}{abstract}
+%\addcontentsline{toc}{section}{REFERENCE}
+\newpage
+
+\begin{CJK}{UTF8}{bsmi} %開始CJK環境, 設定編碼, 設定字體
+
+\section{The Protothreads Library}
+
+Author:
+
+Adam Dunkels \verb+<adam@sics.se>+
+
+Protothreads are a type of lightweight stackless threads designed for severly memory constrained systems such as deeply embedded systems or sensor network nodes. Protothreads provides linear code execution for event-driven systems implemented in C. Protothreads can be used with or without an RTOS.
+
+Protothreads are a extremely lightweight, stackless type of threads that provides a blocking context on top of an event-driven system, without the overhead of per-thread stacks. The purpose of protothreads is to implement sequential flow of control without complex state machines or full multi-threading. Protothreads provides conditional blocking inside C functions.
+
+Main features:
+
+\begin{itemize}
+\item  No machine specific code - the protothreads library is pure C
+\item  Does not use error-prone functions such as 
+
+longjmp()
+\item  Very small RAM overhead - only two bytes per protothread
+\item  Can be used with or without an OS
+\item  Provides blocking wait without full 
+
+multi-threading or stack-switching
+\end{itemize}
+
+
+Examples applications:
+
+\begin{itemize}
+\item Memory constrained systems
+\item Event-driven protocol stacks
+\item Deeply embedded systems
+\item Sensor network nodes
+\end{itemize}
+
+See also:
+Example programs
+Protothreads API documentation
+
+The protothreads library is released under a BSD-style license that allows for both non-commercial and commercial usage. The only requirement is that credit is given.
+
+More information and new version of the code can be found at the Protothreads homepage:
+
+http://www.sics.se/∼adam/pt/
+
+\subsection{Authors}
+
+The protothreads library was written by Adam Dunkels \verb+<adam@sics.se>+ with support from Oliver Schmidt \verb+<ol.sc@web.de>+.
+
+\subsection{Using protothreads}
+
+Using protothreads in a project is easy: simply copy the files {\bf pt.h}, {\bf lc.h} and {\bf lc-switch.h} into the include files directory of the project, and \verb+#include "pt.h"+ in all files that should use protothreads.
+
+\subsection{Protothreads}
+
+Protothreads are a extremely lightweight, stackless threads that provides a blocking context on top of an event-driven system, without the overhead of per-thread stacks. The purpose of protothreads is to implement sequential flow of control without using complex state machines or full multi-threading. Protothreads provides conditional blocking inside a C function.
+
+In memory constrained systems, such as deeply embedded systems, traditional multi-threading may have a too large memory overhead. In traditional multi-threading, each thread requires its own stack, that typically is over-provisioned. The stacks may use large parts of the available memory.
+
+The main advantage of protothreads over ordinary threads is that protothreads are very lightweight: a protothread does not require its own stack. Rather, all protothreads run on the same stack and context switching is done by stack rewinding. This is advantageous in memory constrained systems, where a stack for a thread might use a large part of the available memory. A protothread only requires only two bytes of memory per protothread. Moreover, protothreads are implemented in pure C and do not require any machine-specific assembler code.
+
+A protothread runs within a single C function and cannot span over other functions. A protothread may call normal C functions, but cannot block inside a called function. Blocking inside nested function calls is instead made by spawning a separate protothread for each potentially blocking function. The advantage of this approach is that blocking is explicit: the programmer knows exactly which functions that block that which functions the never blocks.
+
+Protothreads are similar to asymmetric co-routines. The main difference is that co-routines uses a separate stack for each co-routine, whereas protothreads are stackless. The most similar mechanism to protothreads are Python generators. These are also stackless constructs, but have a different purpose. Protothreads provides blocking contexts inside a C function, whereas Python generators provide multiple exit points from a generator function.
+
+
+\subsection{Local variables}
+
+Note:
+\begin{quote}
+Because protothreads do not save the stack context across a blocking call, local variables are not preserved when the protothread blocks. This means that local variables should be used with utmost care - if in doubt, do not use local variables inside a protothread!
+\end{quote}
+
+\subsection{Scheduling}
+
+A protothread is driven by repeated calls to the function in which the protothread is running. Each time the function is called, the protothread will run until it blocks or exits. Thus the scheduling of protothreads is done by the application that uses protothreads.
+
+\subsection{Implementation}
+
+Protothreads are implemented using local continuations. A local continuation represents the current state of execution at a particular place in the program, but does not provide any call history or local variables.  A local continuation can be set in a specific function to capture the state of the function. After a local continuation has been set can be resumed in order to restore the state of the function at the point where the local continuation was set.
+
+Local continuations can be implemented in a variety of ways:
+
+\begin{enumerate}
+\item by using machine specific assembler code,
+\item by using standard C constructs, or
+\item by using compiler extensions.
+\end{enumerate}
+
+The first way works by saving and restoring the processor state, except for stack pointers, and requires between 16 and 32 bytes of memory per protothread. The exact amount of memory required depends on the architecture.
+
+The standard C implementation requires only two bytes of state per protothread and utilizes the C switch() statement in a non-obvious way that is similar to Duff’s device. This implementation does, however, impose a slight restriction to the code that uses protothreads: a protothread cannot perform a blocking wait (\verb+PT_WAIT_UNTIL()+ or \verb+PT_YIELD()+) inside a switch() statement.
+
+Certain compilers has C extensions that can be used to implement protothreads. GCC supports label pointers that can be used for this purpose. With this implementation, protothreads require 4 bytes of RAM per protothread.
+
+\section{The Protothreads Library 1.4 Module Index}
+
+\end{CJK}
+\end{document}
