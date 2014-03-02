@@ -180,5 +180,195 @@ Certain compilers has C extensions that can be used to implement protothreads. G
 
 \section{The Protothreads Library 1.4 Module Index}
 
+\subsection{The Protothreads Library 1.4 Modules}
+
+Here is a list of all modules:
+
+\begin{itemize}
+\item Protothreads 
+\item Protothread semaphores 
+\item Local continuations
+\item Examples 
+\end{itemize}
+
+\section{The Protothreads Library 1.4 Hierarchical Index}
+
+\subsection{The Protothreads Library 1.4 Class Hierarchy}
+
+This inheritance list is sorted roughly, but not completely, alphabetically:
+
+pt \\
+\verb+pt_sem+
+
+\section{The Protothreads Library 1.4 Data Structure Index}
+\subsection{The Protothreads Library 1.4 Data Structures}
+
+Here are the data structures with brief descriptions:
+
+pt\\
+\verb+pt_sem+
+
+\section{The Protothreads Library 1.4 File Index}
+
+\subsection{The Protothreads Library 1.4 File List}
+
+Here is a list of all documented files with brief descriptions:
+
+\begin{description} 
+\item [lc-addrlabels.h] (Implementation of local continuations based on the "Labels as values" feature of gcc ) 
+
+\item [lc-switch.h] (Implementation of local continuations based on switch() statment ) 26
+
+\item[lc.h] (Local continuations ) 
+
+\item [pt-sem.h] (Couting semaphores implemented on protothreads )
+\item [pt.h] (Protothreads implementation )
+\end{description} 
+
+\section{The Protothreads Library 1.4 Module Documentation}
+
+\subsection{Protothreads}
+
+\subsubsection{Detailed Description}
+
+Protothreads are implemented in a single header file, pt.h, which includes the local continuations header file, lc.h.
+
+This file in turn includes the actual implementation of local continuations, which typically also is contained in a single header file.
+
+\bf Files
+
+\begin{itemize}
+\item file pt.h 
+
+Protothreads implementation.
+\end{itemize}
+
+
+\bf Modules
+
+\begin{itemize}
+\item Protothread semaphores 
+
+This module implements counting semaphores on top of protothreads.
+
+\item Local continuations 
+
+Local continuations form the basis for implementing protothreads.
+\end{itemize}
+
+\bf Data Structures
+
+\begin{itemize}
+\item struct pt
+\end{itemize}
+
+\bf Initialization
+
+\begin{itemize}
+\item \verb+#define PT_INIT(pt)+
+
+Initialize a protothread.
+\end{itemize}
+
+
+\bf Declaration and definition
+
+\begin{itemize}
+\item \verb+#define PT_THREAD(name_args)+
+
+Declaration of a protothread.
+
+\item \verb+#define PT_BEGIN(pt)+
+
+Declare the start of a protothread inside the C function implementing the protothread.
+
+\item \verb+#define PT_END(pt)+
+
+Declare the end of a protothread.
+
+\end{itemize}
+
+
+\bf Blocked wait
+
+\begin{itemize}
+\item \verb+#define PT_WAIT_UNTIL(pt, condition)+
+
+Block and wait until condition is true.
+
+\item \verb+#define PT_WAIT_WHILE(pt, cond)+
+
+Block and wait while condition is true.
+\end{itemize}
+
+\bf Hierarchical protothreads
+
+\begin{itemize}
+\item \verb+#define PT_WAIT_THREAD(pt, thread)+
+
+Block and wait until a child protothread completes.
+
+\item \verb+#define PT_SPAWN(pt, child, thread)+
+
+Spawn a child protothread and wait until it exits.
+\end{itemize}
+
+\bf Exiting and restarting
+
+\begin{itemize}
+\item \verb+#define PT_RESTART(pt)+
+
+Restart the protothread.
+
+\item \verb+#define PT_EXIT(pt)+
+
+Exit the protothread.
+\end{itemize}
+
+\bf Calling a protothread
+
+\begin{itemize}
+\item \verb+#define PT_SCHEDULE(f)+
+
+Schedule a protothread.
+\end{itemize}
+
+\bf Yielding from a protothread
+
+\begin{itemize}
+\item \verb+#define PT_YIELD(pt)+
+
+Yield from the current protothread.
+
+\item \verb+#define PT_YIELD_UNTIL(pt, cond)+
+
+Yield from the protothread until a condition occurs.
+\end{itemize}
+
+\bf Defines
+
+\begin{itemize}
+\item \verb+#define PT_WAITING 0+
+\item \verb+#define PT_YIELDED 1+
+\item \verb+#define PT_EXITED 2+
+\item \verb+#define PT_ENDED 3+
+\end{itemize}
+
+
+\subsubsection{Define Documentation}
+
+\subsubsection{\#define PT\_{}BEGIN(pt)}
+Declare the start of a protothread inside the C function implementing the protothread.
+
+This macro is used to declare the starting point of a protothread. It should be placed at the start of the function in which the protothread runs. All C statements above the \verb+PT_BEGIN()+ invokation will be executed each time the protothread is scheduled.
+
+
+Parameters:
+
+pt A pointer to the protothread control structure.
+
+Definition at line 115 of file pt.h.
+
+
 \end{CJK}
 \end{document}
