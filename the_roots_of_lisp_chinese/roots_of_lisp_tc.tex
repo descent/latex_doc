@@ -1,5 +1,9 @@
 % http://daiyuwen.freeshell.org/gb/rol/roots_of_lisp.tex.gz
-\documentclass[12pt,a4]{article}
+%\documentclass[12pt,a4]{article}
+\documentclass[12pt]{article}
+\usepackage[paperwidth=10.1cm,paperheight=13cm,left=0.3cm,right=0.3cm,bottom=0.5cm,top=0.1cm,nohead,nofoot]{geometry}
+
+
 \usepackage{CJKutf8} %使用CJK套件
 \usepackage{comment}
 
@@ -157,16 +161,14 @@ x})期望{\it
 x}的值是一個表並且返回{\it 
 x}的第一個元素. 
 \begin{verbatim} 
-> (car '(a b c)) a 
+> (car '(a b c)) 
+a 
 \end{verbatim} 
 \item 
-(cdr 
-{\it 
-x})期望{\it 
-x}的值是一個表並且返回{\it 
-x}的第一個元素之後的所有元素. 
+(cdr {\it x})期望{\it x}的值是一個表並且返回 {\it x} 的第一個元素之後的所有元素. 
 \begin{verbatim} 
-> (cdr '(a b c)) (b c) 
+> (cdr '(a b c)) 
+(b c) 
 \end{verbatim} 
 \item 
 (cons 
@@ -180,10 +182,14 @@ x}的值,
 面跟著{\it 
 y}的值的各個元素. 
 \begin{verbatim} 
-> (cons 'a '(b c)) (a b c) 
-> (cons 'a (cons 'b (cons 'c '()))) (a b c) 
-> (car (cons 'a '(b c))) a 
-> (cdr (cons 'a '(b c))) (b c) 
+> (cons 'a '(b c)) 
+(a b c) 
+> (cons 'a (cons 'b (cons 'c '()))) 
+(a b c) 
+> (car (cons 'a '(b c))) 
+a 
+> (cdr (cons 'a '(b c))) 
+(b c) 
 \end{verbatim} 
 \item 
 (cond 
@@ -199,17 +205,17 @@ p}表達式,相應的{\it
 e}表達式的值作為整個cond表達式的 
 返回值. 
 \begin{verbatim} 
-> (cond ((eq 'a 'b) 'first) ((atom 'a) 'second)) second 
+> (cond ((eq 'a 'b) 'first) 
+        ((atom 'a) 'second)) 
+second 
 \end{verbatim} 
 當表達式以七個原始操作符中的五個開頭時,它的自變量總是要求值的.\footnote{以另外兩個操作符quote和cond開頭的表達式以不同的方式求值. 
 當 
 quote表達式求值時, 
 它的自變量不被求值,而是作為整個表達式的值返回. 
-在 
-一個正確的cond表達式中, 
+在一個正確的cond表達式中, 
 只有L形路徑上的子表達式會被求值.} 
-我們稱這樣 
-的操作符為{\em 
+我們稱這樣的操作符為{\em 
 函數}. 
 \end{enumerate} 
 \section{函數的表示} 
@@ -220,8 +226,7 @@ e}),其中
 \pone\dots\pn是原子(叫做{\em 
 參數}),{\it 
 e}是表達式. 
-如果表達式的第一個元素形式如 
-上 
+如果表達式的第一個元素形式如上 
 \noindent{\tt 
 ((lambda 
 (\pone\dots\pn) 
@@ -237,8 +242,12 @@ e}的
 e}中的{$p_{i}$}的值是相應的{$a_{i}$}在最近一 
 次的函數調用中的值. 
 \begin{verbatim} 
-> ((lambda (x) (cons x '(b))) 'a) (a b) 
-> ((lambda (x y) (cons x (cdr y))) 'z '(a b c)) (z b c) 
+> ((lambda (x) (cons x '(b))) 'a) 
+(a b) 
+> ((lambda (x y) (cons x (cdr y))) 
+   'z 
+   '(a b c)) 
+(z b c) 
 \end{verbatim} 
 如果一個表達式的第一個元素{\it 
 f}是原子且{\it 
@@ -260,7 +269,9 @@ e})
 \noindent的值. 
 換句話說,參數在表達式中不但可以作為自變量也可以作為操作符使用: 
 \begin{verbatim} 
-> ((lambda (f) (f '(b c))) '(lambda (x) (cons 'a x))) (a b c) 
+> ((lambda (f) (f '(b c))) 
+   '(lambda (x) (cons 'a x))) 
+(a b c) 
 \end{verbatim} 
 有另外一個函數記號使得函數能提及它本身,這樣我們就能方便地定義遞歸函 
 數.\footnote{邏輯上我們不需要為了這定義一個新的記號. 
