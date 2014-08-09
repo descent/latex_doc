@@ -1,0 +1,691 @@
+\documentclass[12pt,a4]{article}
+% 轉成 PDF 時，產生 hyperlink 的效果
+%\usepackage{CJK} %使用CJK套件
+\usepackage{CJKutf8} %使用CJK套件
+\usepackage{comment}
+\usepackage{type1cm}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+% 在使用 latex2html 可以處理中文
+%\begin{htmlonly}
+%\usepackage{taiwan}
+%\end{htmlonly}
+%\usepackage{cwtex}
+%\usepackage{html}
+%\usepackage{appendix}
+
+\usepackage{hyperref} % 最好保证 hyperref 是最后加载的宏包
+\hypersetup{%
+%  dvipdfmx,% 设定要使用的 driver 为 dvipdfmx
+  dvips,% 设定要使用的 driver 为 dvipdfmx
+  unicode={true},% 使用 unicode 来编码 PDF 字符串
+  pdfstartview={FitH},% 文档初始视图为匹配宽度
+  bookmarksnumbered={true},% 书签附上章节编号
+  bookmarksopen={true},% 展开书签
+  pdfborder={0 0 0},% 链接无框
+  pdftitle={autobuild tools},
+  pdfauthor={descent},
+  pdfsubject={develop tools},
+  pdfkeywords={autobuild},
+  pdfcreator={ps2pdf},
+  pdfproducer={PDF 制作程序},% 这个好像没起作用？
+}
+
+
+%\begin{htmlonly}
+
+
+%\end{htmlonly}
+
+%\renewcommand{\appendixpagenam}{附錄}
+
+\parindent=0cm
+\parskip=20pt
+
+% 標題頁
+% 正文
+\begin{document}
+%\renewcommand{\abstractname}{\r18 摘要}
+%\renewcommand{\figurename}{\m11 圖}
+%\renewcommand{\contentsname}{\r20 目錄}
+\renewcommand{\abstractname}{摘要}
+\renewcommand{\figurename}{圖}
+\renewcommand{\contentsname}{目錄}
+\begin{CJK}{UTF8}{bsmi} %開始CJK環境，設定編碼，設定字體
+
+%\begin{htmlonly}
+\include{descent}
+%\end{htmlonly}
+
+\newpage
+%\addtocontents{toc}{text}
+\tableofcontents
+\addcontentsline{toc}{section}{abstract}
+%\addcontentsline{toc}{section}{REFERENCE}
+\newpage
+
+
+\begin{abstract}
+晧
+
+本文件介紹如何使用 autoconf, automake, libtool
+來產生編譯原始碼所需要的檔案, ex : configure, Makefile ...
+\end{abstract}
+\newpage
+
+\section{autobuild 簡介}
+GNU autobuild 系統包含了 autoconf, automake, libtool。
+autoconf 需要編寫 configure.ac,
+automake 需要編寫 Makefile.am,
+
+configure.ac 由 M4 巨集和 shell script 構成。
+所以在 configure.ac 可以看到 M4 巨集和 shell script。
+而 configure.ac 可以先用 autoscan 來產生一個範本 (configure.scan),
+先複製成 configure.ac 再修改需要的 M4 巨集即可。
+
+automake 則是用來產生 Makefile.in, 再讓 configure 根據 Makefile.in
+產生 Makefile。
+
+libtool 則是產生 static/shared library 的 script。
+
+\section{autobuild 版本}
+
+autoscan (GNU Autoconf) 2.59
+Written by David J. MacKenzie and Akim Demaille.
+
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+autoconf (GNU Autoconf) 2.59
+Written by David J. MacKenzie and Akim Demaille.
+
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+
+automake (GNU automake) 1.9.5
+Written by Tom Tromey <tromey@redhat.com>.
+
+Copyright 2005 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+由於各版本的 M4 巨集寫法有些差異, 以下介紹以我目前所接觸的最新版本為主,
+若是之前的版本不一定適用。
+
+\section{hello example C version}\label{c_hello}
+
+這是 C 版本的 hello。
+\begin{verbatim}
+
+#include <stdio.h>
+
+int main()
+{
+  printf("hello\n");
+  return 0;
+}
+\end{verbatim}
+
+\begin{verbatim}
+
+$ autoscan
+autom4te: configure.ac: no such file or directory
+autoscan: /usr/bin/autom4te failed with exit status: 1
+
+\end{verbatim}
+configure.scan 內容:
+\begin{verbatim}
+
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
+AC_CONFIG_SRCDIR([hello.c])
+AC_CONFIG_HEADER([config.h])
+
+# Checks for programs.
+AC_PROG_CC
+
+# Checks for libraries.
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_OUTPUT
+\end{verbatim}
+
+\begin{verbatim}
+
+$ cp  configure.scan configure.ac
+\end{verbatim}
+
+現在我們要修改  configure.ac, 使其符合我們的需要。
+首先先移除 \verb+ AC_CONFIG_HEADER([config.h])+,
+因為目前我們沒有用到 config.h。
+
+加入和 automake 有關的 M4 巨集。
+\begin{verbatim}
+AM_INIT_AUTOMAKE
+AC_CONFIG_FILES(Makefile)
+\end{verbatim}
+
+\verb+AM_INIT_AUTOMAKE+ 初始化 automake。
+\verb+AC_CONFIG_FILES(Makefile)+ 會由 Makefile.in 來產生 Makefile,
+而 Makefile.in 由 Makefile.am 來產生。
+
+
+修改 \verb+AC_INIT+ 參數:
+\verb+AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)+
+應該很直覺, FULL-PACKAGE-NAME \verb+->+ hello,
+VERSION \verb+->+ 0.1,
+BUG-REPORT-ADDRESS \verb+->+ \verb+descent@gmail.com+。
+這三個參數分別為 package 的 name, 版本, bug report 到那裡。
+以下為修改後的 configure.ac:
+\begin{verbatim}
+
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT(hello, 0.1, descent@gmail.com)
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([hello.c])
+
+#AC_CONFIG_HEADER([config.h])
+
+# Checks for programs.
+AC_PROG_CC
+AC_CONFIG_FILES(Makefile)
+
+# Checks for libraries.
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_OUTPUT
+\end{verbatim}
+
+再來看看 Makefile.am
+
+\begin{verbatim}
+bin_PROGRAMS=hello
+hello_SOURCES=hello.c
+\end{verbatim}
+
+這個更直覺, 完全不需要解釋了吧！？
+
+再來便是執行一系列的程式來產生所需要的檔案了。
+
+\begin{verbatim}
+aclocal
+autoconf
+automake -a
+\end{verbatim}
+
+第一次執行 automake -a 會有以下的訊息：
+\begin{verbatim}
+automake: Makefile.am: required file `./NEWS' not found
+automake: Makefile.am: required file `./README' not found
+automake: Makefile.am: required file `./AUTHORS' not found
+automake: Makefile.am: required file `./ChangeLog' not found
+\end{verbatim}
+
+這是因為 automake 需要這些檔案, 而 automake 無法自動產生,
+所以我們自己來產生。
+\begin{verbatim}
+$ touch NEWS README AUTHOR ChangeLog
+\end{verbatim}
+
+再執行 automake -a 一次。
+應該就沒問題了。
+
+執行 configure script 看看有無錯誤。
+
+\begin{verbatim}
+./configure
+make
+\end{verbatim}
+來測試看有沒有正確產生 hello, 並執行看看。
+
+\begin{verbatim}
+make distcheck
+\end{verbatim}
+
+會作一系列的測試, 並產生 hello-0.1.tar.gz,
+hello, 0.1 就是 \verb+AC_INIT+ 的前兩個參數。
+可以試試看
+
+\begin{verbatim}
+make install
+make distclean
+\end{verbatim}
+
+這些 makefile rule。 如何？
+是不是比自己寫 makfile 容易多了。
+
+
+\section{hello example C++ version}
+
+這是 C++ 版本的 hello。
+\begin{verbatim}
+
+#include <iostream>
+
+
+int main()
+{
+  using namespace std;
+
+  cout << "hello" << endl;
+  return 0;
+}
+\end{verbatim}
+
+一樣先執行 autoscan, 再把 configure.scan copy 成 configure.ac。
+autoscan 會得知目前的語言是 C++ 語言, 並會產生相對應的 M4 巨集。
+修改方式和 C 版本的 hello 一樣, 注意 \verb+AC_PROG_CXX+,
+這會測試是否有 C++ compiler, 也就是 g++。
+照著 section \ref{c_hello} 再執行一遍, 應該可以順利成功。
+
+由於我大部份使用 C++, 所以下面的例子全部以 C++ 為主。
+
+
+\section{加入 libtool}
+
+\subsection{libtool 簡介}
+libtool 是用來產生 library 的 script,
+可以用來產生 shared/static library。
+由於每個系統產生 library 的方法不同, libtool 把有支援到的平台,
+以同樣的方式來產生 library。
+
+下面的命令可以產生 static/shared library。
+\begin{verbatim}
+libtool --mode=link g++ -o libgraph.la svga.lo shape.lo \
+geometry.lo view.lo painter.lo draw.lo color_convert.lo \
+-rpath /usr/local/lib
+\end{verbatim}
+
+而 libtool 命令會去執行下面的 g++ 命令。
+
+\begin{verbatim}
+g++ -shared   .libs/svga.o .libs/shape.o .libs/geometry.o \
+.libs/view.o .libs/painter.o .libs/draw.o .libs/color_convert.o  \
+-lstdc++ -lm -lc -lgcc_s   -Wl,-soname -Wl,libgraph.so.0 \
+-o .libs/libgraph.so.0.0.0
+(cd .libs && rm -f libgraph.so.0 && ln -s libgraph.so.0.0.0 libgraph.so.0)
+(cd .libs && rm -f libgraph.so && ln -s libgraph.so.0.0.0 libgraph.so)
+ar cru .libs/libgraph.a  svga.o shape.o geometry.o view.o painter.o \
+draw.o color_convert.o
+ranlib .libs/libgraph.a
+creating libgraph.la
+(cd .libs && rm -f libgraph.la && ln -s ../libgraph.la libgraph.la)
+$ exit
+\end{verbatim}
+
+在 autoconf, automake 加入一些 M4 巨集及變數, 便可以呼叫 libtool 來幫我們產生
+library。想要單獨使用 libtool 的朋友, 請自行參考 libtool 手冊。 
+
+\subsection{加入 libtool 支援}
+在 configure.ac 新增 \verb+AC_PROG_LIBTOOL+, 就可以了。
+至於 Makefile.am:
+
+\begin{verbatim}
+bin_PROGRAMS=hello1
+hello1_SOURCES=hello1.cpp
+hello1_LDADD=libh.la
+lib_LTLIBRARIES=libh.la
+libh_la_SOURCES=h.cpp h.h
+\end{verbatim}
+
+新的變數名稱有:
+\begin{verbatim}
+hello1_LDADD=libh.la
+lib_LTLIBRARIES=libh.la
+libh_la_SOURCES=h.cpp h.h
+\end{verbatim}
+
+\verb+hello1_LDADD+ 會讓 hello1.o 和 libh.la 作 link,
+\verb+lib_LTLIBRARIES+ 會用 libtool 產生 libh.la, 會有 shared/static 兩種,
+在 .lib 目錄裡。
+\verb+libh_la_SOURCES+ 這個 library 的原始程式。
+
+\verb+libh_la+ 就是將 libh.la 的 . 符號以 \verb+_+ 替換掉,
+若是 library 檔名為 libabc.la 就以 \verb+libabc_la_SOURCES+ 為 Makefile.am 的變數名稱。
+
+
+
+接著執行
+\begin{verbatim}
+aclocal
+autoconf
+libtoolize --force 
+automake -a
+\end{verbatim}
+
+\verb+libtoolize --force+ 會產生新的 script 檔案,
+\begin{verbatim}
+config.guess
+config.sub
+ltmain.sh'
+\end{verbatim}
+
+以下是完整的 configure.ac
+\begin{verbatim}
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([hello1.cpp])
+#AC_CONFIG_HEADER([config.h])
+
+AC_PROG_LIBTOOL
+
+AC_CONFIG_FILES([Makefile])
+
+# Checks for programs.
+AC_PROG_CXX
+
+# Checks for libraries.
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_OUTPUT
+\end{verbatim}
+
+以下是完整的 Makefile.am
+\begin{verbatim}
+bin_PROGRAMS=hello1
+hello1_SOURCES=hello1.cpp 
+hello1_LDADD=libh.la
+lib_LTLIBRARIES=libh.la 
+libh_la_SOURCES=h.cpp h.h
+\end{verbatim}
+
+所有原始碼檔案:
+\begin{verbatim}
+h.cpp  hello1.cpp  hello2.cpp  h.h
+\end{verbatim}
+
+hello1.cpp hello2.cpp 是兩個含有 main 的程式檔案,
+h.h h.cpp 則含有一個 function 來讓 hello1.cpp hello2.cpp 呼叫,
+也是構成 libh.la library 的原始程式。
+
+\section{產生兩個以上的執行檔}
+這很容易,
+把 Makefile.am 改成
+
+\begin{verbatim}
+bin_PROGRAMS=hello1 hello2
+hello1_SOURCES=hello1.cpp 
+hello1_LDADD=libh.la
+hello2_SOURCES=hello2.cpp 
+hello2_LDADD=libh.la
+lib_LTLIBRARIES=libh.la 
+libh_la_SOURCES=h.cpp h.h
+\end{verbatim}
+
+產生 hello2 相關的變數 (\verb+hello2_SOURCES+, \verb+hello2_LDADD+), \verb+bin_PROGRAMS+ 則加入一個 hello2。以此類推就可以產生多個執行檔。
+
+
+\section{使用 config.h}
+
+
+經由 autobuild 產生的 Makefile 會產生很多的 -D 巨集定義,
+\verb+AC_CONFIG_HEADER([config.h])+
+可以產生 config.h 裡面會定義一些巨集,
+而我們的程式
+
+
+\begin{verbatim}
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+\end{verbatim}
+
+即可使用這些巨集定義,
+而 Makefile 也不會有很多的 -DAAA -DBBB -DCCC,
+可以減少 Makefile 的大小。
+
+
+這是在還沒有使用
+\verb+AC_CONFIG_HEADER([config.h])+
+所產生的 Makefile 其中的巨集定義。
+
+\begin{verbatim}
+DEFS = -DPACKAGE_NAME=\"FULL-PACKAGE-NAME\" -DPACKAGE_TARNAME=\"full-package-name\" -DPACKAGE_VERSION=\"VERSION\" -DPACKAGE_STRING=\"FULL-PACKAGE-NAME\ VERSION\" -DPACKAGE_BUGREPORT=\"BUG-REPORT-ADDRESS\" -DPACKAGE=\"full-package-name\" -DVERSION=\"VERSION\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1
+\end{verbatim}
+
+在使用
+\verb+AC_CONFIG_HEADER([config.h])+
+之後, Makefile 的 DEFS 如下：
+
+\begin{verbatim}
+DEFS = -DHAVE_CONFIG_H
+\end{verbatim}
+
+所有的巨集定義都在 config.h 裡了。
+
+
+\begin{verbatim}
+/* config.h.  Generated by configure.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#define HAVE_DLFCN_H 1
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#define HAVE_INTTYPES_H 1
+
+/* Define to 1 if you have the `vga' library (-lvga). */
+#define HAVE_LIBVGA 1
+
+/* Define to 1 if you have the `vgagl' library (-lvgagl). */
+#define HAVE_LIBVGAGL 1
+
+/* Define to 1 if you have the <memory.h> header file. */
+#define HAVE_MEMORY_H 1
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#define HAVE_STDINT_H 1
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#define HAVE_STDLIB_H 1
+
+/* Define to 1 if you have the <strings.h> header file. */
+#define HAVE_STRINGS_H 1
+
+/* Define to 1 if you have the <string.h> header file. */
+#define HAVE_STRING_H 1
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#define HAVE_SYS_STAT_H 1
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#define HAVE_SYS_TYPES_H 1
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#define HAVE_UNISTD_H 1
+
+/* Name of package */
+#define PACKAGE "svgalib_test"
+
+/* Define to the address where bug reports for this package should be sent. */
+#define PACKAGE_BUGREPORT "descent@gmail.com"
+
+/* Define to the full name of this package. */
+#define PACKAGE_NAME "svgalib_test"
+
+/* Define to the full name and version of this package. */
+#define PACKAGE_STRING "svgalib_test 0.0.1"
+
+/* Define to the one symbol short name of this package. */
+#define PACKAGE_TARNAME "svgalib_test"
+
+/* Define to the version of this package. */
+#define PACKAGE_VERSION "0.0.1"
+
+/* Define to 1 if you have the ANSI C header files. */
+#define STDC_HEADERS 1
+
+/* Version number of package */
+#define VERSION "0.0.1"
+
+/* Define to empty if `const' does not conform to ANSI C. */
+/* #undef const */
+\end{verbatim}
+
+
+執行
+\begin{verbatim}
+aclocal
+autoconf
+autoheader
+libtoolize --force 
+automake -a
+\end{verbatim}
+
+現在要多執行一支程式: autoheader, 用來產生 config.h。
+
+
+\section{把原始碼放到 src 的目錄裡}
+建立 src 目錄, 將 source code (*.cpp, *.h) 移到 src,
+將原本的 Makefile.am 也移到 src,
+修改 confiure.ac
+
+
+\begin{verbatim}
+AC_CONFIG_FILES([Makefile src/Makefile])
+\end{verbatim}
+
+表示要在原始碼目錄和 src 目錄產生 Makefile,
+接著在原始碼目錄新增一個 Makefile.am,
+其內容為:
+
+\begin{verbatim}
+SUBDIRS = src
+\end{verbatim}
+
+
+執行
+\begin{verbatim}
+aclocal
+autoconf
+autoheader
+libtoolize --force 
+automake -a
+\end{verbatim}
+
+執行 configure,
+在原始碼目錄可以看見 Makefile, config.h,
+而 src 目錄也會產生 Makefile。
+
+
+\section{撰寫自己的 M4 測試}
+以下的例子會檢查 svgalib 和 libjpeg 是否系統有這兩個 library。
+\begin{verbatim}
+
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT(jpeglib_test, 0.0.1, descent@gmail.com)
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([jpeg.cpp])
+AC_PROG_LIBTOOL
+AC_CONFIG_HEADER([config.h])
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AC_CONFIG_FILES([Makefile])
+
+# Checks for libraries.
+#AC_CHECK_LIB([vga],main,,[echo "not find svgalib vgagl.";exit 1],)
+#AC_CHECK_LIB([vgagl],main,,[echo "not find svgalib vga .";exit 1],[-lvga])
+
+AC_LANG_PUSH([C++])
+ORG_LIBS="LIBS"
+AC_SUBST([CONFIG_SVGALIB_LIB],["-lvga -lvgagl"])
+AC_MSG_CHECKING([we need to link svgalib lib])
+LIBS="$CONFIG_SVGALIB_LIB $LIBS"
+AC_LINK_IFELSE(
+[AC_LANG_PROGRAM(
+  [[
+    #include <vga.h>
+    #include <vgagl.h>
+  ]],
+  [[
+    vga_init();
+    int mode=G320x200x256;
+    vga_setmode(mode);
+    gl_setcontextvga(mode);
+    vga_setmode(TEXT);
+  ]]
+)],
+[CONFIG_SVGALIB_LIB="-lvga -lvgagl"; AC_MSG_RESULT(yes);],
+[AC_MSG_RESULT(no), CONFIG_SVGALIB_LIB="" ; exit;]
+)
+
+LIBS=$ORG_LIBS
+
+#check jpeg lib
+AC_SUBST([CONFIG_JPEG_LIB],["-ljpeg"])
+AC_MSG_CHECKING([we need to link jpeg lib])
+
+LIBS="$CONFIG_JPEG_LIB $LIB"
+
+AC_LINK_IFELSE(
+[AC_LANG_PROGRAM(
+  [[
+    #include <cstdio> // this shoule before jpeg header file
+    #include <cstdlib> // this shoule before jpeg header file
+    #include <jpeglib.h>
+    #include <jerror.h>
+
+  ]],
+  [[
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+
+    cinfo.err = jpeg_std_error (&jerr);
+
+  ]]
+)],
+[CONFIG_JPEG_LIB="-ljpeg"; AC_MSG_RESULT(yes);],
+[AC_MSG_RESULT(no), CONFIG_JPEG_LIB=""; echo "no"; exit;]
+)
+
+LIBS=$ORG_LIBS
+
+AC_LANG_POP([C++])
+
+LIBS="$CONFIG_JPEG_LIB $CONFIG_SVGALIB_LIB"
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+# Checks for library functions.
+AC_OUTPUT
+\end{verbatim}
+
+
+%\section{支援 cross compile}
+
+\end{CJK}
+\end{document}
