@@ -198,7 +198,7 @@ when an expression beginning with that operator is evaluated.)。
 
 接著我們定義一個用來描述函數的記號。函數表示為
 (lambda (\pone\dots\pn) {\it e}),
-其中 \pone\dots\pn 是 atom (叫做{\em 參數}),
+其中 \pone\dots\pn 是 atom (叫做{\em 參數 (parameters)}),
 {\it e} 是表達式。如果表達式的第一個元素是像這樣的表達式\\
 {\tt ((lambda (\pone\dots\pn) {\it e}) \aone\dots\an)} \\
 則稱為{\em 函數呼叫 (funcation call)}。它的值計算如下。每一個表達式
@@ -228,7 +228,9 @@ then the value of the expression is the value of
 並且 {\it f} 的值是一個函數 (lambda (\pone\dots\pn) {\it e}),
 則以上表達式的值就是\\
 {\tt ((lambda (\pone\dots\pn) {\it e}) \aone\dots\an) }\\ 
-的值。換句話說, 參數在表達式中不但可以作為自變量也可以作為操作符使用: 
+的值。換句話說, 參數 (parameters) 在表達式中不但可以作為引數 (arguments)
+\footnote{descent: parameters, arguments 可參考: http://msdn.microsoft.com/zh-tw/library/9kewt1b3.aspx}
+也可以作為 operators 使用: 
 
 In other words, parameters can be used as operators in expressions as well as
 arguments:
