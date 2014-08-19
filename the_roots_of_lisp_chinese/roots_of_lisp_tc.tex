@@ -641,15 +641,17 @@ Common Lisp 中運行.
 pairs, 
 因為你不需要它來理解eval. 
 我也沒有提apply, 
-雖然是 apply (它的早期形式, 主要作用是引用引數), 被約翰麥卡錫在 1960 年稱為普遍函數, 
-eval 只是不過是被 apply 調用的子程序來完成所有的工作. 
+雖然是 apply (它的早期形式, 主要是引用 (quote) 引數), 在 1960 被約翰麥卡錫稱為普遍函數
+(universal function), 
+eval 只不過是被 apply 呼叫用的一個子程序藉以完成所有的工作. 
 
-我定義了 list 和 c{\it x}r 等作為簡記法因為麥卡錫就是這麼做的. 
-實際上 c{\it x}r等可以 被定義為普通的函數.  List也可以這樣, 如果我們修改eval, 
+我定義了 list 和 c{\it x}r 等作為簡記法是因為麥卡錫就是這麼做的。
+實際上 c{\it x}r等可以被定義為普通的函數 (ordinary functions)。List
+也可以這樣, 如果我們修改 eval, 
 這很容易做到, 讓函數可以接受任意數目的引數.  
 
 麥卡錫的論文中只有五個 primitive operators. 
-他使用了cond和quote, 但可能把它們作為他的元語言的一部分. 
+他使用了cond和quote, 但可能把它們作為他的元語言 (metalanguage) 的一部分. 
 同樣他也沒有定義邏輯操作符and和not, 
 這不是個問題, 
 因為它們可以被定義成合適的函數. 
