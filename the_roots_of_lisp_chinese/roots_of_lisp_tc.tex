@@ -320,8 +320,12 @@ e}))的簡記, 它返回{\it
 e}的 
 第二個元素. 
 \begin{verbatim} 
-> (cadr '((a b) (c d) e)) (c d) 
-> (caddr '((a b) (c d) e)) e > (cdar '((a b) (c d) e)) (b) 
+> (cadr '((a b) (c d) e)) 
+(c d) 
+> (caddr '((a b) (c d) e)) 
+e 
+> (cdar '((a b) (c d) e)) 
+(b) 
 \end{verbatim} 
 我們還用(list 
 \eone\dots\en)表示(cons 
@@ -330,25 +334,10 @@ e}的
 '()) 
 \dots). 
 \begin{verbatim} 
-> 
-(cons 
-'a 
-(cons 
-'b 
-(cons 
-'c 
-'()))) 
-(a 
-b 
-c) 
-> 
-(list 
-'a 
-'b 
-'c) 
-(a 
-b 
-c) 
+> (cons 'a (cons 'b (cons 'c '()))) 
+(a b c) 
+> (list 'a 'b 'c) 
+(a b c) 
 \end{verbatim} 
 現在我們定義一些新函數. 
 我在函數名後面加了點, 以區別函數和定義它們的原 
@@ -360,19 +349,11 @@ Lisp的函數衝突.
 {\it 
 x})測試它的自變量是否是空表. 
 \begin{verbatim} 
-(defun 
-null. 
-(x) 
-(eq 
-x 
-'())) 
-> 
-(null. 
-'a) 
+(defun null.  (x) 
+  (eq x '())) 
+> (null.  'a) 
 () 
-> 
-(null. 
-'()) 
+> (null.  '()) 
 t 
 \end{verbatim} 
 \item 
@@ -382,34 +363,12 @@ x
 y})返回t如果它的兩個自變量都是t, 
 否則返回(). 
 \begin{verbatim} 
-(defun 
-and. 
-(x 
-y) 
-(cond 
-(x 
-(cond 
-(y 
-'t) 
-('t 
-'()))) 
-('t 
-'()))) 
-> 
-(and. 
-(atom 
-'a) 
-(eq 
-'a 
-'a)) 
+(defun and.  (x y) 
+  (cond (x (cond (y 't) ('t '()))) 
+        ('t '()))) 
+> (and.  (atom 'a) (eq 'a 'a)) 
 t 
-> 
-(and. 
-(atom 
-'a) 
-(eq 
-'a 
-'b)) 
+> (and.  (atom 'a) (eq 'a 'b)) 
 () 
 \end{verbatim} 
 \item 
@@ -417,25 +376,12 @@ t
 {\it 
 x})返回t如果它的自變量返回(), 返回()如果它的自變量返回t. 
 \begin{verbatim} 
-(defun 
-not. 
-(x) 
-(cond 
-(x 
-'()) 
-('t 
-'t))) 
-> 
-(not. 
-(eq 
-'a 
-'a)) 
+(defun not.  (x) 
+  (cond (x '()) 
+        ('t 't))) 
+> (not.  (eq 'a 'a)) 
 () 
-> 
-(not. 
-(eq 
-'a 
-'b)) 
+> (not.  (eq 'a 'b)) 
 t 
 \end{verbatim} 
 \item 
@@ -444,39 +390,13 @@ t
 x 
 y})取兩個表並返回它們的連結. 
 \begin{verbatim} 
-(defun 
-append. 
-(x 
-y) 
-(cond 
-((null. 
-x) 
-y) 
-('t 
-(cons 
-(car 
-x) 
-(append. 
-(cdr 
-x) 
-y))))) 
-> 
-(append. 
-'(a 
-b) 
-'(c 
-d)) 
-(a 
-b 
-c 
-d) 
-> 
-(append. 
-'() 
-'(c 
-d)) 
-(c 
-d) 
+(defun append.  (x y) 
+  (cond ((null.  x) y) 
+    ('t (cons (car x) (append.  (cdr x) y))))) 
+> (append.  '(a b) '(c d)) 
+(a b c d) 
+> (append.  '() '(c d)) 
+(c d) 
 \end{verbatim} 
 \item 
 (pair. 
@@ -485,48 +405,12 @@ x
 y})取兩個相同長度的表, 返回一個由雙元素表構成的表, 雙元素表是相 
 應位置的x, y的元素對. 
 \begin{verbatim} 
-(defun 
-pair. 
-(x 
-y) 
-(cond 
-((and. 
-(null. 
-x) 
-(null. 
-y)) 
-'()) 
-((and. 
-(not. 
-(atom 
-x)) 
-(not. 
-(atom 
-y))) 
-(cons 
-(list 
-(car 
-x) 
-(car 
-y)) 
-(pair. 
-(cdr) 
-(cdr 
-y)))))) 
-> 
-(pair. 
-'(x 
-y 
-z) 
-'(a 
-b 
-c)) 
-((x 
-a) 
-(y 
-b) 
-(z 
-c)) 
+(defun pair.  (x y) 
+(cond ((and.  (null.  x) (null.  y)) '()) 
+  ((and.  (not.  (atom x)) (not.  (atom y))) 
+    (cons (list (car x) (car y)) (pair.  (cdr) (cdr y)))))) 
+> (pair.  '(x y z) '(a b c)) 
+((x a) (y b) (z c)) 
 \end{verbatim} 
 \item 
 (assoc. 
@@ -539,39 +423,12 @@ y}中第一個符合如下條
 件的表的第二個元素:它的第一個元素是{\it 
 x}. 
 \begin{verbatim} 
-(defun 
-assoc. 
-(x 
-y) 
-(cond 
-((eq 
-(caar 
-y) 
-x) 
-(cadar 
-y)) 
-('t 
-(assoc. 
-x 
-(cdr 
-y))))) 
-> 
-(assoc. 
-'x 
-'((x 
-a) 
-(y 
-b))) 
+(defun assoc.  (x y) 
+  (cond ((eq (caar y) x) (cadar y)) 
+    ('t (assoc.  x (cdr y))))) 
+> (assoc.  'x '((x a) (y b))) 
 a 
-> 
-(assoc. 
-'x 
-'((x 
-new) 
-(x 
-a) 
-(y 
-b))) 
+> (assoc.  'x '((x new) (x a) (y b))) 
 new 
 \end{verbatim} 
 \end{enumerate} 
@@ -583,166 +440,38 @@ new
 數取任意Lisp表達式作自變量並返回它的值. 
 如下所示: 
 \begin{verbatim} 
-(defun 
-eval. 
-(e 
-a) 
-(cond 
-((atom 
-e) 
-(assoc. 
-e 
-a)) 
-((atom 
-(car 
-e)) 
-(cond 
-((eq 
-(car 
-e) 
-'quote) 
-(cadr 
-e)) 
-((eq 
-(car 
-e) 
-'atom) 
-(atom 
-(eval. 
-(cadr 
-e) 
-a))) 
-((eq 
-(car 
-e) 
-'eq) 
-(eq 
-(eval. 
-(cadr 
-e) 
-a) 
-(eval. 
-(caddr 
-e) 
-a))) 
-((eq 
-(car 
-e) 
-'car) 
-(car 
-(eval. 
-(cadr 
-e) 
-a))) 
-((eq 
-(car 
-e) 
-'cdr) 
-(cdr 
-(eval. 
-(cadr 
-e) 
-a))) 
-((eq 
-(car 
-e) 
-'cons) 
-(cons 
-(eval. 
-(cadr 
-e) 
-a) 
-(eval. 
-(caddr 
-e) 
-a))) 
-((eq 
-(car 
-e) 
-'cond) 
-(evcon. 
-(cdr 
-e) 
-a)) 
-('t 
-(eval. 
-(cons 
-(assoc. 
-(car 
-e) 
-a) 
-(cdr 
-e)) 
-a)))) 
-((eq 
-(caar 
-e) 
-'label) 
-(eval. 
-(cons 
-(caddar 
-e) 
-(cdr 
-e)) 
-(cons 
-(list 
-(cadar 
-e) 
-(car 
-e)) 
-a))) 
-((eq 
-(caar 
-e) 
-'lambda) 
-(eval. 
-(caddar 
-e) 
-(append. 
-(pair. 
-(cadar 
-e) 
-(evlis. 
-(cdr 
-e) 
-a)) 
-a))))) 
-(defun 
-evcon. 
-(c 
-a) 
-(cond 
-((eval. 
-(caar 
-c) 
-a) 
-(eval. 
-(cadar 
-c) 
-a)) 
-('t 
-(evcon. 
-(cdr 
-c) 
-a)))) 
-(defun 
-evlis. 
-(m 
-a) 
-(cond 
-((null. 
-m) 
-'()) 
-('t 
-(cons 
-(eval. 
-(car 
-m) 
-a) 
-(evlis. 
-(cdr 
-m) 
-a))))) 
+(defun eval.  (e a) 
+  (cond 
+    ((atom e) (assoc.  e a)) 
+    ((atom (car e)) 
+      (cond 
+        ((eq (car e) 'quote) (cadr e)) 
+        ((eq (car e) 'atom) (atom (eval.  (cadr e) a))) 
+        ((eq (car e) 'eq) (eq (eval.  (cadr e) a) 
+                              (eval.  (caddr e) a))) 
+        ((eq (car e) 'car) (car (eval.  (cadr e) a))) 
+        ((eq (car e) 'cdr) (cdr (eval.  (cadr e) a))) 
+        ((eq (car e) 'cons) (cons (eval.  (cadr e) a) 
+                                  (eval.  (caddr e) a))) 
+        ((eq (car e) 'cond) (evcon.  (cdr e) a)) 
+        ('t (eval.  (cons (assoc.  (car e) a) 
+                          (cdr e)) 
+                    a)))) 
+      ((eq (caar e) 'label) 
+       (eval.  (cons (caddar e) (cdr e)) 
+               (cons (list (cadar e) (car e)) a))) 
+      ((eq (caar e) 'lambda) 
+       (eval.  (caddar e) 
+               (append.  (pair.  (cadar e) (evlis.  (cdr e) a)) 
+                         a))))) 
+(defun evcon.  (c a) 
+  (cond ((eval.  (caar c) a) 
+         (eval.  (cadar c) a)) 
+        ('t (evcon.  (cdr c) a)))) 
+(defun evlis.  (m a) 
+  (cond ((null.  m) '()) 
+        ('t (cons (eval.  (car m) a) 
+                  (evlis.  (cdr m) a))))) 
 \end{verbatim} 
 eval.的定義比我們以前看到的都要長. 
 讓我們考慮它的每一部分是如何工作的. 
@@ -761,13 +490,7 @@ eval.的骨架是一個有四個子句的cond表達式.
 如果e是原子, 
 我們在環境中尋找它的值: 
 \begin{verbatim} 
-> 
-(eval. 
-'x 
-'((x 
-a) 
-(y 
-b))) 
+> (eval.  'x '((x a) (y b))) 
 a 
 \end{verbatim} 
 第二個子句是另一個cond, 
@@ -780,26 +503,11 @@ a}是原子.
 括所有的原始操作符, 
 每個對應一條子句. 
 \begin{verbatim} 
-> 
-(eval. 
-'(eq 
-'a 
-'a) 
-'()) 
+> (eval.  '(eq 'a 'a) '()) 
 t 
-> 
-(eval. 
-'(cons 
-x 
-'(b 
-c)) 
-'((x 
-a) 
-(y 
-b))) 
-(a 
-b 
-c) 
+> (eval.  '(cons x '(b c)) 
+          '((x a) (y b))) 
+(a b c) 
 \end{verbatim} 
 這幾個子句(除了quote)都調用eval.來尋找自變量的值. 
 最後兩個子句更複雜些. 
@@ -810,17 +518,9 @@ evcon.的輔助函數.
 了這樣的子句, 
 它返回此子句的第二個元素. 
 \begin{verbatim} 
-> 
-(eval. 
-'(cond 
-((atom 
-x) 
-'atom) 
-('t 
-'list)) 
-'((x 
-'(a 
-b)))) 
+> (eval.  '(cond ((atom x) 'atom) 
+                 ('t 'list)) 
+          '((x '(a b)))) 
 list 
 \end{verbatim} 
 第二個子句的最後部分處理函數調用. 
@@ -828,37 +528,15 @@ list
 或label表達式)然後對所得結果表達式求值. 
 於是 
 \begin{verbatim} 
-(eval. 
-'(f 
-'(b 
-c)) 
-'((f 
-(lambda 
-(x) 
-(cons 
-'a 
-x))))) 
+(eval.  '(f '(b c)) 
+        '((f (lambda (x) (cons 'a x))))) 
 \end{verbatim} 
 變為 
 \begin{verbatim} 
-(eval. 
-'((lambda 
-(x) 
-(cons 
-'a 
-x)) 
-'(b 
-c)) 
-'((f 
-(lambda 
-(x) 
-(cons 
-'a 
-x))))) 
+(eval.  '((lambda (x) (cons 'a x)) '(b c)) 
+        '((f (lambda (x) (cons 'a x))))) 
 \end{verbatim} 
-它返回(a 
-b 
-c). 
+它返回(a b c). 
 eval.的最後cond兩個子句處理第一個元素是lambda或label的函數調用.為了對label 
 表達式求值, 
 先把函數名和函數本身壓入環境, 
@@ -866,58 +544,23 @@ eval.的最後cond兩個子句處理第一個元素是lambda或label的函數調
 lambda的表達式求值. 
 即: 
 \begin{verbatim} 
-(eval. 
-'((label 
-firstatom 
-(lambda 
-(x) 
-(cond 
-((atom 
-x) 
-x) 
-('t 
-(firstatom 
-(car 
-x)))))) 
-y) 
-'((y 
-((a 
-b) 
-(c 
-d))))) 
+(eval.  '((label firstatom (lambda (x) 
+                             (cond ((atom x) x) 
+                                   ('t (firstatom (car x)))))) 
+          y) 
+        '((y ((a b) (c d))))) 
 \end{verbatim} 
 變為 
 \begin{verbatim} 
-(eval. 
-'((lambda 
-(x) 
-(cond 
-((atom 
-x) 
-x) 
-('t 
-(firstatom 
-(car 
-x))))) 
-y) 
-'((firstatom 
-(label 
-firstatom 
-(lambda 
-(x) 
-(cond 
-((atom 
-x) 
-x) 
-('t 
-(firstatom 
-(car 
-x))))))) 
-(y 
-((a 
-b) 
-(c 
-d))))) 
+(eval.  '((lambda (x) 
+            (cond ((atom x) x) 
+                  ('t (firstatom (car x))))) 
+         y) 
+        '((firstatom 
+           (label firstatom (lambda (x) 
+                              (cond ((atom x) x) 
+                                    ('t (firstatom (car x))))))) 
+          (y ((a b) (c d))))) 
 \end{verbatim} 
 最終返回a. 
 最後, 對形如((lambda 
@@ -933,33 +576,15 @@ e})
 e}求值. 
 於是 
 \begin{verbatim} 
-(eval. 
-'((lambda 
-(x 
-y) 
-(cons 
-x 
-(cdr 
-y))) 
-'a 
-'(b 
-c 
-d)) 
-'()) 
+(eval.  '((lambda (x y) (cons x (cdr y))) 
+          'a 
+          '(b c d)) 
+        '()) 
 \end{verbatim} 
 變為 
 \begin{verbatim} 
-(eval. 
-'(cons 
-x 
-(cdr 
-y)) 
-'((x 
-a) 
-(y 
-(b 
-c 
-d)))) 
+(eval.  '(cons x (cdr y)) 
+        '((x a) (y (b c d)))) 
 \end{verbatim} 
 最終返回(a 
 c 
@@ -989,45 +614,20 @@ Lisp的目標之一.
 沒有動態可視域. 
 但這些限制可 
 以令人驚訝地用極少的額外代碼來補救. 
-Steele和Sussman在一篇叫做``解釋器 
-的藝術''的著名論文中描述了如何做到這點.\footnote{Guy 
-Lewis 
-Steele, 
-Jr. 
-and 
-Gerald 
-Jay 
-Sussman, 
-``The 
-Art 
-of 
-the 
-Interpreter, 
-or 
-the 
-Modularity 
-Complex(Parts 
-Zero, One, and 
-Two), '' 
-MIT 
-AL 
-Lab 
-Memo 
-453, 
-May 
-1978.} 
-如果你理解了約翰麥卡錫的eval, 
-那你就不僅僅是理解了程序語言歷史中的一個 
-階段. 
+Steele和Sussman
+在一篇叫做``解釋器的藝術''的著名論文中描述了如何做到這點.\footnote{Guy 
+Lewis Steele, Jr.  and Gerald Jay Sussman, ``The Art of the Interpreter, 
+or the Modularity Complex(Parts Zero, One, and Two), '' 
+MIT AL Lab Memo 453, May 1978.} 
+如果你理解了約翰麥卡錫的 eval, 
+那你就不僅僅是理解了程序語言歷史中的一個階段. 
 這些思想至今仍是Lisp的語義核心. 
 所以從某種意義上, 
-學習約翰麥卡 
-錫的原著向我們展示了Lisp究竟是什麼. 
+學習約翰麥卡錫的原著向我們展示了Lisp究竟是什麼. 
 與其說Lisp是麥卡錫的設計, 不如說是 
 他的發現. 
 它不是生來就是一門用於人工智能, 
-快速原型開發或同等層次任務的 
-語言. 
+快速原型開發或同等層次任務的語言. 
 它是你試圖公理化計算的結果(之一). 
 隨著時間的推移, 
 中級語言, 
@@ -1037,14 +637,12 @@ May
 因此通過理解eval你正在明白將來的主流計算模式會是什麼樣. 
 \section{註釋} 
 把約翰麥卡錫的記號翻譯為代碼的過程中我儘可能地少做改動. 
-我有過讓代碼 
-更容易閱讀的念頭, 
+我有過讓代碼更容易閱讀的念頭, 
 但是我還是想保持原汁原味. 
 在約翰麥卡錫的論文中, 假用f來表示, 
 而不是空表. 
-我用空表表示假以使例子能 
-在Common 
-Lisp中運行. 
+我用空表表示假以使例子能在
+Common Lisp 中運行. 
 (fixme) 
 我略過了構造dotted 
 pairs, 
@@ -1076,91 +674,42 @@ List也可以這樣,
 符定義的函數調用都可以用eval.來代替. 
 即 
 \begin{verbatim} 
-(assoc. 
-(car 
-e) 
-a) 
+(assoc.  (car e) a) 
 \end{verbatim} 
 能寫成 
 \begin{verbatim} 
-(eval. 
-'((label 
-assoc. 
-(lambda 
-(x 
-y) 
-(cond 
-((eq 
-(caar 
-y) 
-x) 
-(cadar 
-y)) 
-('t 
-(assoc. 
-x 
-(cdr 
-y)))))) 
-(car 
-e) 
+(eval.  '((label assoc. 
+(lambda (x y) 
+(cond ((eq (caar y) x) (cadar y)) 
+('t (assoc.  x (cdr y)))))) 
+(car e) 
 a) 
-(cons 
-(list 
-'e 
-e) 
-(cons 
-(list 
-'a 
-a) 
-a))) 
+(cons (list 'e e) (cons (list 'a a) a))) 
 \end{verbatim} 
 麥卡錫的eval有一個錯誤. 
-第16行是(相當於)(evlis. 
-(cdr 
-e) 
-a)而不是(cdr 
-e), 
+第16行是(相當於)(evlis.  (cdr e) a)而不是(cdr e), 
 這使得自變量在一個有名函數的調用中被求值兩次. 
-這顯示當論文發表的 
-時候, 
-eval的這種描述還沒有用IBM 
-704機器語言實現. 
-它還證明了如果不去運 
-行程序, 
+這顯示當論文發表的時候, 
+eval的這種描述還沒有用 IBM 704 機器語言實現. 
+它還證明了如果不去運行程序, 
 要保證不管多短的程序的正確性是多麼困難. 
 我還在麥卡錫的論文中碰到一個問題. 
 在定義了eval之後, 
-他繼續給出了一些 
-更高級的函數---接受其它函數作為自變量的函數. 
+他繼續給出了一些更高級的函數---接受其它函數作為自變量的函數. 
 他定義了maplist: 
 \begin{verbatim} 
-(label 
-maplist 
-(lambda 
-(x 
-f) 
-(cond 
-((null 
-x) 
-'()) 
-('t 
-(cons 
-(f 
-x) 
-(maplist 
-(cdr 
-x) 
-f)))))) 
+(label maplist 
+(lambda (x f) 
+(cond ((null x) '()) 
+('t (cons (f x) (maplist (cdr x) f)))))) 
 \end{verbatim} 
 然後用它寫了一個做微分的簡單函數diff. 
 但是diff傳給maplist一個用{\it 
-x}做參 
-數的函數, 
+x}做參數的函數, 
 對它的引用被maplist中的參數x所捕獲.\footnote{當代的Lisp程序 
 員在這兒會用mapcar代替maplist. 
 這個例子解開了一個謎團: 
-maplist為什 
-麼會在Common 
+maplist為什麼會在Common 
 Lisp中. 
 它是最早的映射函數, 
 mapcar是後來增加的.} 
@@ -1168,12 +717,11 @@ mapcar是後來增加的.}
 即使是最早的更高級函數的例子也因為 
 它而出錯. 
 可能麥卡錫在1960年還沒有充分意識到動態可視域的含意. 
-動態可 
-視域令人驚異地在Lisp實現中存在了相當長的時間---直到Sussman和Steele於 
+動態可視域令人驚異地在Lisp實現中存在了相當長的時間---直到
+Sussman和Steele於 
 1975年開發了Scheme. 
 詞法可視域沒使eval的定義複雜多少, 
-卻使編譯器更難 
-寫了. 
+卻使編譯器更難寫了. 
 %\end{comment}
 \newpage 
 \end{CJK} 
