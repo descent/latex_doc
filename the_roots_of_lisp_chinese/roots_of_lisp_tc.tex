@@ -3,10 +3,27 @@
 \documentclass[12pt]{article}
 \usepackage[paperwidth=10.1cm, paperheight=13cm, left=0.3cm, right=0.3cm, bottom=0.5cm, top=0.1cm, nohead, nofoot]{geometry}
 
+\parindent=0cm
+\parskip=13pt
 
 \usepackage{CJKutf8} %使用CJK套件
 \usepackage{comment}
 
+\usepackage{hyperref} % 最好保证 hyperref 是最后加载的宏包
+\hypersetup{%
+  dvipdfmx,% 设定要使用的 driver 为 dvipdfmx
+  unicode={true},% 使用 unicode 来编码 PDF 字符串
+  pdfstartview={FitH},% 文档初始视图为匹配宽度
+  bookmarksnumbered={true},% 书签附上章节编号
+  bookmarksopen={true},% 展开书签
+  pdfborder={0 0 0},% 链接无框
+  pdftitle={The Roots of Lisp 中文版本},
+  pdfauthor={Paul Graham},
+  pdfsubject={The Roots of Lisp 中文版本},
+  pdfkeywords={lisp},
+  pdfcreator={应用程序},
+  pdfproducer={PDF 制作程序},% 这个好像没起作用？
+}
 
 \begin{document} 
 \begin{CJK}{UTF8}{bsmi} %開始CJK環境，設定編碼，設定字體
@@ -26,19 +43,17 @@
 \newcommand{\vn}{$v_{n}$} 
 \newcommand{\eone}{$e_{1}$} 
 \newcommand{\en}{$e_{n}$} 
-約翰麥卡錫於1960年發表了一篇非凡的論文, 他在這篇論文中對編程的貢獻有如 
-歐幾里德對幾何的貢獻.\footnote{``Recursive Functions of Symbolic Expressions and Their Computation by Machine, Part1.'' 
+約翰麥卡錫於1960年發表了一篇非凡的論文,
+他在這篇論文中對編程的貢獻有如歐幾里德對幾何的貢獻.\footnote{``Recursive
+Functions of Symbolic Expressions and Their Computation by Machine, Part1.'' 
 {\it Communication of the ACM} 3:4, April 1960, pp. 184-195.} 
-他向我們展示了, 在只給定幾個簡單的操作符和一個 
-表示函數的記號的基礎上, 
+他向我們展示了, 在只給定幾個簡單的操作符和一個表示函數的記號的基礎上, 
 如何構造出一個完整的編程語言. 
-麥卡錫稱這種語 
-言為Lisp, 
+麥卡錫稱這種語言為Lisp, 
 意為 
 List 
 Processing, 
-因為他的主要思想之一是用一種簡單的資料 
-結構表(list)來代表代碼和資料. 
+因為他的主要思想之一是用一種簡單的資料結構表(list)來代表代碼和資料. 
 
 值得注意的是, 麥卡錫所作的發現, 不僅是計算機史上劃時代的大事, 
 而且是一種在我們這個時代編程越來越趨向的模式.我認為目前為止只有兩種真正乾淨利落, 
@@ -55,15 +70,10 @@ Lisp的不同尋常之處---也就是它優質的定義---是它能夠自己來�
 為了理解約翰麥卡錫所表述的這個特點, 我們將追溯他的步伐, 並將他的數學標記 
 轉換成能夠運行的 Common Lisp 代碼. 
 
-\section{七個原始操作符} 
-開始我們先定義{\em 
-表達式}.表達式或是一個{\em 
-原子}(atom), 它是一個字母序列(如 
-foo), 或是一個由零個或多個表達式組成的{\em 
-表}(list), 
-表達式之間用空格分開, 
-放入一對括號中. 
-以下是一些表達式: 
+\section{七個 primitive operators} 
+開始我們先定義{\em 表達式 (expression)}。表達式要麼是一個{\em 原子}(atom),
+它是一個字母序列 (如 foo), 要麼是由零個或多個表達式組成的{\em 表}(list), 
+表達式之間用空格分開, 放入一對括號中。以下是一些表達式: 
 \begin{verbatim} 
 foo 
 () 
@@ -79,7 +89,7 @@ foo
 如果表達式{\it e}得出值{\it v}, 我們說{\it e}{\em 返回}{\it v}. 
 下一步我們將定義幾種表達式以及它們的返回值. 
 
-如果一個表達式是表, 我們稱第一個元素為{\em 操作符}, 其餘的元素為{\em 自變量}.我們將定義七個原始
+如果一個表達式是表, 我們稱第一個元素為{\em operator}, 其餘的元素為{\em 引數}.我們將定義七個原始
 (從公理的意義上說)操作符: 
 quote, atom, eq, car, cdr, cons, 和 cond. 
 
@@ -115,7 +125,7 @@ x}的值是一個原子或是空表, 否則返回().
 > (atom '(a b c)) () 
 > (atom '()) t 
 \end{verbatim} 
-既然有了一個自變量需要求值的操作符, 
+既然有了一個引數需要求值的操作符, 
 我們可以看一下 quote 的作用. 
 通過引用 (quote) 一個表, 我們避免它被求值. 
 一個未被引用的表作為參數傳給 atom 這樣的操作符將被視為代碼 (code): 
@@ -183,7 +193,7 @@ e}表達式的值作為整個cond表達式的返回值.
     ((atom 'a) 'second)) 
 second 
 \end{verbatim} 
-這 7 個原始操作符 (primitive operator) 其中的 5 個, 當一個表達式是以該操作符作為開頭被求值時, 他們的參數也會被求值
+這 7 個 primitive operator 其中的 5 個, 當一個表達式是以該操作符作為開頭被求值時, 他們的參數也會被求值
 (In five of our seven primitive operators, the arguments are always evaluated 
 when an expression beginning with that operator is evaluated.)。
 \footnote{以另外兩個操作符 quote 和 cond 開頭的表達式以不同的方式求值.
@@ -194,7 +204,6 @@ when an expression beginning with that operator is evaluated.)。
 \end{enumerate} 
 
 \section{函數的表示} 
-
 
 接著我們定義一個用來描述函數的記號。函數表示為
 (lambda (\pone\dots\pn) {\it e}),
@@ -305,20 +314,11 @@ else
 z} 
 } 
 \section{一些函數} 
-既然我們有了表示函數的方法, 我們根據七個原始操作符來定義一些新的函數. 
-為了方便我們引進一些常見模式的簡記法. 
-我們用c{\it 
-x}r, 其中{\it 
-x}是a或d的序列, 來 
-簡記相應的car和cdr的組合. 
-比如(cadr 
-{\it 
-e})是(car 
-(cdr 
-{\it 
-e}))的簡記, 它返回{\it 
-e}的 
-第二個元素. 
+既然我們有了表示函數的方法, 我們可以根據這七個 primitive operators 來定義一些新的函數。
+
+為了方便我們引進一些常見模式的簡記法。
+我們用 c{\it x}r, 其中 {\it x} 是 a 或 d 的序列, 來簡記相應的 car 和 cdr 的組合. 
+比如 (cadr {\it e}) 是 (car (cdr {\it e})) 的簡記, 它返回 {\it e} 的第二個元素. 
 \begin{verbatim} 
 > (cadr '((a b) (c d) e)) 
 (c d) 
@@ -327,12 +327,7 @@ e
 > (cdar '((a b) (c d) e)) 
 (b) 
 \end{verbatim} 
-我們還用(list 
-\eone\dots\en)表示(cons 
-\eone\dots(cons 
-\en 
-'()) 
-\dots). 
+我們還用 (list \eone\dots\en) 表示 (cons \eone\dots(cons \en '()) \dots)。
 \begin{verbatim} 
 > (cons 'a (cons 'b (cons 'c '()))) 
 (a b c) 
@@ -340,14 +335,10 @@ e
 (a b c) 
 \end{verbatim} 
 現在我們定義一些新函數. 
-我在函數名後面加了點, 以區別函數和定義它們的原 
-始函數, 也避免與現存的common 
-Lisp的函數衝突. 
+我在函數名後面加了點, 以區別函數和定義它們的原始函數, 也避免與現存的 common 
+Lisp 的函數衝突. 
 \begin{enumerate} 
-\item 
-(null. 
-{\it 
-x})測試它的自變量是否是空表. 
+\item (null.  {\it x})測試它的引數是否是空表. 
 \begin{verbatim} 
 (defun null.  (x) 
   (eq x '())) 
@@ -360,7 +351,7 @@ t
 (and. 
 {\it 
 x 
-y})返回t如果它的兩個自變量都是t, 
+y})返回t如果它的兩個引數都是t, 
 否則返回(). 
 \begin{verbatim} 
 (defun and.  (x y) 
@@ -374,7 +365,7 @@ t
 \item 
 (not. 
 {\it 
-x})返回t如果它的自變量返回(), 返回()如果它的自變量返回t. 
+x})返回t如果它的引數返回(), 返回()如果它的引數返回t. 
 \begin{verbatim} 
 (defun not.  (x) 
   (cond (x '()) 
@@ -436,8 +427,7 @@ new
 因此我們能夠定義函數來連接表, 替換表達式等等.也許算是一個優美的表示法, 
 那下一步呢? 
 現在驚喜來了. 
-我們可以寫一個函數作為我們語言的解釋器:此函 
-數取任意Lisp表達式作自變量並返回它的值. 
+我們可以寫一個函數作為我們語言的 interpreter : 此函數取任意Lisp表達式作引數並返回它的值. 
 如下所示: 
 \begin{verbatim} 
 (defun eval.  (e a) 
@@ -475,7 +465,7 @@ new
 \end{verbatim} 
 eval.的定義比我們以前看到的都要長. 
 讓我們考慮它的每一部分是如何工作的. 
-eval.有兩個自變量: 
+eval.有兩個引數: 
 e是要求值的表達式, 
 a是由一些賦給原子的值構成的表, 這 
 些值有點象函數調用中的參數. 
@@ -500,7 +490,7 @@ a}
 其中{\it 
 a}是原子. 
 這包 
-括所有的原始操作符, 
+括所有的 primitive operators, 
 每個對應一條子句. 
 \begin{verbatim} 
 > (eval.  '(eq 'a 'a) '()) 
@@ -509,7 +499,7 @@ t
           '((x a) (y b))) 
 (a b c) 
 \end{verbatim} 
-這幾個子句(除了quote)都調用eval.來尋找自變量的值. 
+這幾個子句(除了quote)都調用eval.來尋找引數的值. 
 最後兩個子句更複雜些. 
 為了求cond表達式的值我們調用了一個叫 
 evcon.的輔助函數. 
@@ -568,7 +558,7 @@ lambda的表達式求值.
 {\it 
 e}) 
 \aone\dots\an)的表達式求值, 先調用evlis.來 
-求得自變量(\aone\dots\an)對應的值(\vone\dots\vn), 把(\pone 
+求得引數(\aone\dots\an)對應的值(\vone\dots\vn), 把(\pone 
 \vone)\dots(\pn 
 \vn)添加到 
 環境裡, 
@@ -592,17 +582,17 @@ d).
 \section{後果} 
 既然理解了eval是如何工作的, 
 讓我們回過頭考慮一下這意味著什麼. 
-我們在這 
-兒得到了一個非常優美的計算模型. 
+我們在這兒得到了一個非常優美的計算模型. 
 僅用quote, atom, eq, car, cdr, cons, 和cond, 
-我們定義了函數eval., 它事實上實現了我們的語言, 用它可以定義任何我們想要 
-的額外的函數. 
+我們定義了函數eval., 它事實上實現了我們的語言, 用它可以定義任何我們想要的額外的函數. 
+
 當然早已有了各種計算模型---最著名的是圖靈機. 
 但是圖靈機程序難以讀懂. 
 如果你要一種描述算法的語言, 
 你可能需要更抽象的, 
 而這就是約翰麥卡錫定義 
 Lisp的目標之一. 
+
 約翰麥卡錫於1960年定義的語言還缺不少東西. 
 它沒有副作用, 
 沒有連續執行 
@@ -615,63 +605,56 @@ Lisp的目標之一.
 但這些限制可 
 以令人驚訝地用極少的額外代碼來補救. 
 Steele和Sussman
-在一篇叫做``解釋器的藝術''的著名論文中描述了如何做到這點.\footnote{Guy 
-Lewis Steele, Jr.  and Gerald Jay Sussman, ``The Art of the Interpreter, 
-or the Modularity Complex(Parts Zero, One, and Two), '' 
+在一篇叫做``interpreter 的藝術''的著名論文中描述了如何做到這點.
+\footnote{Guy Lewis Steele, Jr.  and Gerald Jay Sussman,
+``The Art of the Interpreter, or the Modularity Complex(Parts Zero, One, and Two), '' 
 MIT AL Lab Memo 453, May 1978.} 
+
 如果你理解了約翰麥卡錫的 eval, 
 那你就不僅僅是理解了程序語言歷史中的一個階段. 
 這些思想至今仍是Lisp的語義核心. 
 所以從某種意義上, 
 學習約翰麥卡錫的原著向我們展示了Lisp究竟是什麼. 
-與其說Lisp是麥卡錫的設計, 不如說是 
-他的發現. 
+與其說Lisp是麥卡錫的設計, 不如說是他的發現. 
 它不是生來就是一門用於人工智能, 
 快速原型開發或同等層次任務的語言. 
 它是你試圖公理化計算的結果(之一). 
+
 隨著時間的推移, 
 中級語言, 
 即被中間層程序員使用的語言, 
-正一致地向Lisp靠 
-近. 
+正一致地向Lisp靠近. 
 因此通過理解eval你正在明白將來的主流計算模式會是什麼樣. 
 \section{註釋} 
 把約翰麥卡錫的記號翻譯為代碼的過程中我儘可能地少做改動. 
 我有過讓代碼更容易閱讀的念頭, 
 但是我還是想保持原汁原味. 
+
 在約翰麥卡錫的論文中, 假用f來表示, 
 而不是空表. 
 我用空表表示假以使例子能在
 Common Lisp 中運行. 
+
 (fixme) 
 我略過了構造dotted 
 pairs, 
 因為你不需要它來理解eval. 
 我也沒有提apply, 
-雖然是apply(它的早期形式, 
-主要作用是引用自變量), 
-被約翰麥卡錫在1960年 
-稱為普遍函數, 
-eval只是不過是被apply調用的子程序來完成所有的工作. 
-我定義了list和c{\it 
-x}r等作為簡記法因為麥卡錫就是這麼做的. 
-實際上 
-c{\it 
-x}r等可以 
-被定義為普通的函數. 
-List也可以這樣, 
-如果我們修改eval, 
-這很容易做到, 
-讓 
-函數可以接受任意數目的自變量. 
-麥卡錫的論文中只有五個原始操作符. 
-他使用了cond和quote, 但可能把它們作 
-為他的元語言的一部分. 
+雖然是 apply (它的早期形式, 主要作用是引用引數), 被約翰麥卡錫在 1960 年稱為普遍函數, 
+eval 只是不過是被 apply 調用的子程序來完成所有的工作. 
+
+我定義了 list 和 c{\it x}r 等作為簡記法因為麥卡錫就是這麼做的. 
+實際上 c{\it x}r等可以 被定義為普通的函數.  List也可以這樣, 如果我們修改eval, 
+這很容易做到, 讓函數可以接受任意數目的引數.  
+
+麥卡錫的論文中只有五個 primitive operators. 
+他使用了cond和quote, 但可能把它們作為他的元語言的一部分. 
 同樣他也沒有定義邏輯操作符and和not, 
 這不是個問題, 
 因為它們可以被定義成合適的函數. 
-在eval.的定義中我們調用了其它函數如pair.和assoc., 但任何我們用原始操作 
-符定義的函數調用都可以用eval.來代替. 
+
+在eval.的定義中我們調用了其它函數如pair.和assoc.,
+但任何我們用原始操作符定義的函數調用都可以用eval.來代替. 
 即 
 \begin{verbatim} 
 (assoc.  (car e) a) 
@@ -688,14 +671,15 @@ a)
 \end{verbatim} 
 麥卡錫的eval有一個錯誤. 
 第16行是(相當於)(evlis.  (cdr e) a)而不是(cdr e), 
-這使得自變量在一個有名函數的調用中被求值兩次. 
+這使得引數在一個有名函數的調用中被求值兩次. 
 這顯示當論文發表的時候, 
 eval的這種描述還沒有用 IBM 704 機器語言實現. 
 它還證明了如果不去運行程序, 
 要保證不管多短的程序的正確性是多麼困難. 
+
 我還在麥卡錫的論文中碰到一個問題. 
 在定義了eval之後, 
-他繼續給出了一些更高級的函數---接受其它函數作為自變量的函數. 
+他繼續給出了一些更高級的函數---接受其它函數作為引數的函數. 
 他定義了maplist: 
 \begin{verbatim} 
 (label maplist 
@@ -704,24 +688,17 @@ eval的這種描述還沒有用 IBM 704 機器語言實現.
 ('t (cons (f x) (maplist (cdr x) f)))))) 
 \end{verbatim} 
 然後用它寫了一個做微分的簡單函數diff. 
-但是diff傳給maplist一個用{\it 
-x}做參數的函數, 
-對它的引用被maplist中的參數x所捕獲.\footnote{當代的Lisp程序 
-員在這兒會用mapcar代替maplist. 
+但是diff傳給maplist一個用 {\it x} 做參數的函數, 
+對它的引用被maplist中的參數x所捕獲.\footnote{當代的Lisp程序員在這兒會用
+mapcar 代替 maplist. 
 這個例子解開了一個謎團: 
-maplist為什麼會在Common 
-Lisp中. 
-它是最早的映射函數, 
-mapcar是後來增加的.} 
+maplist 為什麼會在 Common Lisp 中. 
+它是最早的映射函數, mapcar 是後來增加的.} 
 這是關於動態可視域危險性的雄辯證據, 
-即使是最早的更高級函數的例子也因為 
-它而出錯. 
-可能麥卡錫在1960年還沒有充分意識到動態可視域的含意. 
-動態可視域令人驚異地在Lisp實現中存在了相當長的時間---直到
-Sussman和Steele於 
-1975年開發了Scheme. 
-詞法可視域沒使eval的定義複雜多少, 
-卻使編譯器更難寫了. 
+即使是最早的更高級函數的例子也因為它而出錯. 
+可能麥卡錫在1960年還沒有充分意識到動態可視域的含意。動態可視域令人驚異地在
+Lisp 實現中存在了相當長的時間---直到 Sussman 和 Steele 於 1975 年開發了 Scheme. 
+詞法可視域沒使 eval 的定義複雜多少, 卻使編譯器更難寫了. 
 %\end{comment}
 \newpage 
 \end{CJK} 
