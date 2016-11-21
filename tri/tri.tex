@@ -1,0 +1,29 @@
+% ref: http://tex.stackexchange.com/questions/110522/how-to-elegantly-create-a-pyramid-hierarchy-in-tikz/110524#110524
+\documentclass{article}
+\usepackage[paperwidth=7cm,paperheight=5cm,left=0.1cm,right=0.1cm,bottom=0.1cm,top=0.1cm,nohead,nofoot]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{intersections}
+
+
+\usepackage{CJKutf8} %使用CJK套件
+\begin{document}
+
+\thispagestyle{empty}
+\begin{CJK}{UTF8}{bsmi} %開始CJK環境, 設定編碼, 設定字體
+
+\begin{tikzpicture}
+\coordinate (A) at (-3,0) {};
+\coordinate (B) at ( 3,0) {};
+\coordinate (C) at (0,4) {};
+\draw[name path=AC] (A) -- (C);
+\draw[name path=BC] (B) -- (C);
+\foreach \y/\A in {0/邏輯分析儀的用法, 1/stm32f4 clock source, 2/spi 用法} {
+    \path[name path=horiz] (A|-0,\y) -- (B|-0,\y);
+    \draw[name intersections={of=AC and horiz,by=P},
+          name intersections={of=BC and horiz,by=Q}] (P) -- (Q)
+        node[midway,above] {\A};
+}
+
+\end{tikzpicture}
+\end{CJK}
+\end{document}
